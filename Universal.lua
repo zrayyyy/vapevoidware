@@ -5901,3 +5901,494 @@ runFunction(function()
 	createKeystroke(Enum.KeyCode.D, UDim2.new(0, 76, 0, 42), UDim2.new(0, 8, 0, 5))
 	createKeystroke(Enum.KeyCode.Space, UDim2.new(0, 0, 0, 83), UDim2.new(0, 25, 0, -10))
 end)
+
+runFunction(function()
+    local CustomAmbience = {Enabled = false}
+	local newsky
+	local tint
+    CustomAmbience = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "LynoSky",
+		HoverText = "Requested By Lyno",
+        Function = function(callback)
+            if callback then
+                game.Lighting.Ambient = Color3.fromRGB(170, 0, 255)
+                tint = Instance.new("ColorCorrectionEffect", game.Lighting)
+                tint.Name = "ComeOn123"
+                tint.TintColor = Color3.fromRGB(225, 200, 255)
+                newsky = Instance.new("Sky", game.Lighting)
+                newsky.Name = "PurpleFakeSky"
+                newsky.SkyboxBk = "rbxassetid://8539982183"
+                newsky.SkyboxDn = "rbxassetid://8539981943"
+                newsky.SkyboxFt = "rbxassetid://8539981721"
+                newsky.SkyboxLf = "rbxassetid://8539981424"
+                newsky.SkyboxRt = "rbxassetid://8539980766"
+                newsky.SkyboxUp = "rbxassetid://8539981085"
+                newsky.MoonAngularSize = 0
+                newsky.SunAngularSize = 0
+                newsky.StarCount = 3e3
+            else
+                game.Lighting.Ambient = Color3.fromRGB(69, 69, 69)
+                tint:Destroy()
+                newsky:Destroy()
+            end
+        end
+    })
+end)
+
+runFunction(function()
+	local BubbleMods = {}
+	local BubbleModsColorToggle = {}
+	local BubbleModsTextSizeToggle = {}
+	local BubbleModsTextColorToggle = {}
+	local BubbleModsTextSize = {Value = 16}
+	local BubbleModsTextColor = {Hue = 0, Sat = 0, Value = 0}
+	local BubbleModsColor = {Hue = 0, Sat = 0, Value = 0}
+	local chatbubbles = {}
+	local function bubbleFunction(bubble)
+		pcall(function() 
+			local name = 'ChatBubbleFrame'
+			if core:FindFirstChild('BubbleChat') then 
+				name = 'Frame' 
+			end
+			if tostring(bubble) ~= name and tostring(bubble) ~= 'RoundedFrame' then 
+				return 
+			end
+			if BubbleModsColorToggle.Enabled then 
+				bubble.BackgroundColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value)
+				pcall(function() bubble.Parent.Caret.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+				pcall(function() bubble.Parent.Carat.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+			end
+			if BubbleModsTextColorToggle.Enabled then 
+				pcall(function() bubble.Text.TextColor3 = Color3.fromHSV(BubbleModsTextColor.Hue, BubbleModsTextColor.Sat, BubbleModsTextColor.Value) end)
+				pcall(function() bubble.Contents.Ellipsis.TextColor3 = Color3.fromHSV(BubbleModsTextColor.Hue, BubbleModsTextColor.Sat, BubbleModsTextColor.Value) end)
+			end
+			if BubbleModsTextSizeToggle.Enabled then 
+				pcall(function() bubble.Text.TextSize = BubbleModsTextSize.Value end)
+				pcall(function() bubble.Contents.Ellipsis.TextSize = BubbleModsTextSize.Value end)
+			end
+			table.insert(chatbubbles, bubble)
+		end)
+	end
+	BubbleMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'BubbleMods',
+		HoverText = 'Mods the bubble chat experience.',
+		Function = function(calling) 
+			if calling then 
+				local bubblechat = (core:FindFirstChild('ExperienceChat') and core.ExperienceChat.bubbleChat or core:FindFirstChild('BubbleChat') or Instance.new('ScreenGui'))
+				for i,v in next, bubblechat:GetDescendants() do 
+					bubbleFunction(v)
+				end
+				table.insert(BubbleMods.Connections, bubblechat.DescendantAdded:Connect(bubbleFunction))
+			else 
+				for i,v in next, chatbubbles do 
+					pcall(function() v.Text.TextColor3 = Color3.fromRGB(57, 59, 61) end)
+					pcall(function() v.Text.TextSize = 16 end)
+					pcall(function() v.Parent.Carat.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+				end
+			end
+		end
+	})
+	BubbleModsColorToggle = BubbleMods.CreateToggle({
+		Name = 'Background Color',
+		Function = function(calling)
+			pcall(function() BubbleModsColor.Object.Visible = calling end)
+		end
+	})
+	BubbleModsTextColorToggle = BubbleMods.CreateToggle({
+		Name = 'Text Color',
+		Function = function(calling)
+			pcall(function() BubbleModsTextColor.Object.Visible = calling end)
+		end
+	})
+	BubbleModsTextSizeToggle = BubbleMods.CreateToggle({
+		Name = 'Text Size',
+		Function = function(calling)
+			pcall(function() BubbleModsTextSize.Object.Visible = calling end)
+		end
+	})
+	BubbleModsColor = BubbleMods.CreateColorSlider({
+		Name = 'Background Color',
+		Function = function()
+			if BubbleModsColorToggle.Enabled then 
+				for i,v in next, chatbubbles do 
+					pcall(function() 
+						v.BackgroundColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) 
+						pcall(function() v.Parent.Caret.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+						pcall(function() v.Parent.Carat.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+					end)
+				end  
+			end
+		end
+	})
+	BubbleModsTextColor = BubbleMods.CreateColorSlider({
+		Name = 'Text Color',
+		Function = function()
+			if BubbleModsTextColorToggle.Enabled then   
+				for i,v in next, chatbubbles do 
+					pcall(function() v.Text.TextColor3 = Color3.fromHSV(BubbleModsTextColor.Hue, BubbleModsTextColor.Sat, BubbleModsTextColor.Value) end)
+					pcall(function() v.Contents.Ellipsis.TextColor3 =  Color3.fromHSV(BubbleModsTextColor.Hue, BubbleModsTextColor.Sat, BubbleModsTextColor.Value) end) 
+				end 
+			end
+		end
+	})
+	BubbleModsTextSize = BubbleMods.CreateSlider({
+		Name = 'Text Size',
+		Min = 10,
+		Max = 23,
+		Function = function(size)
+			if BubbleModsTextSizeToggle.Enabled then 
+				for i,v in next, chatbubbles do 
+					pcall(function() v.Text.TextSize = 16 end)
+					pcall(function() v.Contents.Ellipsis.TextSize = BubbleModsTextSize.Value end)
+				end 
+			end
+		end
+	})
+	BubbleModsColor.Object.Visible = false 
+	BubbleModsTextColor.Object.Visible = false
+	BubbleModsTextSize.Object.Visible = false
+end)
+
+runFunction(function()
+	local Translation = {}
+	local language = {Value = 'chinese'} 
+	local oldnames = {}
+	local sitrequests = 0
+	local function addtranslated(old, translated)
+		if not isfolder('vape/Voidware/translations') then 
+			makefolder('vape/Voidware/translations') 
+		end
+		local success, data = pcall(function()
+			return httpService:JSONDecode(readfile('vape/Voidware/translations/'..language.Value:lower()..'.json')) 
+		end) 
+		if type(data) ~= 'table' then data = {} end 
+		data[old] = translated 
+		writefile('vape/Voidware/translations/'..language.Value:lower()..'.json', httpService:JSONEncode(data))
+	end
+	local function translatedata(text)
+		local success, data = pcall(function()
+			return httpService:JSONDecode(readfile('vape/Voidware/translations/'..language.Value:lower()..'.json')) 
+		end) 
+		if type(data) ~= 'table' then data = {} end  
+		if data[text] then 
+			return (data[text] ~= '' and data[text])
+		end
+		local timeTaken = tick()
+		local translation = httprequest({Url = 'https://translate.renderintents.xyz', Method = 'GET', Headers = {Language = language.Value, Text = text}}) 
+		sitrequests += 1
+		if translation.StatusCode == 200 then 
+			local new = httpService:JSONDecode(translation.Body).translated
+			addtranslated(text, new) 
+			timeTaken = (tick() - timeTaken) 
+			if timeTaken < 10 and sitrequests >= 9 then -- site rate limits lol 
+				task.wait(10 - timeTaken)
+				sitrequests = 0
+			end
+			return (new ~= '' and new)
+		end
+	end
+	Translation = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'Translation',
+		HoverText = 'Translates stuff in vape.',
+		Function = function(calling) 
+			if calling then 
+				for i,v in next, GuiLibrary.ObjectsThatCanBeSaved do 
+					if v.Type == 'OptionsButton' and i ~= 'TranslationOptionsButton' then
+						pcall(function()
+							if not Translation.Enabled then return end
+							local translated = translatedata(v.Object.ButtonText.Text)
+							if translated and Translation.Enabled then 
+								oldnames[i] = {ApiText = v.Api.Name, ObjectText = v.Object.ButtonText.Text}
+								v.Object.ButtonText.Text = translated
+								v.Api.Name = translated
+								if v.Api.Enabled then 
+									GuiLibrary.UpdateTextGUI() 
+								end
+							end 
+						end)
+					end 
+				end
+			else
+				if vapeInjected then 
+					for i,v in next, oldnames do 
+						GuiLibrary.ObjectsThatCanBeSaved[i].Object.ButtonText.Text = v.ObjectText
+						GuiLibrary.ObjectsThatCanBeSaved[i].Api.Name = v.ApiText 
+					end
+					GuiLibrary.UpdateTextGUI()  
+					table.clear(oldnames)
+				end
+			end 
+		end
+	})
+	language = Translation.CreateDropdown({
+		Name = 'Language', 
+		List = {'Spanish', 'French', 'Japanese', 'Chinese', 'Hindi', 'Russian'},
+		Function = function(calling) 
+			task.spawn(function()
+				if calling == false or not shared.VapeFullyLoaded then return end
+				Translation.ToggleButton()
+				if not Translation.Enabled then Translation.ToggleButton() end 
+			end)
+		end,
+	})
+end)
+
+runFunction(function()
+    local CustomFall = {Enabled = false}
+	local CustomFallMode = {Value = 'Velocity'}
+	local CustomFallVelocity = {Value = 100}
+	local CustomFallGravity = {Value = 500}
+	local CustomFallRaycast = {Value = 2}
+	local function groundcheck()
+		local rayst = lplr.Character.HumanoidRootPart.Position
+		local rayed = rayst - vec(0, lplr.Character.HumanoidRootPart.Size.Y / 2 + CustomFallRaycast.Value, 0)
+		local hitpt = workspace:FindPartOnRay(rayst, rayed, lplr.Character)
+		return hitpt and hitpt:IsA('Part')
+	end
+    CustomFall = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+        Name = 'CustomFall',
+		HoverText = 'Customizes your fall',
+        Function = function(callback)
+            if callback then
+                task.spawn(function()
+					repeat task.wait()
+						if CustomFallMode.Value == 'Velocity' then
+							local bvelo = Instance.new('BodyVelocity')
+							bvelo.Velocity = vec(0, -CustomFallVelocity.Value, 0)
+							bvelo.MaxForce = vec(0, math.huge, 0)
+							bvelo.Parent = lplr.Character.HumanoidRootPart
+							if groundcheck() then
+								bvelo.Velocity = vec(0, 0, 0)
+							else
+								bvelo.Velocity = vec(0, -CustomFallVelocity.Value, 0)
+							end
+						else
+							workspace.Gravity = -CustomFallGravity.Value
+						end
+					until not CustomFall.Enabled
+				end)
+			else
+				bvelo.Velocity = vec(0, 0, 0)
+				workspace.Gravity = 192.6
+            end
+        end,
+		ExtraText = function()
+			return CustomFallMode.Value
+		end
+    })
+	CustomFallMode = CustomFall.CreateDropdown({
+        Name = 'Mode',
+        List = {
+            'Velocity',
+            'Gravity'
+        },
+		Value = 'Velocity',
+        Function = function() end
+    })
+	CustomFallVelocity = CustomFall.CreateSlider({
+        Name = 'Velocity',
+        Min = 1,
+        Max = 200,
+        Function = function() end,
+        Default = 100
+    })
+	CustomFallGravity = CustomFall.CreateSlider({
+        Name = 'Gravity',
+        Min = 1,
+        Max = 1000,
+        Function = function() end,
+        Default = 500
+    })
+	CustomFallRaycast = CustomFall.CreateSlider({
+        Name = 'Raycast',
+        Min = 1,
+        Max = 5,
+        Function = function() end,
+        Default = 2
+    })
+end)
+
+runFunction(function()
+	local FPSBoost = {Enabled = false}
+	local oldtextures = {}
+	local oldmeshtextures = {}
+	local oldspecialmeshtextures = {}
+	local oldpartmaterials = {}
+	local function applyfpsboostsettings(v)
+		if v:IsA("Texture") then    
+			oldtextures[v] = {object = v, texture = v.Texture}
+			v.Texture = ""
+			table.insert(FPSBoost.Connections, v:GetPropertyChangedSignal("Texture"):Connect(function()
+				v.Texture = ""
+			end))
+		end
+		if v:IsA("MeshPart") then 
+			oldmeshtextures[v] = {object = v, texture = v.TextureID, material = v.Material}
+			v.TextureID = ""
+			table.insert(FPSBoost.Connections, v:GetPropertyChangedSignal("TextureID"):Connect(function()
+				v.TextureID = ""
+			end))
+			v.Material = Enum.Material.SmoothPlastic
+		end
+		if v:IsA("SpecialMesh") then
+			oldspecialmeshtextures[v] = {object = v, texture = v.TextureId}
+			v.TextureId = ""
+			table.insert(FPSBoost.Connections, v:GetPropertyChangedSignal("TextureId"):Connect(function()
+				v.TextureId = ""
+			end))
+		end 
+		if v:IsA("Part") then
+			oldpartmaterials[v] = {object = v, color = v.Color, material = v.Material}
+			v.Material = Enum.Material.SmoothPlastic
+			v.Color = Color3.fromRGB(255, 255, 255)
+			table.insert(FPSBoost.Connections, v:GetPropertyChangedSignal("Color"):Connect(function()
+				v.Color = Color3.fromRGB(255, 255, 255)
+			end))
+		end
+		if v:IsA("UnionOperation") then 
+			oldpartmaterials[v] = {object = v, color = v.Color, material = v.Material}
+			v.Material = Enum.Material.SmoothPlastic
+			v.Color = Color3.fromRGB(255, 255, 255)
+			table.insert(FPSBoost.Connections, v:GetPropertyChangedSignal("Color"):Connect(function()
+				v.Color = Color3.fromRGB(255, 255, 255)
+			end))
+		end
+	end
+	FPSBoost = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = "PerformanceBooster",
+		HoverText = "Removes textures to give u a slight performance boost.",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					for i,v in pairs(workspace:GetDescendants()) do 
+						if not isDescendantOfCharacter(v) then
+						task.spawn(applyfpsboostsettings, v)
+						end
+					end
+					table.insert(FPSBoost.Connections, workspace.DescendantAdded:Connect(function(object)
+						if not isDescendantOfCharacter(v) then
+						task.spawn(applyfpsboostsettings, object)
+						end
+					end))
+				end)
+			else
+				for i,v in pairs(oldtextures) do 
+					pcall(function() v.object.Texture = v.texture end)
+					oldtextures[i] = nil
+				end
+				for i,v in pairs(oldspecialmeshtextures) do 
+					pcall(function() v.object.TextureId = v.texture end)
+					oldspecialmeshtextures[i] = nil
+				end
+				for i,v in pairs(oldmeshtextures) do 
+					pcall(function() v.object.TextureID = v.texture end)
+					pcall(function() v.object.Material = v.material end)
+					oldmeshtextures[i] = nil
+				end
+				for i,v in pairs(oldpartmaterials) do 
+					pcall(function() v.object.Color = v.color end)
+					pcall(function() v.object.Material = v.material end)
+					oldpartmaterials[i] = nil
+				end
+			end
+		end
+	})
+end)
+
+runFunction(function()
+	local ServerHop = {Enabled = false}
+	local ServerHopBestServer = {Enabled = false}
+	local isfindingserver = false
+	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = "ServerHop",
+		HoverText = "Tempts to find and join a new server.",
+		NoSave = true,
+		Function = function(callback)
+			if callback then 
+				task.spawn(function()
+					ServerHop.ToggleButton(false)
+					if isfindingserver then 
+						return 
+					end
+					local server = nil 
+					InfoNotification("ServerHop", "Searching for a new server..", 10)
+					repeat server = findnewserver(false, true, ServerHopBestServer.Enabled) until server 
+					InfoNotification("ServerHop", "Server Found! Joining...", 10)
+					game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, server, lplr)
+				end)
+			end
+		end
+	})
+	ServerHopBestServer = ServerHop.CreateToggle({
+		Name = "Most Active",
+		HoverText = "Picks the most active servers.",
+		Default = true,
+		Function = function() end
+	})
+end)
+
+runFunction(function()
+	local AutoRejoin = {Enabled = false}
+	local AutoRejoinServerSwitch = {Enabled = false}
+	local AutoRejoinKick = {Enabled = false}
+	local AutoRejoinSmallServers = {Enabled = false}
+	local AutoRejoinsPlayersToRejoinOn = {Value = 1}
+	local isfindingserver = false
+	AutoRejoin = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = "AutoRejoin",
+		HoverText = "Automatically rejoins a server.",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					repeat task.wait() until shared.VapeFullyLoaded
+					local kickoverlay = game:GetService("CoreGui"):WaitForChild("RobloxPromptGui"):WaitForChild("promptOverlay")
+					if not AutoRejoin.Enabled then return end
+					table.insert(AutoRejoin.Connections, kickoverlay.DescendantAdded:Connect(function(v)
+						if v.Name == "ErrorMessage" then 
+						local newserver = nil 
+						repeat newserver = AutoRejoinServerSwitch.Enabled and findnewserver() or game.JobId and tostring(game.JobId) task.wait() until newserver
+						InfoNotification("AutoRejoin", "Joining a new server..", 5)
+						game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
+						end
+					end))
+					table.insert(AutoRejoin.Connections, runService.Heartbeat:Connect(function()
+						if not AutoRejoinSmallServers.Enabled or isfindingserver then return end 
+						if #playersService:GetPlayers() <= (AutoRejoinsPlayersToRejoinOn.Value + 1) then
+							isfindingserver = true
+							local newserver = nil
+							InfoNotification("AutoRejoin", "Searching for a new server..", 5)
+							repeat newserver = findnewserver(nil, nil, true) task.wait() until newserver
+							if AutoRejoin.Enabled and AutoRejoinSmallServers.Enabled then
+								InfoNotification("AutoRejoin", "Server Found! Joining..", 5)
+								game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
+							end
+						end
+					end))
+				end)
+			end
+		end
+	})
+	AutoRejoinSmallServers = AutoRejoin.CreateToggle({
+		Name = "Switch Servers",
+		HoverText = "Switches servers instead of rejoining",
+		Default = true,
+		Function = function() end
+	})
+	AutoRejoinSmallServers = AutoRejoin.CreateToggle({
+		Name = "Server Size",
+		HoverText = "Rejoins the game when the server\nreaches a certain player size.",
+		Function = function(callback) 
+			pcall(function() AutoRejoinsPlayersToRejoinOn.Object.Visible = callback end)
+			if not callback then 
+				isfindingserver = false 
+			end
+		end
+	})
+	AutoRejoinsPlayersToRejoinOn = AutoRejoin.CreateSlider({
+		Name = "Amount of Players",
+		Min = 0,
+		Max = (tonumber(playersService.MaxPlayers) < 50 and tonumber(playersService.MaxPlayers) - 4) or 25,
+		Function = function() end
+	})
+	AutoRejoinsPlayersToRejoinOn.Object.Visible = AutoRejoinSmallServers.Enabled
+end)
