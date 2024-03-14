@@ -5943,7 +5943,7 @@ runFunction(function()
     })
 end)
 
-runFunction(function()
+--[[runFunction(function()
 	local BubbleMods = {}
 	local BubbleModsColorToggle = {}
 	local BubbleModsTextSizeToggle = {}
@@ -6055,7 +6055,7 @@ runFunction(function()
 	BubbleModsColor.Object.Visible = false 
 	BubbleModsTextColor.Object.Visible = false
 	BubbleModsTextSize.Object.Visible = false
-end)
+end)--]]
 
 runFunction(function()
 	local AutoRejoin = {Enabled = false}
