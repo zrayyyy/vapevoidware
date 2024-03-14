@@ -6362,6 +6362,29 @@ runFunction(function()
 end)
 local RenderStore = {Bindable = {}, raycast = RaycastParams.new(), MessageReceived = Instance.new('BindableEvent'), tweens = {}, ping = 0, platform = inputService:GetPlatform(), LocalPosition = Vector3.zero}
 getgenv().RenderStore = RenderStore
+local getnewserver = function() return nil end
+getnewserver = function(customgame, popular, performance)
+	local players, server = 0, nil
+	local success, serverTable = pcall(function() return httpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/'..(customgame or game.PlaceId)..'/servers/Public?sortOrder=Asc&limit=100', true)) end)
+	if success and type(serverTable) == 'table' and type(serverTable.data) == 'table' then 
+		for i,v in serverTable.data do 
+			if v.id and v.playing and v.maxPlayers and tonumber(v.maxPlayers) > tonumber(v.playing) and tonumber(v.playing) > 0 then 
+				if v.id == tostring(game.JobId) then 
+					continue 
+				end
+				if tonumber(v.playing) < players and popular then 
+					continue
+				end
+				if performance and v.ping and tonumber(v.ping) > 170 then
+					continue
+				end
+				players = tonumber(v.playing)
+				server = v.id
+			end
+		end
+	end
+	return server
+end
 runFunction(function()
 	local ServerHop = {}
 	local ServerHopSort = {Value = 'Popular'}
