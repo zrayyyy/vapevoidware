@@ -6659,7 +6659,7 @@ runFunction(function()
 		Function = function(callback)
 			if callback then 
 				task.spawn(function()
-					loadstring(VoidwareFunctions:GetFile("data/BetterIY.lua"))()
+					loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 				end)
 			end
 		end
