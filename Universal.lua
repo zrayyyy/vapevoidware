@@ -6602,7 +6602,11 @@ LightingTheme = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsBu
 				local success, err = pcall(themetable[LightingThemeType.Value])
 				err = err and " | "..err or ""
 				InfoNotification(success, "LightingTheme", "Failed to load the "..LightingThemeType.Value.." theme."..err, 5)
+				print(success)
+				print(lightingService)
+				print(nil)
 				themesky.Parent = success and lightingService or nil
+				print(themesky.Parent)
 				table.insert(LightingTheme.Connections, lightingService.ChildAdded:Connect(function(v)
 					if success and v:IsA("Sky") then 
 						v.Parent = nil
