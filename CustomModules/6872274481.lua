@@ -10298,6 +10298,17 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	end
 	return target
 end
+local function dumptable(tab, tabtype, sortfunction)
+	local data = {}
+	for i,v in pairs(tab) do
+		local tabtype = tabtype and tabtype == 1 and i or v
+		table.insert(data, tabtype)
+	end
+	if sortfunction and type(sortfunction) == "function" then
+		table.sort(data, sortfunction)
+	end
+	return data
+end
 runFunction(function()
 	local ProjectileAura = {}
 	local ProjectileAuraSort = {Value = 'Distance'}
