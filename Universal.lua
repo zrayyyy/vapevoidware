@@ -6384,22 +6384,22 @@ getnewserver = function(customgame)
 end
 runFunction(function()
 	local ServerHop = {}
-	local ServerHopSort = {Value = 'Popular'}
-	local newserver
-	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = 'ServerHop',
-		Function = function(callback)
-			if callback then 
-				ServerHop.ToggleButton()
-				if RenderStore.serverhopping then 
-					return
+	if httprequest then
+		local servers = {}
+		local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", PlaceId)})
+		local body = HttpService:JSONDecode(req.Body)
+		if body and body.data then
+			for i, v in next, body.data do
+				if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
+					table.insert(servers, 1, v.id)
 				end
-				RenderStore.serverhopping = true
-				InfoNotification('ServerHop', 'Searching for a new server..', 10)
-				repeat newserver = getnewserver(nil) task.wait() until newserver
-				InfoNotification('ServerHop', 'Server Found. Joining..', 10)
-				teleportService:TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
 			end
 		end
-	})
+		if #servers > 0 then
+			InfoNotification("ServerHop", "Server Found! Joining...", 10)
+			TeleportService:TeleportToPlaceInstance(PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
+		else
+			return InfoNotification("Serverhop", "Couldn't find a server.", 10)
+		end
+	end
 end)
