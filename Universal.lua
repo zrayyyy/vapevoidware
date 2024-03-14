@@ -6360,3 +6360,33 @@ runFunction(function()
 	})
 	AutoRejoinsPlayersToRejoinOn.Object.Visible = AutoRejoinSmallServers.Enabled
 end)
+local RenderStore = {Bindable = {}, raycast = RaycastParams.new(), MessageReceived = Instance.new('BindableEvent'), tweens = {}, ping = 0, platform = inputService:GetPlatform(), LocalPosition = Vector3.zero}
+getgenv().RenderStore = RenderStore
+runFunction(function()
+	local ServerHop = {}
+	local ServerHopSort = {Value = 'Popular'}
+	local newserver
+	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'ServerHop',
+		Function = function(callback)
+			if callback then 
+				ServerHop.ToggleButton()
+				if RenderStore.serverhopping then 
+					return
+				end
+				RenderStore.serverhopping = true
+				InfoNotification('ServerHop', 'Searching for a new server..', 10)
+				local popularcheck = ServerHopSort.Value == 'Popular'
+				local performancecheck = ServerHopSort.Value == 'Performance'
+				repeat newserver = getnewserver(nil, popularcheck, performancecheck) task.wait() until newserver
+				InfoNotification('ServerHop', 'Server Found. Joining..', 10)
+				teleportService:TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
+			end
+		end
+	})
+	ServerHopSort = ServerHop.CreateDropdown({
+		Name = 'Sort',
+		List = {'Popular', 'Performance', 'Random'},
+		Function = function() end
+	})
+end)
