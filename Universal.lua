@@ -6,6 +6,7 @@ local textChatService = game:GetService("TextChatService")
 local inputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local replicatedStorageService = game:GetService("ReplicatedStorage")
+local teleportService = game:GetService('TeleportService')
 local tweenService = game:GetService("TweenService")
 local gameCamera = workspace.CurrentCamera
 local lplr = playersService.LocalPlayer
@@ -6371,5 +6372,30 @@ pcall(function()
 				teleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, lplr)
 			end
 		end
+	})
+end)
+
+runFunction(function()
+	local ServerHop = {}
+	local ServerHopSort = {Value = 'Popular'}
+	local newserver
+	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'ServerHop',
+		Function = function(callback)
+			if callback then 
+				ServerHop.ToggleButton()
+				InfoNotification('ServerHop', 'Searching for a new server..', 10)
+				local popularcheck = ServerHopSort.Value == 'Popular'
+				local performancecheck = ServerHopSort.Value == 'Performance'
+				repeat newserver = getnewserver(nil, popularcheck, performancecheck) task.wait() until newserver
+				InfoNotification('ServerHop', 'Server Found. Joining..', 10)
+				teleportService:TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
+			end
+		end
+	})
+	ServerHopSort = ServerHop.CreateDropdown({
+		Name = 'Sort',
+		List = {'Popular', 'Performance', 'Random'},
+		Function = function() end
 	})
 end)
