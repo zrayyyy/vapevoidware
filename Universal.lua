@@ -6,6 +6,9 @@ local textChatService = game:GetService("TextChatService")
 local inputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local replicatedStorageService = game:GetService("ReplicatedStorage")
+if shared == nil then
+	getgenv().shared = {} 
+end
 local teleportService = game:GetService('TeleportService')
 local tweenService = game:GetService("TweenService")
 local gameCamera = workspace.CurrentCamera

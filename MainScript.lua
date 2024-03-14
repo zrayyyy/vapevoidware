@@ -1,4 +1,7 @@
 repeat task.wait() until game:IsLoaded()
+if shared == nil then
+	getgenv().shared = {} 
+end
 local GuiLibrary
 local baseDirectory = (shared.VapePrivate and "vapeprivate/" or "vape/")
 local vapeInjected = true
