@@ -9838,30 +9838,6 @@ runFunction(function()
 end)
 
 runFunction(function()
-    local Disabler = {Enabled = false}
-    Disabler = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-        Name = "FirewallBypass",
-        Function = function(callback)
-            if callback then 
-				task.spawn(function()
-					repeat
-						task.wait()
-						local item = getItemNear("scythe")
-						if item and lplr.Character.HandInvItem.Value == item.tool and bedwars.CombatController then 
-							bedwars.ClientHandler:Get("ScytheDash"):SendToServer({direction = Vector3.new(9e9, 9e9, 9e9)})
-							if entityLibrary.isAlive and entityLibrary.character.Head.Transparency ~= 0 then
-								bedwarsStore.scythe = tick() + 1
-							end
-						end
-					until (not Disabler.Enabled)
-				end)
-            end
-        end,
-		HoverText = "Float disabler with scythe"
-    })
-end)
-
-runFunction(function()
 	bedwarsStore.TPString = shared.vapeoverlay or nil
 	local origtpstring = bedwarsStore.TPString
 	local Overlay = GuiLibrary.CreateCustomWindow({
