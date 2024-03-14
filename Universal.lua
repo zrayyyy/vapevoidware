@@ -13,6 +13,8 @@ local vapeConnections = {}
 local vapeCachedAssets = {}
 local vapeTargetInfo = shared.VapeTargetInfo
 local vapeInjected = true
+local VoidwareQueueStore = shared.VoidwareQueueStore and type(shared.VoidwareQueueStore) == "string" and httpService:JSONDecode(shared.VoidwareQueueStore) or {lastServers = {}}
+shared.VoidwareQueueStore = nil
 table.insert(vapeConnections, workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA("Camera")
 end))
@@ -6294,6 +6296,20 @@ runFunction(function()
 		end
 	})
 end)
+local function betterhttpget(url)
+	local supportedexploit, body = syn and syn.request or http_requst or request or fluxus and fluxus.request, ""
+	if supportedexploit then
+		local data = httprequest({Url = url, Method = "GET"})
+		if data.Body then
+			body = data.Body
+		else
+			return game:HttpGet(url, true)
+		end
+	else
+		body = game:HttpGet(url, true)
+	end
+	return body
+end
 local function findnewserver(customgame, nodouble, bestplayercount, performance)
 	local server, playercount = nil, 0
 	local successful, serverlist = pcall(function() return httpService:JSONDecode(betterhttpget("https://games.roblox.com/v1/games/"..(customgame or game.PlaceId).."/servers/Public?sortOrder=Asc&limit=100")) end)
