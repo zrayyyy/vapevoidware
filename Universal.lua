@@ -6399,7 +6399,7 @@ runFunction(function()
 				end
 				RenderStore.serverhopping = true
 				InfoNotification('ServerHop', 'Searching for a new server..', 10)
-				local popularcheck = ServerHopSort.Value == 'Popular'
+				local popularcheck = ServerHopSort.Value
 				local performancecheck = ServerHopSort.Value == 'Performance'
 				repeat newserver = getnewserver(nil, popularcheck, performancecheck) task.wait() until newserver
 				InfoNotification('ServerHop', 'Server Found. Joining..', 10)
