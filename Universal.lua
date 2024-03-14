@@ -6385,6 +6385,20 @@ end
 local httprequest = syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or request or function(tab)
 	return {Body = tab.Method == "GET" and game:HttpGet(tab.Url, true) or "shit exploit", Headers = {["content-type"] = "application/json"}, StatusCode = 404}
 end
+local function betterhttpget(url)
+	local supportedexploit, body = syn and syn.request or http_requst or request or fluxus and fluxus.request, ""
+	if supportedexploit then
+		local data = httprequest({Url = url, Method = "GET"})
+		if data.Body then
+			body = data.Body
+		else
+			return game:HttpGet(url, true)
+		end
+	else
+		body = game:HttpGet(url, true)
+	end
+	return body
+end
 runFunction(function()
 	local ServerHop = {}
 	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
@@ -6394,14 +6408,12 @@ runFunction(function()
 				ServerHop.ToggleButton()
 					local servers = {}
 					local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", PlaceId)})
-					local body = HttpService:JSONDecode(req.Body)
-					if body and body.data then
-						for i, v in next, body.data do
+					local successful, serverlist = pcall(function() return httpService:JSONDecode(betterhttpget("https://games.roblox.com/v1/games/"..(customgame or game.PlaceId).."/servers/Public?sortOrder=Asc&limit=100")) end)
+					for i,v in pairs(serverlist.data) do 
 							if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
 								table.insert(servers, 1, v.id)
 							end
 						end
-					end
 					if #servers > 0 then
 						InfoNotification("ServerHop", "Server Found! Joining...", 10)
 						TeleportService:TeleportToPlaceInstance(PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
