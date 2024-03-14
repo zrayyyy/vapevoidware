@@ -6393,14 +6393,14 @@ getnewserver = function(customgame)
 end
 runFunction(function()
 	local ServerHop = {}
-	local newserver
+	local newserver = game.PlaceId
 	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'ServerHop',
 		Function = function(callback)
 			if callback then 
 				ServerHop.ToggleButton()
 				InfoNotification('ServerHop', 'Searching for a new server..', 10)
-				repeat newserver = getnewserver(nil) task.wait() until newserver
+				repeat newserver = getnewserver(game.PlaceId) task.wait() until newserver
 				InfoNotification('ServerHop', 'Server Found. Joining..', 10)
 				teleportService:TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
 			end
