@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.
 local GuiLibrary = shared.GuiLibrary
 local playersService = game:GetService("Players")
 local textService = game:GetService("TextService")
@@ -6157,7 +6158,7 @@ runFunction(function()
 						if v.Name == "ErrorMessage" then 
 						local newserver = nil 
 						repeat newserver = AutoRejoinServerSwitch.Enabled and findnewserver() or game.JobId and tostring(game.JobId) task.wait() until newserver
-						InfoNotification("AutoRejoin", "Joining a new server..", 5)
+						warningNotification("AutoRejoin", "Joining a new server..", 5)
 						game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
 						end
 					end))
@@ -6166,10 +6167,10 @@ runFunction(function()
 						if #playersService:GetPlayers() <= (AutoRejoinsPlayersToRejoinOn.Value + 1) then
 							isfindingserver = true
 							local newserver = nil
-							InfoNotification("AutoRejoin", "Searching for a new server..", 5)
+							warningNotification("AutoRejoin", "Searching for a new server..", 5)
 							repeat newserver = findnewserver(nil, nil, true) task.wait() until newserver
 							if AutoRejoin.Enabled and AutoRejoinSmallServers.Enabled then
-								InfoNotification("AutoRejoin", "Server Found! Joining..", 5)
+								warningNotification("AutoRejoin", "Server Found! Joining..", 5)
 								game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
 							end
 						end
@@ -6599,9 +6600,11 @@ LightingTheme = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsBu
 			task.spawn(function()
 				task.wait()
 				themesky = Instance.new("Sky")
+				print("a")
 				local success, err = pcall(themetable[LightingThemeType.Value])
+				print("b")
 				err = err and " | "..err or ""
-				InfoNotification(success, "LightingTheme", "Failed to load the "..LightingThemeType.Value.." theme."..err, 5)
+				warningNotification(success, "LightingTheme", "Failed to load the "..LightingThemeType.Value.." theme."..err, 5)
 				print(success)
 				print(lightingService)
 				print(nil)
