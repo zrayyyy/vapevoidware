@@ -13,8 +13,6 @@ local vapeConnections = {}
 local vapeCachedAssets = {}
 local vapeTargetInfo = shared.VapeTargetInfo
 local vapeInjected = true
-local VoidwareQueueStore = shared.VoidwareQueueStore and type(shared.VoidwareQueueStore) == "string" and httpService:JSONDecode(shared.VoidwareQueueStore) or {lastServers = {}}
-shared.VoidwareQueueStore = nil
 table.insert(vapeConnections, workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA("Camera")
 end))
@@ -6294,78 +6292,6 @@ runFunction(function()
 				end
 			end
 		end
-	})
-end)
-local function betterhttpget(url)
-	local supportedexploit, body = syn and syn.request or http_requst or request or fluxus and fluxus.request, ""
-	if supportedexploit then
-		local data = httprequest({Url = url, Method = "GET"})
-		if data.Body then
-			body = data.Body
-		else
-			return game:HttpGet(url, true)
-		end
-	else
-		body = game:HttpGet(url, true)
-	end
-	return body
-end
-local function findnewserver(customgame, nodouble, bestplayercount, performance)
-	local server, playercount = nil, 0
-	local successful, serverlist = pcall(function() return httpService:JSONDecode(betterhttpget("https://games.roblox.com/v1/games/"..(customgame or game.PlaceId).."/servers/Public?sortOrder=Asc&limit=100")) end)
-	if not successful or type(serverlist) ~= "table" or serverlist.data == nil or type(serverlist.data) ~= "table" then return nil end 
-	for i,v in pairs(serverlist.data) do 
-		if v.id and v.playing and v.maxPlayers and tonumber(v.maxPlayers) > tonumber(v.playing) and tonumber(v.playing) > 0 then
-			if tostring(v.id) == tostring(game.JobId) then 
-				continue 
-			end
-			if nodouble and shared.VoidwareQueueStore and table.find(VoidwareQueueStore.lastServers, tostring(v.id)) then
-				continue
-			end
-			if minsize and tonumber(v.playing) < minsize then 
-				continue
-			end
-			if performance and v.ping and tostring(v.ping) > 330 then
-				continue
-			end
-			if bestplayercount and tonumber(v.playing) < playercount then 
-				continue
-			end 
-			server = tostring(v.id)
-			playercount = tonumber(v.playing)
-		end
-	end
-	return server
-end
-runFunction(function()
-	local ServerHop = {Enabled = false}
-	local ServerHopBestServer = {Enabled = false}
-	local isfindingserver = false
-	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = "ServerHop",
-		HoverText = "Tempts to find and join a new server.",
-		NoSave = true,
-		Function = function(callback)
-			if callback then 
-				task.spawn(function()
-					ServerHop.ToggleButton(false)
-					if isfindingserver then 
-						return 
-					end
-					local server = nil 
-					InfoNotification("ServerHop", "Searching for a new server..", 10)
-					repeat server = findnewserver(false, true, ServerHopBestServer.Enabled) until server 
-					InfoNotification("ServerHop", "Server Found! Joining...", 10)
-					game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, server, lplr)
-				end)
-			end
-		end
-	})
-	ServerHopBestServer = ServerHop.CreateToggle({
-		Name = "Most Active",
-		HoverText = "Picks the most active servers.",
-		Default = true,
-		Function = function() end
 	})
 end)
 
