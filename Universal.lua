@@ -6784,9 +6784,9 @@ runFunction(function()
 			if callback then
 				game:GetService("UserInputService").JumpRequest:Connect(function()
 					if CustomJumpMode.Value == "Normal" then
-						entityLibrary.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+						entityLibrary.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 					elseif CustomJumpMode.Value == "Velocity" then
-						entityLibrary.character.HumanoidRootPart.Velocity += vec3(0,CustomJumpVelocity.Value,0)
+						entityLibrary.Character.HumanoidRootPart.Velocity += vec3(0,CustomJumpVelocity.Value,0)
 					end
 				end)
 			end
