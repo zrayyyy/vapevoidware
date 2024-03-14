@@ -6635,3 +6635,83 @@ runFunction(function()
 		end
 	end)
 end)
+
+runFunction(function()
+	local Shader = {Enabled = false}
+	local ShaderColor = {Hue = 0, Sat = 0, Value = 0}
+	local ShaderTintSlider
+	local ShaderBlur
+	local ShaderTint
+	local oldlightingsettings = {
+		Brightness = lightingService.Brightness,
+		ColorShift_Top = lightingService.ColorShift_Top,
+		ColorShift_Bottom = lightingService.ColorShift_Bottom,
+		OutdoorAmbient = lightingService.OutdoorAmbient,
+		ClockTime = lightingService.ClockTime,
+		ExposureCompensation = lightingService.ExposureCompensation,
+		ShadowSoftness = lightingService.ShadowSoftness,
+		Ambient = lightingService.Ambient
+	}
+	Shader = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+		Name = "RichShader",
+		HoverText = "pro shader",
+		Function = function(callback)
+			if callback then 
+				task.spawn(function()
+					pcall(function()
+					ShaderBlur = Instance.new("BlurEffect")
+					ShaderBlur.Parent = lightingService
+					ShaderBlur.Size = 4
+					end)
+					pcall(function()
+						ShaderTint = Instance.new("ColorCorrectionEffect")
+						ShaderTint.Parent = lightingService
+						ShaderTint.Saturation = -0.2
+						ShaderTint.TintColor = Color3.fromRGB(255, 224, 219)
+					end)
+					pcall(function()
+						lightingService.ColorShift_Bottom = Color3.fromHSV(ShaderColor.Hue, ShaderColor.Sat, ShaderColor.Value)
+						lightingService.ColorShift_Top = Color3.fromHSV(ShaderColor.Hue, ShaderColor.Sat, ShaderColor.Value)
+						lightingService.OutdoorAmbient = Color3.fromHSV(ShaderColor.Hue, ShaderColor.Sat, ShaderColor.Value)
+						lightingService.ClockTime = 8.7
+						lightingService.FogColor = Color3.fromHSV(ShaderColor.Hue, ShaderColor.Sat, ShaderColor.Value)
+						lightingService.FogEnd = 1000
+						lightingService.FogStart = 0
+						lightingService.ExposureCompensation = 0.24
+						lightingService.ShadowSoftness = 0
+						lightingService.Ambient = Color3.fromRGB(59, 33, 27)
+					end)
+				end)
+			else
+				pcall(function() ShaderBlur:Destroy() end)
+				pcall(function() ShaderTint:Destroy() end)
+				pcall(function()
+				lightingService.Brightness = oldlightingsettings.Brightness
+				lightingService.ColorShift_Top = oldlightingsettings.ColorShift_Top
+				lightingService.ColorShift_Bottom = oldlightingsettings.ColorShift_Bottom
+				lightingService.OutdoorAmbient = oldlightingsettings.OutdoorAmbient
+				lightingService.ClockTime = oldlightingsettings.ClockTime
+				lightingService.ExposureCompensation = oldlightingsettings.ExposureCompensation
+				lightingService.ShadowSoftness = oldlightingsettings.ShadowSoftnesss
+				lightingService.Ambient = oldlightingsettings.Ambient
+				lightingService.FogColor = oldthemesettings.FogColor
+				lightingService.FogStart = oldthemesettings.FogStart
+				lightingService.FogEnd = oldthemesettings.FogEnd
+				end)
+			end
+		end
+	})	
+	ShaderColor = Shader.CreateColorSlider({
+		Name = "Main Color",
+		Function = function(h, s, v)
+			if Shader.Enabled then 
+				pcall(function()
+					lightingService.ColorShift_Bottom = Color3.fromHSV(h, s, v)
+					lightingService.ColorShift_Top = Color3.fromHSV(h, s, v)
+					lightingService.OutdoorAmbient = Color3.fromHSV(h, s, v)
+					lightingService.FogColor = Color3.fromHSV(h, s, v)
+				end)
+			end
+		end
+	})
+end)
