@@ -8897,7 +8897,7 @@ runFunction(function()
 		"telepearl"
 	}
 
-	BowExploit = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+	BowExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = "ProjectileExploit",
 		Function = function(callback)
 			if callback then 
