@@ -6384,7 +6384,7 @@ getnewserver = function(customgame)
 end
 runFunction(function()
 	local ServerHop = {}
-	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.MatchmakingWindow.Api.CreateOptionsButton({
+	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'ServerHop',
 		Function = function(callback)
 			if callback then 
