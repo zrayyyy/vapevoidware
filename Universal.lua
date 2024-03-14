@@ -6811,3 +6811,40 @@ runFunction(function()
 		Default = 50
 	})
 end)
+local GetTarget = function() return {} end
+GetTarget = function(distance, healthmethod, raycast, npc, team)
+	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
+	for i,v in playersService:GetPlayers() do 
+		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
+			if not RenderFunctions:GetPlayerType(2) then 
+				continue
+			end
+			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
+				continue
+			end
+			if not shared.vapeentity.isPlayerTargetable(v) then 
+				continue
+			end
+			if not playerRaycasted(v) and raycast then 
+				continue
+			end
+			if healthmethod and v.Character.Humanoid.Health < magnitude then 
+				magnitude = v.Character.Humanoid.Health
+				target.Human = true
+				target.RootPart = v.Character.HumanoidRootPart
+				target.Humanoid = v.Character.Humanoid
+				target.Player = v
+				continue
+			end 
+			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+			if playerdistance < magnitude then 
+				magnitude = playerdistance
+				target.Human = true
+				target.RootPart = v.Character.HumanoidRootPart
+				target.Humanoid = v.Character.Humanoid
+				target.Player = v
+			end
+		end
+	end
+	return target
+end
