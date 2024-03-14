@@ -10,6 +10,9 @@ local replicatedStorageService = game:GetService("ReplicatedStorage")
 if shared == nil then
 	getgenv().shared = {} 
 end
+local VoidwareStore = {
+	jumpTick = tick()
+}
 local teleportService = game:GetService('TeleportService')
 local tweenService = game:GetService("TweenService")
 local gameCamera = workspace.CurrentCamera
@@ -6714,4 +6717,58 @@ runFunction(function()
 			end
 		end
 	})
+end)
+
+runFunction(function()
+	local lastToggled = tick()
+	local SmoothHighJump = {Enabled = false}
+	local SmoothJumpTick = {Value = 5}
+	local SmoothJumpTime = {Value = 1.2}
+	local boostTick = 5
+	SmoothHighJump = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+	Name = "BoostHighJump",
+	Function = function(callback)
+		if callback then
+			task.spawn(function()
+				if tick() >= lastToggled then 
+					lastToggled = tick() + SmoothJumpTime.Value
+				end
+				repeat
+				if not isAlive() or not isnetworkowner(entityLibrary.character.HumanoidRootPart) then
+					 SmoothHighJump.ToggleButton(false) 
+					 return 
+				end
+				if tick() > lastToggled then
+					SmoothHighJump.ToggleButton(false) 
+					return 
+				end
+				lplr.Character.HumanoidRootPart.Velocity = Vector3.new(0, boostTick, 0)
+				boostTick = boostTick + SmoothJumpTick.Value
+				if VoidwareStore.jumpTick <= tick() then
+				   VoidwareStore.jumpTick = tick() + 3
+				end
+				task.wait()
+				until not SmoothHighJump.Enabled
+			end)
+		else
+			lastToggled = tick()
+			VoidwareStore.jumpTick = tick() + (boostTick / 30)
+			boostTick = 5
+		end
+	end
+})
+SmoothJumpTick = SmoothHighJump.CreateSlider({
+	Name = "Power",
+	Min = 2,
+	Max = 10,
+	Default = 3,
+	Function = function() end
+})
+SmoothJumpTime = SmoothHighJump.CreateSlider({
+	Name = "Time",
+	Min = 0.2,
+	Max = 2,
+	Default = 1.2,
+	Function = function() end
+})
 end)
