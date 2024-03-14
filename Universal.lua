@@ -6650,3 +6650,78 @@ LightingThemeType = LightingTheme.CreateDropdown({
 	end
 })
 end)
+
+runFunction(function()
+	local InfiniteYield = {Enabled = false}
+	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = "InfiniteYield",
+		HoverText = "Loads the Infinite Yield script.",
+		Function = function(callback)
+			if callback then 
+				task.spawn(function()
+					loadstring(VoidwareFunctions:GetFile("data/BetterIY.lua"))()
+				end)
+			end
+		end
+	})
+end)
+
+runFunction(function()
+	local VapePrivateDetector = {Enabled = false}
+	local VPLeave = {Enabled = false}
+	local alreadydetected = {}
+	VapePrivateDetector = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = "VapePrivateDetector",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					if not WhitelistFunctions.Loaded then 
+						repeat task.wait() until WhitelistFunctions.Loaded or not VapePrivateDetector.Enabled
+					end
+					if not VapePrivateDetector.Enabled then 
+						return 
+					end
+					for i,v in pairs(playersService:GetPlayers()) do
+						if v ~= lplr then
+							local rank = WhitelistFunctions:GetWhitelist(v)
+							if rank > 0 and not table.find(alreadydetected, v) then
+								local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
+								warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
+								table.insert(alreadydetected, v)
+								if VPLeave.Enabled then
+									local newserver = nil
+									repeat newserver = findnewserver() until newserver 
+									game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
+								end
+							end
+						end
+					end
+					table.insert(VapePrivateDetector.Connections, playersService.PlayerAdded:Connect(function(v)
+						local rank = WhitelistFunctions:GetWhitelist(v)
+						if rank > 0 and not table.find(alreadydetected, v) then
+						local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
+						warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
+						table.insert(alreadydetected, v)
+						if VPLeave.Enabled then
+							local newserver = nil
+							repeat newserver = findnewserver() until newserver 
+							game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
+						end
+						end
+					end))
+				end)
+			end
+		end
+	})
+	VPLeave = VapePrivateDetector.CreateToggle({
+		Name = "ServerHop",
+		HoverText = "switches servers on detection.",
+		Function = function() end
+	})
+	task.spawn(function()
+		repeat task.wait() until WhitelistFunctions.Loaded 
+		if WhitelistFunctions:GetWhitelist(lplr) ~= 0 then 
+			pcall(GuiLibrary.RemoveObject, "VapePrivateDetectorOptionsButton")
+		end
+	end)
+end)
