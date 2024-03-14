@@ -6848,3 +6848,28 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	end
 	return target
 end
+local GetAllTargets = function() return {} end
+GetAllTargets = function(distance, sort)
+	local targets = {}
+	for i,v in playersService:GetPlayers() do 
+		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
+			if not RenderFunctions:GetPlayerType(2) then 
+				continue
+			end
+			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+				continue
+			end
+			if not entityLibrary.isPlayerTargetable(v) then 
+				continue
+			end
+			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+			if playerdistance <= (distance or math.huge) then 
+				table.insert(targets, {Human = true, RootPart = v.Character.PrimaryPart, Humanoid = v.Character.Humanoid, Player = v})
+			end
+		end
+	end
+	if sort then 
+		table.sort(targets, sort)
+	end
+	return targets
+end

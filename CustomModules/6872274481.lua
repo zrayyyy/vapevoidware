@@ -10309,6 +10309,28 @@ local function dumptable(tab, tabtype, sortfunction)
 	end
 	return data
 end
+local GetAllTargets = function() return {} end
+GetAllTargets = function(distance, sort)
+	local targets = {}
+	for i,v in playersService:GetPlayers() do 
+		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
+			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+				continue
+			end
+			if not entityLibrary.isPlayerTargetable(v) then 
+				continue
+			end
+			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+			if playerdistance <= (distance or math.huge) then 
+				table.insert(targets, {Human = true, RootPart = v.Character.PrimaryPart, Humanoid = v.Character.Humanoid, Player = v})
+			end
+		end
+	end
+	if sort then 
+		table.sort(targets, sort)
+	end
+	return targets
+end
 runFunction(function()
 	local ProjectileAura = {}
 	local ProjectileAuraSort = {Value = 'Distance'}
