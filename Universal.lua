@@ -6384,22 +6384,30 @@ getnewserver = function(customgame)
 end
 runFunction(function()
 	local ServerHop = {}
-	if httprequest then
-		local servers = {}
-		local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", PlaceId)})
-		local body = HttpService:JSONDecode(req.Body)
-		if body and body.data then
-			for i, v in next, body.data do
-				if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
-					table.insert(servers, 1, v.id)
+	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.MatchmakingWindow.Api.CreateOptionsButton({
+		Name = 'ServerHop',
+		Function = function(callback)
+			if callback then 
+				ServerHop.ToggleButton()
+				if httprequest then
+					local servers = {}
+					local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", PlaceId)})
+					local body = HttpService:JSONDecode(req.Body)
+					if body and body.data then
+						for i, v in next, body.data do
+							if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= JobId then
+								table.insert(servers, 1, v.id)
+							end
+						end
+					end
+					if #servers > 0 then
+						InfoNotification("ServerHop", "Server Found! Joining...", 10)
+						TeleportService:TeleportToPlaceInstance(PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
+					else
+						return InfoNotification("Serverhop", "Couldn't find a server.", 10)
+					end
 				end
 			end
 		end
-		if #servers > 0 then
-			InfoNotification("ServerHop", "Server Found! Joining...", 10)
-			TeleportService:TeleportToPlaceInstance(PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
-		else
-			return InfoNotification("Serverhop", "Couldn't find a server.", 10)
-		end
-	end
+	})
 end)
