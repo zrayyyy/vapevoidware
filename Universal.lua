@@ -6772,3 +6772,42 @@ SmoothJumpTime = SmoothHighJump.CreateSlider({
 	Function = function() end
 })
 end)
+
+runLunar(function()
+	local CustomJump = {Enabled = false}
+	local CustomJumpMode = {Value = "Normal"}
+	local CustomJumpVelocity = {Value = 50}
+	CustomJump = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "CustomJump",
+        HoverText = "Customizes your jumping ability",
+		Function = function(callback)
+			if callback then
+				game:GetService("UserInputService").JumpRequest:Connect(function()
+					if CustomJumpMode.Value == "Normal" then
+						entityLunar.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+					elseif CustomJumpMode.Value == "Velocity" then
+						entityLunar.character.HumanoidRootPart.Velocity += vec3(0,CustomJumpVelocity.Value,0)
+					end
+				end)
+			end
+		end,
+		ExtraText = function()
+			return CustomJumpMode.Value
+		end
+	})
+	CustomJumpMode = CustomJump.CreateDropdown({
+		Name = "Mode",
+		List = {
+			"Normal",
+			"Velocity"
+		},
+		Function = function() end,
+	})
+	CustomJumpVelocity = CustomJump.CreateSlider({
+		Name = "Velocity",
+		Min = 1,
+		Max = 100,
+		Function = function() end,
+		Default = 50
+	})
+end)
