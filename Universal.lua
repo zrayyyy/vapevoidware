@@ -6734,7 +6734,7 @@ runFunction(function()
 					lastToggled = tick() + SmoothJumpTime.Value
 				end
 				repeat
-				if not isAlive() or not isnetworkowner(entityLibrary.character.HumanoidRootPart) then
+				if not entityLibrary.isAlive or not isnetworkowner(entityLibrary.character.HumanoidRootPart) then
 					 SmoothHighJump.ToggleButton(false) 
 					 return 
 				end
