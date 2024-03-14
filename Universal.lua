@@ -6363,7 +6363,7 @@ end)
 local RenderStore = {Bindable = {}, raycast = RaycastParams.new(), MessageReceived = Instance.new('BindableEvent'), tweens = {}, ping = 0, platform = inputService:GetPlatform(), LocalPosition = Vector3.zero}
 getgenv().RenderStore = RenderStore
 local getnewserver = function() return nil end
-getnewserver = function(customgame, popular, performance)
+getnewserver = function(customgame)
 	local players, server = 0, nil
 	local success, serverTable = pcall(function() return httpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/'..(customgame or game.PlaceId)..'/servers/Public?sortOrder=Asc&limit=100', true)) end)
 	if success and type(serverTable) == 'table' and type(serverTable.data) == 'table' then 
@@ -6372,10 +6372,7 @@ getnewserver = function(customgame, popular, performance)
 				if v.id == tostring(game.JobId) then 
 					continue 
 				end
-				if tonumber(v.playing) < players and popular then 
-					continue
-				end
-				if performance and v.ping and tonumber(v.ping) > 170 then
+				if tonumber(v.playing) < players then 
 					continue
 				end
 				players = tonumber(v.playing)
@@ -6399,17 +6396,10 @@ runFunction(function()
 				end
 				RenderStore.serverhopping = true
 				InfoNotification('ServerHop', 'Searching for a new server..', 10)
-				local popularcheck = ServerHopSort.Value
-				local performancecheck = ServerHopSort.Value == 'Performance'
-				repeat newserver = getnewserver(nil, popularcheck, performancecheck) task.wait() until newserver
+				repeat newserver = getnewserver(nil) task.wait() until newserver
 				InfoNotification('ServerHop', 'Server Found. Joining..', 10)
 				teleportService:TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
 			end
 		end
-	})
-	ServerHopSort = ServerHop.CreateDropdown({
-		Name = 'Sort',
-		List = {'Popular', 'Performance', 'Random'},
-		Function = function() end
 	})
 end)
