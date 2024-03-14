@@ -1,4 +1,7 @@
 local GuiLibrary = shared.GuiLibrary
+local VoidwareStore = {
+	jumpTick = tick()
+}
 local playersService = game:GetService("Players")
 local textService = game:GetService("TextService")
 local lightingService = game:GetService("Lighting")
@@ -10507,4 +10510,64 @@ runFunction(function()
 	ProjectileAuraRange.Object.Visible = false
 	ProjectileAuraRangeSlider.Object.Visible = false
 	ProjectileAuraMobs.Object.Visible = false
+end)
+runFunction(function()
+	local DoubleHighJump = {Enabled = false}
+	local DoubleHighJumpHeight = {Value = 500}
+	local DoubleHighJumpHeight2 = {Value = 500}
+	local jumps = 0
+	DoubleHighJump = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = "DoubleHighJump",
+		NoSave = true,
+		HoverText = "A very interesting high jump.",
+		Function = function(callback)
+			if callback then 
+				task.spawn(function()
+					if isAlive() and lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air or jumps > 0 then 
+						DoubleHighJump.ToggleButton(false) 
+						return
+					end
+					for i = 1, 2 do 
+						if not isAlive() then
+							DoubleHighJump.ToggleButton(false) 
+							return  
+						end
+						if i == 2 and lplr.Character.Humanoid.FloorMaterial ~= Enum.Material.Air then 
+							continue
+						end
+						lplr.Character.HumanoidRootPart.Velocity = Vector3.new(0, i == 1 and DoubleHighJumpHeight.Value or DoubleHighJumpHeight2.Value, 0)
+						jumps = i
+						task.wait(i == 1 and 1 or 0.30)
+					end
+					task.spawn(function()
+						for i = 1, 20 do 
+							if isAlive() then 
+								lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+							end
+						end
+					end)
+					task.delay(1.6, function() jumps = 0 end)
+					if DoubleHighJump.Enabled then
+					   DoubleHighJump.ToggleButton(false)
+					end
+				end)
+			else
+				VoidwareStore.jumpTick = tick() + 5
+			end
+		end
+	})
+	DoubleHighJumpHeight = DoubleHighJump.CreateSlider({
+		Name = "First Jump",
+		Min = 50,
+		Max = 500,
+		Default = 500,
+		Function = function() end
+	})
+	DoubleHighJumpHeight2 = DoubleHighJump.CreateSlider({
+		Name = "Second Jump",
+		Min = 50,
+		Max = 450,
+		Default = 450,
+		Function = function() end
+	})
 end)
