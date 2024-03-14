@@ -10301,7 +10301,7 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	end
 	return target
 end
-local function dumptable(tab, tabtype, sortfunction)
+--[[local function dumptable(tab, tabtype, sortfunction)
 	local data = {}
 	for i,v in pairs(tab) do
 		local tabtype = tabtype and tabtype == 1 and i or v
@@ -10510,7 +10510,8 @@ runFunction(function()
 	ProjectileAuraRange.Object.Visible = false
 	ProjectileAuraRangeSlider.Object.Visible = false
 	ProjectileAuraMobs.Object.Visible = false
-end)
+end)--]]
+
 runFunction(function()
 	local DoubleHighJump = {Enabled = false}
 	local DoubleHighJumpHeight = {Value = 500}
