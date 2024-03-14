@@ -10609,7 +10609,7 @@ runFunction(function()
 							break
 						end
 					end
-					InfoNotification("StartQueue", "QueueType not found.")
+					warningNotification("StartQueue", "QueueType not found.")
 					pcall(function() bedwars.LobbyEvents.leaveQueue:FireServer() end)
 					bedwars.LobbyClientEvents:joinQueue(queue)
 				end)
