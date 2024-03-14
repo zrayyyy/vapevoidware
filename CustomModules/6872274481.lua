@@ -10523,12 +10523,12 @@ runFunction(function()
 		Function = function(callback)
 			if callback then 
 				task.spawn(function()
-					if isAlive() and lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air or jumps > 0 then 
+					if entityLibrary.isAlive and lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air or jumps > 0 then 
 						DoubleHighJump.ToggleButton(false) 
 						return
 					end
 					for i = 1, 2 do 
-						if not isAlive() then
+						if not entityLibrary.isAlive then
 							DoubleHighJump.ToggleButton(false) 
 							return  
 						end
@@ -10541,7 +10541,7 @@ runFunction(function()
 					end
 					task.spawn(function()
 						for i = 1, 20 do 
-							if isAlive() then 
+							if entityLibrary.isAlive then 
 								lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 							end
 						end
