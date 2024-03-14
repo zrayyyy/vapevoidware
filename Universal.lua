@@ -6773,7 +6773,7 @@ SmoothJumpTime = SmoothHighJump.CreateSlider({
 })
 end)
 
-runLunar(function()
+runFunction(function()
 	local CustomJump = {Enabled = false}
 	local CustomJumpMode = {Value = "Normal"}
 	local CustomJumpVelocity = {Value = 50}
