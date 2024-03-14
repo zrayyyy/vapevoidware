@@ -6382,6 +6382,9 @@ getnewserver = function(customgame)
 	end
 	return server
 end
+local httprequest = syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or request or function(tab)
+	return {Body = tab.Method == "GET" and game:HttpGet(tab.Url, true) or "shit exploit", Headers = {["content-type"] = "application/json"}, StatusCode = 404}
+end
 runFunction(function()
 	local ServerHop = {}
 	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
@@ -6389,7 +6392,6 @@ runFunction(function()
 		Function = function(callback)
 			if callback then 
 				ServerHop.ToggleButton()
-				if httprequest then
 					local servers = {}
 					local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", PlaceId)})
 					local body = HttpService:JSONDecode(req.Body)
@@ -6406,7 +6408,6 @@ runFunction(function()
 					else
 						return InfoNotification("Serverhop", "Couldn't find a server.", 10)
 					end
-				end
 			end
 		end
 	})
