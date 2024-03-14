@@ -6374,10 +6374,25 @@ pcall(function()
 		end
 	})
 end)
-
+local getnewserver = function() return nil end
+getnewserver = function(customgame)
+	local players, server = 0, nil
+	local success, serverTable = pcall(function() return httpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/'..(customgame or game.PlaceId)..'/servers/Public?sortOrder=Asc&limit=100', true)) end)
+	if success and type(serverTable) == 'table' and type(serverTable.data) == 'table' then 
+		for i,v in serverTable.data do 
+			if v.id and v.playing and v.maxPlayers and tonumber(v.maxPlayers) > tonumber(v.playing) and tonumber(v.playing) > 0 then 
+				if v.id == tostring(game.JobId) then 
+					continue 
+				end
+				players = tonumber(v.playing)
+				server = v.id
+			end
+		end
+	end
+	return server
+end
 runFunction(function()
 	local ServerHop = {}
-	local ServerHopSort = {Value = 'Popular'}
 	local newserver
 	ServerHop = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'ServerHop',
@@ -6385,17 +6400,10 @@ runFunction(function()
 			if callback then 
 				ServerHop.ToggleButton()
 				InfoNotification('ServerHop', 'Searching for a new server..', 10)
-				local popularcheck = ServerHopSort.Value == 'Popular'
-				local performancecheck = ServerHopSort.Value == 'Performance'
-				repeat newserver = getnewserver(nil, popularcheck, performancecheck) task.wait() until newserver
+				repeat newserver = getnewserver(nil) task.wait() until newserver
 				InfoNotification('ServerHop', 'Server Found. Joining..', 10)
 				teleportService:TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
 			end
 		end
-	})
-	ServerHopSort = ServerHop.CreateDropdown({
-		Name = 'Sort',
-		List = {'Popular', 'Performance', 'Random'},
-		Function = function() end
 	})
 end)
