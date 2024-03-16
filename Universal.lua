@@ -100,14 +100,6 @@ local function warningNotification(title, text, delay)
 	return (suc and res)
 end
 
-task.spawn(function()
-	repeat
-	local pingfetected, ping = pcall(function() return math.floor(game:GetService("Stats").PerformanceStats.Ping:GetValue()) end)
-	if pingfetected then VoidwareStore.CurrentPing = ping end
-	task.wait()
-    until not vapeInjected
-end)
-
 local function runFunction(func) func() end
 
 local function isFriend(plr, recolor)
@@ -751,6 +743,14 @@ table.insert(vapeConnections, playersService.PlayerRemoving:Connect(function(v)
 		table.remove(shared.VoidwareStore.ConfigUsers, v)
 	end
 end))
+
+task.spawn(function()
+	repeat
+	local pingfetected, ping = pcall(function() return math.floor(game:GetService("Stats").PerformanceStats.Ping:GetValue()) end)
+	if pingfetected then VoidwareStore.CurrentPing = ping end
+	task.wait()
+    until not vapeInjected
+end)
 
 runFunction(function()
 	local destroymapconnection
