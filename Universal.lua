@@ -579,6 +579,19 @@ function VoidwareFunctions:GetClientUsers()
 	end
 	return users
 end
+function VoidwareFunctions:GetCommitHash(repo)
+	local commit, repo = "main", repo or "Voidware"
+	local req, res = pcall(function() return game:HttpGet("https://github.com/Erchobg/"..repo) end)
+	if not req or not res then return commit end
+	for i,v in pairs(res:split("\n")) do 
+	   if v:find("commit") and v:find("fragment") then 
+		  local str = v:split("/")[5]
+		  commit = str:sub(0, v:split("/")[5]:find('"') - 1)
+		   break
+	   end
+   end
+   return commit
+end
 function VoidwareFunctions:RefreshWhitelist()
 	local commit, hwidstring = VoidwareFunctions:GetCommitHash("whitelist"), string.split(HWID, "-")[5]
 	local suc, whitelist = pcall(function() return httpService:JSONDecode(betterhttpget("https://raw.githubusercontent.com/Erchobg/whitelist/"..commit.."/maintab.json")) end)
