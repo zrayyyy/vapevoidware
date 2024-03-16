@@ -1,6 +1,8 @@
 local GuiLibrary = shared.GuiLibrary
 local VoidwareStore = {
-	jumpTick = tick()
+	jumpTick = tick(),
+	Tweening = false,
+	AliveTick = tick()
 }
 local playersService = game:GetService("Players")
 local textService = game:GetService("TextService")
@@ -10607,3 +10609,62 @@ runFunction(function()
 		end
 	end)
 end)
+
+local function GetTopBlock(position, smart, raycast, customvector)
+	position = position or isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position
+	if not position then 
+		return nil 
+	end
+	if raycast and not workspace:Raycast(position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast) then
+	    return nil
+    end
+	local lastblock = nil
+	for i = 1, 500 do 
+		local newray = workspace:Raycast(lastblock and lastblock.Position or position, customvector or Vector3.new(0.55, 999999, 0.55), bedwarsStore.blockRaycast)
+		local smartest = newray and smart and workspace:Raycast(lastblock and lastblock.Position or position, Vector3.new(0, 5.5, 0), bedwarsStore.blockRaycast) or not smart
+		if newray and smartest then
+			lastblock = newray
+		else
+			break
+		end
+	end
+	return lastblock
+end
+
+local deathpos = nil
+			runFunction(function()
+				pcall(GuiLibrary.RemoveObject, "AutoRewindOptionsButton")
+                local AutoRewind = {Enabled = false}
+				local lastposition
+				local deathtween
+                AutoRewind = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+                    Name = "AutoRewind",
+					HoverText = "Automatically tweens you right back to your death position on respawns.",
+                    Function = function(callback)
+						if callback then
+                            task.spawn(function()
+								table.insert(AutoRewind.Connections, runService.Heartbeat:Connect(function()
+									if not entityLibrary.isAlive or (tick() - VoidwareStore.AliveTick) < 2 then 
+										return 
+									end
+									local block = GetTopBlock(nil, true, true) or workspace:Raycast(lplr.Character.HumanoidRootPart.Position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast)
+									if block then 
+										lastposition = CFrame.new(block.Position) + Vector3.new(0, 5, 0)
+									end
+								end))
+								table.insert(AutoRewind.Connections, lplr.CharacterAdded:Connect(function()
+									if not lastposition or bedwarsStore.matchState == 0 or VoidwareStore.Tweening or deathpos then return end
+									repeat task.wait() until entityLibrary.isAlive(lplr, true)
+									task.wait(0.1)
+									deathtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.49, Enum.EasingStyle.Linear), {CFrame = lastposition + Vector3.new(0, 5, 0)})
+									deathtween:Play()
+								end))
+                            end)
+						else
+							pcall(function() deathtween:Cancel() end)
+							lastposition = nil 
+							deathtween = nil
+						end
+                    end
+                })
+			end)
