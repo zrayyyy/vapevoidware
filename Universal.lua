@@ -6566,7 +6566,7 @@ end)
 
 runFunction(function()
 	local InfiniteYield = {Enabled = false}
-	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.CustomScriptsWindow.Api.CreateOptionsButton({
+	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.GameScriptsWindow.Api.CreateOptionsButton({
 		Name = "InfiniteYield",
 		HoverText = "Loads the Infinite Yield script.",
 		Function = function(callback)
@@ -6877,7 +6877,7 @@ end
 runFunction(function()
 	local DoorsScript = {Enabled = false}
 	local ScriptChoice = {Value = "BlackKing (Best)"}
-	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["CustomScriptsWindow"]["Api"]["CreateOptionsButton"]({
+	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
 		Name = "DoorsScript",
         HoverText = "Roblox doors scripts",
 		Function = function(callback)
