@@ -108,15 +108,6 @@ local function InfoNotification(title, text, delay)
 	return (suc and res)
 end
 
-local function CustomNotification(title, delay, text, icon, color)
-	local suc, res = pcall(function()
-		local frame = GuiLibrary.CreateNotification(title or "Voidware", text or "Thanks you for using Voidware "..lplr.Name.."!", delay or 5.6, icon or "assets/InfoNotification.png")
-		frame.Frame.Frame.ImageColor3 = color and Hex2Color3(color) or Color3.new()
-		return frame
-	end)
-	return (suc and res)
-end
-
 runFunction(function()
 	local destroymapconnection
 	local breakmapconnection
