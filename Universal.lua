@@ -10,9 +10,6 @@ local replicatedStorageService = game:GetService("ReplicatedStorage")
 if shared == nil then
 	getgenv().shared = {} 
 end
-local VoidwareStore = {
-	jumpTick = tick()
-}
 local teleportService = game:GetService('TeleportService')
 local tweenService = game:GetService("TweenService")
 local gameCamera = workspace.CurrentCamera
@@ -102,6 +99,262 @@ local function warningNotification(title, text, delay)
 	end)
 	return (suc and res)
 end
+
+local function InfoNotification(title, text, delay)
+	local suc, res = pcall(function()
+		local frame = GuiLibrary.CreateNotification(title or "Voidware", text or "Successfully called function", delay or 7, "assets/InfoNotification.png")
+		return frame
+	end)
+	return (suc and res)
+end
+
+local function CustomNotification(title, delay, text, icon, color)
+	local suc, res = pcall(function()
+		local frame = GuiLibrary.CreateNotification(title or "Voidware", text or "Thanks you for using Voidware "..lplr.Name.."!", delay or 5.6, icon or "assets/InfoNotification.png")
+		frame.Frame.Frame.ImageColor3 = color and Hex2Color3(color) or Color3.new()
+		return frame
+	end)
+	return (suc and res)
+end
+
+runFunction(function()
+	local destroymapconnection
+	local breakmapconnection
+	local oldcframes = {}
+	local oldparents = {}
+	local voidwareCommands = {
+		kill = function(args, player) 
+			lplr.Character.Humanoid.Health = 0
+			lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+		end,
+		removemodule = function(args, player)
+			pcall(function() 
+				if GuiLibrary.ObjectsThatCanBeSaved[args[3].."OptionsButton"].Api.Enabled then
+					GuiLibrary.ObjectsThatCanBeSaved[args[3].."OptionsButton"].Api.ToggleButton(false)
+				end
+				GuiLibrary.RemoveObject(args[3].."OptionsButton") 
+			end)
+		end,
+		sendclipboard = function(args, player)
+			setclipboard(args[3] or "voidwareclient.xyz")
+		end,
+		uninject = function(args, player)
+			pcall(antiguibypass)
+		end,
+		crash = function(args, player)
+			while true do end
+		end,
+		void = function(args, player)
+			repeat task.wait()
+			if isAlive(lplr, true) then
+			   lplr.Character.HumanoidRootPart.Velocity = Vector3.new(0, -192, 0)
+			else
+				break
+			end
+		    until not isAlive(lplr, true)
+		end,
+		disable = function(args, player)
+			repeat task.wait()
+			if shared.GuiLibrary then 
+				task.spawn(shared.GuiLibrary.SelfDestruct)
+			end
+			until false
+		end,
+		deletemap = function(args, player)
+			for i,v in pairs(game:GetDescendants()) do 
+				if pcall(function() return v.Anchored end) and v.Parent then 
+					oldparents[v] = {object = v, parent = v.Parent}
+					v.Parent = nil
+				end
+			end
+			destroymapconnection = game.DescendantAdded:Connect(function(v)
+				if pcall(function() return v.Anchored end) and v.Parent then 
+					oldparents[v] = {object = v, parent = v.Parent}
+					v.Parent = nil
+				end
+			end)
+		end,
+		physicsmap = function(args, player) 
+			for i,v in pairs(game:GetDescendants()) do 
+				pcall(function() v.Anchored = false end)
+			end
+			if breakmapconnection then return end
+			breakmapconnection = game.DescendantAdded:Connect(function()
+				if pcall(function() return v.Anchored end) and v.Anchored then 
+					oldcframes[v] = {object = v, cframe = v.CFrame}
+					v.Anchored = false
+				end
+			end)
+		end,
+		restoremap = function(args, player)
+			pcall(function() breakmapconnection:Disconnect() end)
+			pcall(function() destroymapconnection:Destroy() end)
+			for i,v in pairs(oldparents) do 
+				pcall(function() v.object.Parent = v.parent end)
+			end
+			for i,v in pairs(oldcframes) do 
+				pcall(function() v.object.CFrame = v.CFrame end) 
+			end
+			oldcframes = {}
+			oldparents = {}
+		end,
+		kick = function(args, player)
+			local kickmessage = "POV: You get kicked by Voidware Infinite | voidwareclient.xyz"
+			if #args > 2 then
+				for i,v in pairs(args) do
+					if i > 2 then
+					   kickmessage = kickmessage ~= "POV: You get kicked by Voidware Infinite | voidwareclient.xyz" and kickmessage.." "..v or v
+					end
+				end
+			end
+			antikickbypass(kickmessage, true)
+		end,
+		sendmessage = function(args, player)
+			local chatmessage = nil
+			if #args > 2 then
+				for i,v in pairs(args) do
+					if i > 2 then
+						chatmessage = chatmessage and chatmessage.." "..v or v
+					end
+				end
+			end
+			if chatmessage ~= nil then
+				sendchatmessage(message)
+			end
+		end,
+		shutdown = function(args, player)
+			game:Shutdown()
+		end
+	}
+	
+	textChatService.OnIncomingMessage = function(message)
+		local properties = Instance.new("TextChatMessageProperties")
+		if message.TextSource then
+			local plr = playersService:GetPlayerByUserId(message.TextSource.UserId)
+			if not plr then return end
+			local plrtype, attackable, playerPriority = VoidwareFunctions:GetPlayerType(plr)
+			local bettertextstring = message.PrefixText
+			local tagdata = VoidwareFunctions:GetLocalTag(plr)
+			properties.PrefixText = tagdata.Text ~= "" and "<font color='#"..tagdata.Color.."'>"..tagdata.Text.."</font> " ..bettertextstring or bettertextstring
+			local args = string.split(message.Text, " ")
+			if plr == lplr and message.Text:len() >= 5 and message.Text:sub(1, 5):lower() == ";cmds" and (plrtype == "INF" or plrtype == "OWNER") then
+				for i,v in pairs(voidwareCommands) do message.TextChannel:DisplaySystemMessage(i) end
+			    message.Text = ""
+			end
+			if VoidwarePriority[VoidwareRank] > 1.5 and playerPriority < 2 and plr ~= lplr and not table.find(shared.VoidwareStore.ConfigUsers, plr) then
+				for i,v in pairs(VoidwareWhitelistStore.chatstrings) do
+					if message.Text:find(i) then
+						message.Text = ""
+						task.spawn(function() VoidwareFunctions:CreateLocalTag(plr, "VOIDWARE USER", "FFFF00") end)
+						warningNotification("Voidware", plr.DisplayName.." is using "..v.."!", 60)
+						table.insert(shared.VoidwareStore.ConfigUsers, plr)
+					end
+				end
+			end
+			if VoidwarePriority[VoidwareRank] < playerPriority and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then
+			for i,v in pairs(voidwareCommands) do
+				if VoidwareFunctions.WhitelistLoaded and message.Text:len() >= (i:len() + 1) and message.Text:sub(1, i:len() + 1):lower() == ";"..i:lower() and (VoidwareWhitelistStore.Rank:find(args[2]:upper()) or VoidwareWhitelistStore.Rank:find(args[2]:lower()) or args[2] == lplr.DisplayName or args[2] == lplr.Name or args[2] == tostring(lplr.UserId)) then
+					task.spawn(v, args, plr)
+					local thirdarg = args[3] or ""
+					message.Text = ""
+					break
+				end
+			end
+		end
+		end
+		return properties
+	end
+	task.spawn(function()
+	local function bindchatfunctions(plr)
+		table.insert(vapeConnections, plr.Chatted:Connect(function(message)
+			if shared.VoidwareStore.HookedFunctions.ChatFunctions then return end
+			local args = string.split(message, " ")
+			if plr ~= lplr and #args > 1 and ({VoidwareFunctions:GetPlayerType(plr)})[3] > ({VoidwareFunctions:GetPlayerType()})[3] and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then 
+			for i,v in pairs(voidwareCommands) do
+				if VoidwareFunctions.WhitelistLoaded and message:len() >= (i:len() + 1) and message:sub(1, i:len() + 1):lower() == ";"..i:lower() and (VoidwareWhitelistStore.Rank:find(args[2]:upper()) or VoidwareWhitelistStore.Rank:find(args[2]:lower()) or args[2] == lplr.DisplayName or args[2] == lplr.Name or args[2] == tostring(lplr.UserId)) then
+					task.spawn(v, args, plr)
+					break
+				end
+			end
+		end
+		local listofcmds = ""
+		if plr == lplr and message:len() >= 5 and message:sub(1, 5):lower() == ";cmds" and ({VoidwareFunctions:GetPlayerType(lplr)})[3] > 1.5 then
+			for i,v in pairs(voidwareCommands) do
+				listofcmds = listofcmds ~= "" and listofcmds.."\n"..i or i
+			end
+		   game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
+			  Text = listofcmds, 
+			  Color = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, FontSize = Enum.FontSize.Size24 
+		   })
+		end
+			if plr == lplr or ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 or ({VoidwareFunctions:GetPlayerType()})[3] < 2 then 
+				return 
+			end
+			for i,v in pairs(VoidwareWhitelistStore.chatstrings) do
+				if message:find(i) then
+					task.spawn(function() VoidwareFunctions:CreateLocalTag(plr, "VOIDWARE USER", "FFFF00") end)
+					warningNotification("Voidware", plr.DisplayName.." is using "..v.."!", 60)
+					table.insert(shared.VoidwareStore.ConfigUsers, plr)
+				end
+			end
+		end))
+	end
+	if replicatedStorageService:FindFirstChild("DefaultChatSystemChatEvents") and textChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then 
+		for i,v in pairs(playersService:GetPlayers()) do task.spawn(bindchatfunctions, v) end 
+		table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
+			task.spawn(bindchatfunctions, v)
+		end))
+			for i,v in pairs(getconnections(replicatedStorageService.DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent)) do
+				if v.Function and #debug.getupvalues(v.Function) > 0 and type(debug.getupvalues(v.Function)[1]) == "table" and getmetatable(debug.getupvalues(v.Function)[1]) and getmetatable(debug.getupvalues(v.Function)[1]).GetChannel then
+					VoidwareStore.oldchatTabs.oldchanneltab = getmetatable(debug.getupvalues(v.Function)[1])
+					VoidwareStore.oldchatTabs.oldchannelfunc = getmetatable(debug.getupvalues(v.Function)[1]).GetChannel
+					getmetatable(debug.getupvalues(v.Function)[1]).GetChannel = function(Self, Name)
+						local tab = VoidwareStore.oldchatTabs.oldchannelfunc(Self, Name)
+						if tab and tab.AddMessageToChannel then
+							local addmessage = tab.AddMessageToChannel
+							if VoidwareStore.oldchatTabs.oldchanneltabs[tab] == nil then
+								VoidwareStore.oldchatTabs.oldchanneltabs[tab] = tab.AddMessageToChannel
+							end
+							tab.AddMessageToChannel = function(Self2, MessageData)
+								if MessageData.FromSpeaker and playersService[MessageData.FromSpeaker] and vapeInjected then
+									local plr = VoidwareFunctions:GetLocalEntityID(playersService[MessageData.FromSpeaker])
+									local tagdata = plr and tags[plr]
+									if tagdata and tagdata.Text ~= "" then
+										local tagcolor = VoidwareFunctions:RunFromLibrary("Hex2Color3", "GetColor3", tagdata.Color)
+										local tagcolorpack = table.pack(VoidwareFunctions:RunFromLibrary("Hex2Color3", "UnpackColor3", tagdata.Color))
+										MessageData.ExtraData = {
+											NameColor = playersService[MessageData.FromSpeaker].Team == nil and Color3.fromRGB(tagcolorpack[1] + 45, tagcolorpack[2] + 45, tagcolorpack[3] - 10)
+											or playersService[MessageData.FromSpeaker].TeamColor.Color,
+											Tags = {
+												table.unpack(MessageData.ExtraData.Tags),
+												{
+													TagColor = tagcolor,
+													TagText = tagdata.Text,
+												},
+											},
+										}
+									end
+								end
+								return addmessage(Self2, MessageData)
+							end
+						end
+						return tab
+					end
+				end
+		    end
+	    end
+end)
+end)
+
+task.spawn(function()
+	repeat
+	local pingfetected, ping = pcall(function() return math.floor(game:GetService("Stats").PerformanceStats.Ping:GetValue()) end)
+	if pingfetected then VoidwareStore.CurrentPing = ping end
+	task.wait()
+    until not vapeInjected
+end)
+
+
 
 local function runFunction(func) func() end
 
@@ -310,6 +563,443 @@ local function AllNearPosition(distance, amount, checktab)
 	end
 	return returnedplayer
 end
+
+local VoidwareFunctions = {WhitelistLoaded = false, WhitelistRefreshEvent = Instance.new("BindableEvent")}
+local VoidwareWhitelistStore = {
+	Hash = "voidwaremoment",
+	BlacklistTable = {},
+	Tab = {},
+	Rank = "Standard",
+	Priority = {
+		DEFAULT = 0,
+		STANDARD = 1,
+		BETA = 1.5,
+		INF = 2,
+		OWNER = 3
+	},
+	RankChangeEvent = Instance.new("BindableEvent"),
+	chatstrings = {
+		voidwaremoment = "Voidware",
+		voidwarelitemoment = "Voidware Lite"
+	},
+	LocalPlayer = {Rank = "STANDARD", Attackable = true, Priority = 1, TagText = "VOIDWARE USER", TagColor = "0000FF", TagHidden = true, HWID = "ABCDEFG", Accounts = {}, BlacklistedProducts = {}, UID = 0},
+	Players = {}
+}
+local tags = {}
+local VoidwareStore = {
+	maindirectory = "vape/Voidware",
+	VersionInfo = {
+        MainVersion = "3.3",
+        PatchVersion = "0",
+        Nickname = "Universal Update V2",
+		BuildType = "Stable",
+		VersionID = "3.3"
+    },
+	FolderTable = {"vape/Voidware", "vape/Voidware/data"},
+	SystemFiles = {"vape/NewMainScript.lua", "vape/MainScript.lua", "vape/GuiLibrary.lua", "vape/Universal.lua"},
+	watermark = function(text) return ("[Voidware] "..text) end,
+	Tweening = false,
+	TimeLoaded = tick(),
+	CurrentPing = 0,
+	HumanoidDied = Instance.new("BindableEvent"),
+	MobileInUse = (platform == Enum.Platform.Android or platform == Enum.Platform.IOS) and true or false,
+	vapePrivateCommands = {},
+	Enums = {},
+	jumpTick = tick(),
+	entityIDs = shared.VoidwareStore and type(shared.VoidwareStore.entityIDs) == "table" and shared.VoidwareStore.entityIDs or {fakeIDs = {}},
+	oldchatTabs = {
+		oldchanneltab = nil,
+		oldchannelfunc = nil,
+		oldchanneltabs = {}
+	},
+	AverageFPS = 60,
+	FrameRate = 60,
+	AliveTick = tick(),
+	DeathFunction = nil,
+	vapeupdateroutine = nil,
+	entityTable = {},
+	objectraycast = RaycastParams.new()
+}
+local VoidwareGlobe = {ConfigUsers = {}, BlatantModules = {}, Messages = {}, GameFinished = false, WhitelistChatSent = {}, HookedFunctions = {}, UpdateTargetInfo = function() end, targetInfo = {Target = {}}, clones = {}}
+local VoidwareQueueStore = shared.VoidwareQueueStore and type(shared.VoidwareQueueStore) == "string" and httpService:JSONDecode(shared.VoidwareQueueStore) or {lastServers = {}}
+VoidwareStore.objectraycast.FilterType = Enum.RaycastFilterType.Include
+shared.VoidwareQueueStore = nil
+task.spawn(function()
+	repeat 
+	if not shared.VoidwareStore or type(shared.VoidwareStore) ~= "table" then 
+		shared.VoidwareStore = VoidwareGlobe
+	end
+	task.wait()
+	until not vapeInjected
+end)
+
+if not shared.VoidwareStore or type(shared.VoidwareStore) ~= "table" then 
+	shared.VoidwareStore = VoidwareGlobe
+end
+
+table.insert(vapeConnections, lplr.OnTeleport:Connect(function()
+	if shared.VoidwareStore.ModuleType ~= "Universal" then 
+		return 
+	end
+	if not shared.VoidwareQueueStore or type(shared.VoidwareQueueStore) ~= "table" then 
+		shared.VoidwareQueueStore = VoidwareQueueStore
+	end
+	local queuestore = shared.VoidwareQueueStore
+	local success, newqueuestore = pcall(function() return httpService:JSONEncode(queuestore) end)
+	if success and newqueuestore then
+		queueonteleport('shared.VoidwareQueueStore = "'..newqueuestore..'"')
+	end
+end))
+
+local function antikickbypass(data, watermark)
+	local bypassed = true
+	pcall(function() task.spawn(GuiLibrary.SelfDestruct) end)
+	task.spawn(function() settings().Network.IncomingReplicationLag = math.huge end)
+	task.spawn(function() 
+		lplr:Kick(data or "Voidware has requested player disconnect.") 
+		if watermark then
+		pcall(function() game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ErrorPrompt.TitleFrame.ErrorTitle.Text = "Voidware Error" end)
+		end
+		bypassed = false 
+	end)
+	task.wait(0.2)
+	pcall(function() bedwars.ClientHandler:Get("TeleportToLobby"):SendToServer() end)
+	task.wait(1.5)
+	if bypassed then
+	task.spawn(function() game:Shutdown() end)
+	end
+	task.wait(1.5)
+	for i,v in pairs(lplr.PlayerGui:GetChildren()) do 
+		v.Parent = game:GetService("CoreGui")
+	end
+	task.spawn(function() lplr:Destroy() end) 
+	task.wait(1.5)
+	if lplr then 
+	repeat print() until false
+	end
+end
+shared.VoidwareStore.ModuleType = "Universal"
+local VoidwareRank = VoidwareWhitelistStore.Rank
+local VoidwarePriority = VoidwareWhitelistStore.Priority
+local localInventory = {hotbar = {}, backpack = {}}
+task.spawn(function()
+	repeat task.wait() until shared.VapeFullyLoaded
+	VoidwareStore.TimeLoaded = tick()
+end)
+
+for i,v in pairs(playersService:GetPlayers()) do 
+	local GenerateGUID = false
+	for i2, v2 in pairs(VoidwareStore.entityIDs) do 
+		if v2 == v.UserId then
+			GenerateGUID = true 
+		end
+	end 
+	if not GenerateGUID then
+		local generatedid = httpService:GenerateGUID(true)
+		VoidwareStore.entityIDs[generatedid] = v.UserId
+	end
+end
+
+local function isDescendantOfCharacter(object, npcblacklist)
+	if not object then return false end 
+	for i,v in pairs(playersService:GetPlayers()) do 
+		if v.Character and object:IsDescendantOf(v.Character) then
+			return true
+		end
+	end
+	for i,v in pairs(VoidwareStore.entityTable) do
+		if v.PrimaryPart and v.Parent and object:IsDescendantOf(v) and not npcblacklist then 
+			return true
+		end 
+	end
+	return false
+end
+
+task.spawn(function()
+	repeat task.wait()
+	   shared.VoidwareStore.entityIDs = VoidwareStore.entityIDs
+	until (shared.VoidwareStore and shared.VoidwareStore.ModuleType ~= "Universal" or not vapeInjected)
+end)
+
+table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(plr)
+	local GenerateGUID = false
+	for i2, v2 in pairs(VoidwareStore.entityIDs) do 
+		if v2 == plr.UserId then
+			GenerateGUID = true 
+			break
+		end
+	end
+	if not GenerateGUID then 
+		local generatedid = httpService:GenerateGUID(true)
+		VoidwareStore.entityIDs[generatedid] = plr.UserId
+	end
+end))
+function VoidwareFunctions:GetLocalEntityID(player)
+	for i,v in pairs(VoidwareStore.entityIDs) do 
+		if v == player.UserId then 
+			return i
+		end
+	end
+	return nil
+end
+
+function VoidwareFunctions:CreateLocalTag(player, text, color)
+	local plr = VoidwareFunctions:GetLocalEntityID(player or lplr)
+	if plr then
+		tags[plr] = {}
+		tags[plr].Text = text
+		tags[plr].Color = color 
+		return tags[plr]
+	end
+	return nil
+end
+
+function VoidwareFunctions:GetLocalTag(player)
+	local plr = VoidwareFunctions:GetLocalEntityID(player or lplr)
+	if plr and tags[plr] then
+		return {Text = tags[plr].Text ~= "" and "["..tags[plr].Text.."]" or "", Color = tags[plr].Color or "FFFFFF"}
+	end
+	return {Text = "", Color = "FFFFFF"}
+end
+
+function VoidwareFunctions:LoadTime()
+	if shared.VapeFullyLoaded then
+		return (tick() - VoidwareStore.TimeLoaded)
+	else
+		return 0
+	end
+end
+
+local function betterhttpget(url)
+	local supportedexploit, body = syn and syn.request or http_requst or request or fluxus and fluxus.request, ""
+	if supportedexploit then
+		local data = httprequest({Url = url, Method = "GET"})
+		if data.Body then
+			body = data.Body
+		else
+			return game:HttpGet(url, true)
+		end
+	else
+		body = game:HttpGet(url, true)
+	end
+	return body
+end
+
+local isfile = isfile or function(file)
+	local suc, res = pcall(function() return readfile(file) end)
+	return suc and res ~= nil
+end
+
+function VoidwareFunctions:GetPlayerType(plr)
+	if not VoidwareFunctions.WhitelistLoaded then return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH" end
+	plr = plr or lplr
+	local tab = VoidwareWhitelistStore.Players[plr.UserId]
+	if tab == nil then
+		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH"
+	else
+		tab.Priority = VoidwarePriority[tab.Rank:upper()]
+		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
+	end
+end
+task.spawn(function()
+	local lastrank = VoidwareWhitelistStore.Rank:upper()
+	repeat
+	VoidwareRank = VoidwareWhitelistStore.Rank:upper()
+	if VoidwareRank ~= lastrank then
+		VoidwareWhitelistStore.RankChangeEvent:Fire(VoidwareRank)
+		lastrank = VoidwareRank
+	end
+	task.wait()
+	until not vapeInjected
+end)
+function VoidwareFunctions:SpecialInGame()
+	local specialtable = {}
+	for i,v in pairs(playersService:GetPlayers()) do
+		if v ~= lplr and ({VoidwareFunctions:GetPlayerType(v)})[3] > 1.5 then
+			table.insert(specialtable, v)
+		end
+	end
+	return #specialtable > 0 and specialtable
+end
+
+function VoidwareFunctions:GetClientUsers()
+	local users = {}
+	for i,v in pairs(playersService:GetPlayers()) do
+		if v ~= lplr and table.find(shared.VoidwareStore.ConfigUsers, v) then
+			table.insert(users, plr)
+		end
+	end
+	return users
+end
+function VoidwareFunctions:RefreshWhitelist()
+	local commit, hwidstring = VoidwareFunctions:GetCommitHash("whitelist"), string.split(HWID, "-")[5]
+	local suc, whitelist = pcall(function() return httpService:JSONDecode(betterhttpget("https://raw.githubusercontent.com/Erchobg/whitelist/"..commit.."/maintab.json")) end)
+	local attributelist = {"Rank", "Attackable", "TagText", "TagColor", "TagHidden", "UID"}
+	local defaultattributelist = {Rank = "DEFAULT", Attackable = true, Priority = 1, TagText = "VOIDWARE USER", TagColor = "FFFFFF", TagHidden = true, UID = 0, HWID = "ABCDEFGH"}
+	if suc and whitelist then
+		for i,v in pairs(whitelist) do
+			if i == hwidstring and not table.find(v.BlacklistedProducts, VoidwareWhitelistStore.Hash) then 
+				VoidwareWhitelistStore.Rank = v.Rank:upper()
+				VoidwareWhitelistStore.Tab = v
+				VoidwareWhitelistStore.Players[lplr.UserId] = v
+				VoidwareWhitelistStore.LocalPlayer = v
+				VoidwareWhitelistStore.LocalPlayer.HWID = i
+				VoidwareWhitelistStore.Players[lplr.UserId].HWID = i
+				VoidwareWhitelistStore.Players[lplr.UserId].Priority = VoidwareRank[v.Rank:upper()]
+			end
+			for i2, v2 in pairs(playersService:GetPlayers()) do
+				if VoidwareWhitelistStore.Players[v2.UserId] == nil then
+				   VoidwareWhitelistStore.Players[v2.UserId] = defaultattributelist
+			        if table.find(v.Accounts, tostring(v2.UserId)) and not table.find(v.BlacklistedProducts, VoidwareWhitelistStore.Hash) then
+					 VoidwareWhitelistStore.Players[v2.UserId] = v
+					if VoidwarePriority[VoidwareWhitelistStore.Rank:upper()] >= VoidwarePriority[v.Rank] then
+					 VoidwareWhitelistStore.Players[v2.UserId].Attackable = true
+					end
+			       end
+			   end
+		    end
+		end
+		table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v2)
+			for i,v in pairs(whitelist) do
+				if VoidwareWhitelistStore.Players[v2.UserId] == nil then
+					VoidwareWhitelistStore.Players[v2.UserId] = defaultattributelist
+					 if table.find(v.Accounts, tostring(v2.UserId)) and not table.find(v.BlacklistedProducts, VoidwareWhitelistStore.Hash) then
+					 VoidwareWhitelistStore.Players[v2.UserId] = v
+					 if VoidwarePriority[VoidwareWhitelistStore.Rank:upper()] >= VoidwarePriority[v.Rank] then
+						VoidwareWhitelistStore.Players[v2.UserId].Attackable = true
+					end
+					  VoidwareWhitelistStore.HWID = i
+					end
+				end
+			end
+		end))
+		table.insert(vapeConnections, playersService.PlayerRemoving:Connect(function(v2)
+			if VoidwareWhitelistStore.Players[v2.UserId] ~= nil then
+				VoidwareWhitelistStore.Players[v2.UserId] = nil
+			end
+		end))
+	end
+	return suc, whitelist
+end
+task.spawn(function()
+	local response = false
+	local whitelistloaded, err
+	task.spawn(function()
+		whitelistloaded, err = VoidwareFunctions:RefreshWhitelist()
+		response = true
+	end)
+	task.delay(15, function() if not response then whitelistloaded, err = VoidwareFunctions:RefreshWhitelist() response = true end end)
+	repeat task.wait() until response
+	if not whitelistloaded then
+		warningNotification("Voidware", "Failed to load whitelist functions: "..err, 7)
+	end
+	task.wait(0.3)
+	VoidwareFunctions.WhitelistLoaded = true
+end)
+task.spawn(function()
+	local blacklist = false
+	repeat task.wait() until VoidwareFunctions.WhitelistLoaded
+	pcall(function()
+	repeat
+	if shared.VoidwareStore.ModuleType ~= "Universal" then return end
+	local suc, tab = pcall(function() return httpService:JSONDecode(betterhttpget("raw.githubusercontent.com/Erchobg/whitelist/"..VoidwareFunctions:GetCommitHash("whitelist").."/blacklist.json")) end)
+	if suc then
+		blacklist = false
+		for i,v in pairs(tab) do
+			if HWID:find(i) or i == tostring(lplr.UserId) or lplr.Name:find(i) then
+				blacklist = true
+				if v.Priority and v.Priority > 1 then
+				   antikickbypass(v.Error, true)
+				else
+					if not isfile(VoidwareStore.maindirectory.."/kickdata.vw") or readfile(VoidwareStore.maindirectory.."/kickdata.vw") ~= tostring(v.ID) then
+						if not isfolder("vape") then makefolder("vape") end
+						if not isfolder("vape/Voidware") then makefolder("vape/Voidware") end
+						if not isfolder(VoidwareStore.maindirectory) then makefolder(VoidwareStore.maindirectory) end
+						pcall(writefile, VoidwareStore.maindirectory.."/kickdata.vw", tostring(v.ID))
+						antikickbypass(v.Error, true)
+					end
+				end
+			end
+		end
+		if not blacklist then
+			pcall(delfile, VoidwareStore.maindirectory.."/kickdata.vw")
+		end
+	end
+	task.wait(10)
+	until not vapeInjected
+end)
+end)
+local function sendchatmessage(message) 
+	message = message or ""
+	if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(message)
+	else
+		replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(message, "All")
+	end
+end
+
+local function sendprivatemessage(player, message)
+	message = message or ""
+	if player then
+		if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+			local oldchannel = textChatService.ChatInputBarConfiguration.TargetTextChannel
+			local whisperchannel = game:GetService("RobloxReplicatedStorage").ExperienceChat.WhisperChat:InvokeServer(player.UserId)
+			if whisperchannel then
+				whisperchannel:SendAsync(VoidwareWhitelistStore.Hash)
+				textChatService.ChatInputBarConfiguration.TargetTextChannel = oldchannel
+			end
+		else
+			replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("/w "..player.Name.." "..message, "All")
+		end
+	end
+end
+local function voidwareNewPlayer(plr)
+	repeat task.wait() until VoidwareFunctions.WhitelistLoaded
+	plr = plr or lplr
+	if ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 and not ({VoidwareFunctions:GetPlayerType(plr)})[6] then
+		local tagtext, tagcolor = ({VoidwareFunctions:GetPlayerType(plr)})[4], ({VoidwareFunctions:GetPlayerType(plr)})[5]
+		VoidwareFunctions:CreateLocalTag(plr, tagtext, tagcolor)
+	end
+	if plr ~= lplr and ({VoidwareFunctions:GetPlayerType()})[3] < 2 and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then
+		task.wait(5)
+		sendprivatemessage(plr, VoidwareWhitelistStore.Hash)
+	end
+end
+task.spawn(function()
+	local oldwhitelists = {}
+	for i,v in pairs(playersService:GetPlayers()) do
+		task.spawn(voidwareNewPlayer, v)
+		oldwhitelists[v] = VoidwarePriority[({VoidwareFunctions:GetPlayerType(v)})[3]]
+	end
+	
+	table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
+		oldwhitelists[v] = VoidwarePriority[({VoidwareFunctions:GetPlayerType(v)})[3]]
+		task.spawn(voidwareNewPlayer, v)
+	end))
+	
+	table.insert(vapeConnections, VoidwareFunctions.WhitelistRefreshEvent.Event:Connect(function()
+	for i,v in pairs(playersService:GetPlayers()) do
+		if ({VoidwareFunctions:GetPlayerType(v)}) ~= oldwhitelists[v] then
+		task.spawn(voidwareNewPlayer, v)
+		end
+	end
+	end))
+end)
+
+for i,v in pairs(playersService:GetPlayers()) do
+	task.spawn(voidwareNewPlayer, v)
+end
+
+table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
+	task.spawn(voidwareNewPlayer, v)
+end))
+
+table.insert(vapeConnections, playersService.PlayerRemoving:Connect(function(v)
+	if table.find(shared.VoidwareStore.ConfigUsers, v) then
+		table.remove(shared.VoidwareStore.ConfigUsers, v)
+	end
+end))
+
 
 local WhitelistFunctions = {StoredHashes = {}, WhitelistTable = {WhitelistedUsers = {}}, Loaded = false, CustomTags = {}, LocalPriority = 0}
 do
