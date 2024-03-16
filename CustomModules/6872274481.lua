@@ -10611,7 +10611,7 @@ runFunction(function()
 end)
 
 local function GetTopBlock(position, smart, raycast, customvector)
-	position = position or isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position
+	position = position or entityLibrary.isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position
 	if not position then 
 		return nil 
 	end
