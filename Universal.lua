@@ -517,7 +517,7 @@ function VoidwareFunctions:LoadTime()
 		return 0
 	end
 end
-
+local httprequest = syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or request or function(tab)
 local function betterhttpget(url)
 	local supportedexploit, body = syn and syn.request or http_requst or request or fluxus and fluxus.request, ""
 	if supportedexploit then
