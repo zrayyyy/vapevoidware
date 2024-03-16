@@ -6903,3 +6903,58 @@ runFunction(function()
 		Function = function() end,
 	})
 end)
+
+runFunction(function()
+	local PlayerAttach = {}
+	local PlayerAttachNPC = {}
+	local PlayerAttachTween = {}
+	local PlayerAttachRaycast = {}
+	local PlayerAttachRange = {Value = 30}
+	PlayerAttach = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = 'PlayerAttach',
+		HoverText = 'Rapes others :omegalol:',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					repeat 
+						local range = (PlayerAttachTween.Enabled and PlayerAttachRange.Value + 2 or PlayerAttachRange.Value)
+						local target = GetTarget(range, nil, PlayerAttachRaycast.Enabled, PlayerAttachNPC.Enabled)
+						if target.RootPart == nil or not isAlive() then 
+							PlayerAttach.ToggleButton(false)
+							break 
+						end
+						lplr.Character.Humanoid.Sit = false
+						if PlayerAttachTween.Enabled then 
+							tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.25, Enum.EasingStyle.Linear), {CFrame = target.RootPart.CFrame}):Play()
+						else
+						   lplr.Character.HumanoidRootPart.CFrame = target.RootPart.CFrame
+						end
+						task.wait()
+					until not PlayerAttach.Enabled
+				end)
+			end
+		end
+	})
+	PlayerAttachRange = PlayerAttach.CreateSlider({
+		Name = 'Max Range',
+		Min = 10,
+		Max = 50, 
+		Function = function() end,
+		Default = 20
+	})
+	PlayerAttachRaycast = PlayerAttach.CreateToggle({
+		Name = 'Void Check',
+		HoverText = 'Doesn\'t target those in the void.',
+		Function = function() end
+	})
+	PlayerAttachNPC = PlayerAttach.CreateToggle({
+		Name = 'NPC',
+		HoverText = 'Also attaches to npcs.',
+		Function = function() end
+	})
+	PlayerAttachTween = PlayerAttach.CreateToggle({
+		Name = 'Tween',
+		HoverText = 'Smooth animation instead of teleporting.',
+		Function = function() end
+	})
+end)
