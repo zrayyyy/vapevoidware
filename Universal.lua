@@ -6893,7 +6893,7 @@ runFunction(function()
 		end,
 		ExtraText = "Roblox doors scripts"
 	})
-	CustomJumpMode = CustomJump.CreateDropdown({
+	ScriptChoice = DoorsScript.CreateDropdown({
 		Name = "ScriptChoice",
 		List = {
 			"BlackKing (Best)",
