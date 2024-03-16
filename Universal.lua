@@ -6876,7 +6876,7 @@ end
 
 runFunction(function()
 	local DoorsScript = {Enabled = false}
-	local ScriptChoice = {Value = "BlackKing (Best)"}
+	local ScriptChoice = {Value = "None"}
 	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
 		Name = "DoorsScript",
         HoverText = "Roblox doors scripts",
@@ -6896,6 +6896,7 @@ runFunction(function()
 	ScriptChoice = DoorsScript.CreateDropdown({
 		Name = "ScriptChoice",
 		List = {
+			"None",
 			"BlackKing (Best)",
 			"KiwiBirdScript"
 		},
