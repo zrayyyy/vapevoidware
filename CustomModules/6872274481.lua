@@ -10569,7 +10569,7 @@ local function GetAllQueueDescriptions(data)
 	return queuedata, queueids
 end
 
-runFunction(function()
+--[[runFunction(function()
 	local JoinQueue = {Enabled = false}
 	local queuetype = {Value = bedwarsStore.queueType}
 	local queuedescriptions = ({GetAllQueueDescriptions("title")})
@@ -10608,5 +10608,4 @@ runFunction(function()
 			end
 		end
 	end)
-end)
-
+end)--]
