@@ -358,6 +358,11 @@ GUI.CreateButton({
 	Icon = "vape/assets/WorldIcon.png", 
 	IconSize = 16
 })
+GUI.CreateDivider("CustomScripts")
+GUI.CreateButton({
+	Name = "GameScripts", 
+	Function = function(callback) GameScripts.SetVisible(callback) end, 
+})
 GUI.CreateDivider("MISC")
 GUI.CreateButton({
 	Name = "Friends", 
