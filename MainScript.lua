@@ -306,6 +306,11 @@ local World = GuiLibrary.CreateWindow({
 	Icon = "vape/assets/WorldIcon.png", 
 	IconSize = 16
 })
+local GameScripts = GuiLibrary.CreateWindow({
+	Name = "GameScripts", 
+	Icon = "vape/assets/HoverArrow2.png", 
+	IconSize = 17
+})
 local Friends = GuiLibrary.CreateWindow2({
 	Name = "Friends", 
 	Icon = "vape/assets/FriendsIcon.png", 
