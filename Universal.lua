@@ -307,7 +307,7 @@ local function AllNearPosition(distance, amount, checktab)
 	end
 	return returnedplayer
 end
-
+local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 local VoidwareFunctions = {WhitelistLoaded = false, WhitelistRefreshEvent = Instance.new("BindableEvent")}
 local VoidwareWhitelistStore = {
 	Hash = "voidwaremoment",
