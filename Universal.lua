@@ -6566,7 +6566,7 @@ end)
 
 runFunction(function()
 	local InfiniteYield = {Enabled = false}
-	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.CustomScriptsWindow.Api.CreateOptionsButton({
 		Name = "InfiniteYield",
 		HoverText = "Loads the Infinite Yield script.",
 		Function = function(callback)
@@ -6873,3 +6873,32 @@ GetAllTargets = function(distance, sort)
 	end
 	return targets
 end
+
+runFunction(function()
+	local DoorsScript = {Enabled = false}
+	local ScriptChoice = {Value = "BlackKing (Best)"}
+	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["CustomScriptsWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "DoorsScript",
+        HoverText = "Roblox doors scripts",
+		Function = function(callback)
+			if callback then
+				if ScriptChoice.Value == "BlackKing (Best)" then
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/KINGHUB01/BlackKing-obf/main/Doors%20Blackking%20And%20BobHub"))()
+				elseif ScriptChoice.Value == "KiwiBirdScript" then
+					_G.IY = true -- Infinite Yield
+					_G.Bypass = true -- Bypass haste and Backdoor lookman
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/iimateiYT/Scripts/main/Backdoors.lua"))()
+				end
+			end
+		end,
+		ExtraText = "Roblox doors scripts"
+	})
+	CustomJumpMode = CustomJump.CreateDropdown({
+		Name = "ScriptChoice",
+		List = {
+			"BlackKing (Best)",
+			"KiwiBirdScript"
+		},
+		Function = function() end,
+	})
+end)
