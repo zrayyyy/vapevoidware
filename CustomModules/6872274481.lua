@@ -10611,7 +10611,7 @@ runFunction(function()
 end)
 
 local function GetTopBlock(position, smart, raycast, customvector)
-	position = position or entityLibrary.isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position
+	position = position or entityLibrary.isAlive and lplr.Character.HumanoidRootPart.Position
 	if not position then 
 		return nil 
 	end
@@ -10654,7 +10654,7 @@ local deathpos = nil
 								end))
 								table.insert(AutoRewind.Connections, lplr.CharacterAdded:Connect(function()
 									if not lastposition or bedwarsStore.matchState == 0 or VoidwareStore.Tweening or deathpos then return end
-									repeat task.wait() until entityLibrary.isAlive(lplr, true)
+									repeat task.wait() until entityLibrary.isAlive
 									task.wait(0.1)
 									deathtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.49, Enum.EasingStyle.Linear), {CFrame = lastposition + Vector3.new(0, 5, 0)})
 									deathtween:Play()
