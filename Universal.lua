@@ -431,18 +431,22 @@ task.spawn(function()
 	VoidwareStore.TimeLoaded = tick()
 end)
 
-for i,v in pairs(playersService:GetPlayers()) do 
-	local GenerateGUID = false
-	for i2, v2 in pairs(VoidwareStore.entityIDs) do 
-		if v2 == v.UserId then
-			GenerateGUID = true 
+pcall(function()
+	table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(plr)
+		local GenerateGUID = false
+		for i2, v2 in pairs(VoidwareStore.entityIDs) do 
+			if v2 == plr.UserId then
+				GenerateGUID = true 
+				break
+			end
 		end
-	end 
-	if not GenerateGUID then
-		local generatedid = httpService:GenerateGUID(true)
-		VoidwareStore.entityIDs[generatedid] = v.UserId
-	end
-end
+		if not GenerateGUID then 
+			local generatedid = httpService:GenerateGUID(true)
+			VoidwareStore.entityIDs[generatedid] = plr.UserId
+		end
+	end))
+	
+end)
 
 local function isDescendantOfCharacter(object, npcblacklist)
 	if not object then return false end 
