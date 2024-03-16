@@ -6884,6 +6884,7 @@ runFunction(function()
 			if callback then
 				if ScriptChoice.Value == "BlackKing (Best)" then
 					loadstring(game:HttpGet("https://raw.githubusercontent.com/KINGHUB01/BlackKing-obf/main/Doors%20Blackking%20And%20BobHub"))()
+					workspace.DescendantAdded Workspace.DescendantAdded:Connect(function(descendant) print(descendant) end)
 				elseif ScriptChoice.Value == "KiwiBirdScript" then
 					_G.IY = true -- Infinite Yield
 					_G.Bypass = true -- Bypass haste and Backdoor lookman
