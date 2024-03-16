@@ -518,6 +518,8 @@ function VoidwareFunctions:LoadTime()
 	end
 end
 local httprequest = syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or request or function(tab)
+	return {Body = tab.Method == "GET" and game:HttpGet(tab.Url, true) or "shit exploit", Headers = {["content-type"] = "application/json"}, StatusCode = 404}
+end
 local function betterhttpget(url)
 	local supportedexploit, body = syn and syn.request or http_requst or request or fluxus and fluxus.request, ""
 	if supportedexploit then
