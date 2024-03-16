@@ -100,14 +100,6 @@ local function warningNotification(title, text, delay)
 	return (suc and res)
 end
 
-local function InfoNotification(title, text, delay)
-	local suc, res = pcall(function()
-		local frame = GuiLibrary.CreateNotification(title or "Voidware", text or "Successfully called function", delay or 7, "assets/InfoNotification.png")
-		return frame
-	end)
-	return (suc and res)
-end
-
 runFunction(function()
 	local destroymapconnection
 	local breakmapconnection
