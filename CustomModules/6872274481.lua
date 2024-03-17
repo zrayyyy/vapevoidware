@@ -11235,7 +11235,7 @@ runFunction(function()
 						end
 					end
 					bedwarsStore.switchdelay += (ProjectileAuraDelay.Value * 0.2)
-					if RenderStore.ping > 1000 then 
+					if VoidwareStore.CurrentPing > 1000 then 
 						bedwarsStore.switchdelay += (bedwarsStore.switchdelay + 8)
 					end
 					task.wait(getItem('star') and 0 or killauraNearPlayer and 0.25 or ProjectileAuraDelay.Value + 0.15)
