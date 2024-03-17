@@ -1,8 +1,72 @@
 local GuiLibrary = shared.GuiLibrary
+local VoidwareFunctions = {WhitelistLoaded = false, WhitelistRefreshEvent = Instance.new("BindableEvent"), WhitelistSucceeded = false, WhitelistLoadTime = tick()}
+local VoidwareLibraries = {}
+local VoidwareWhitelistStore = {
+	Hash = "voidwaremoment",
+	BlacklistTable = {},
+	Tab = {},
+	Rank = "Standard",
+	Priority = {
+		DEFAULT = 0,
+		STANDARD = 1,
+		BETA = 1.5,
+		INF = 2,
+		OWNER = 3
+	},
+	RankChangeEvent = Instance.new("BindableEvent"),
+	chatstrings = {
+		voidwaremoment = "Voidware",
+		blackwaremoment = "Blackware",
+		voidwarelitemoment = "Voidware Lite"
+	},
+	LocalPlayer = {Rank = "STANDARD", Attackable = true, Priority = 1, TagText = "VOIDWARE USER", TagColor = "0000FF", TagHidden = true, HWID = "ABCDEFG", Accounts = {}, BlacklistedProducts = {}, UID = 0},
+	Players = {}
+}
+local tags = {}
 local VoidwareStore = {
-	jumpTick = tick(),
+	maindirectory = "vape/Voidware",
+	VersionInfo = {
+        MainVersion = "3.3",
+        PatchVersion = "0",
+        Nickname = "Universal Update",
+		BuildType = "Stable",
+		VersionID = "3.3"
+    },
+	FolderTable = {"vape/Voidware", "vape/Voidware/data"},
+	SystemFiles = {"vape/NewMainScript.lua", "vape/MainScript.lua", "vape/GuiLibrary.lua", "vape/Universal.lua"},
+	teleportinprogress = false,
+	watermark = function(text) return ("[Voidware] "..text) end,
 	Tweening = false,
-	AliveTick = tick()
+	TimeLoaded = tick(),
+	ServerRegion = "none",
+	GameStarted = nil,
+	GameFinished = shared.VoidwareStore and shared.VoidwareStore.GameFinished or false,
+	CurrentPing = 0,
+	TargetObject = shared.VoidwareTargetObject,
+	bedtable = {},
+	entityIDs = shared.VoidwareStore and type(shared.VoidwareStore.entityIDs) == "table" and shared.VoidwareStore.entityIDs or {fakeIDs = {}},
+	HumanoidDied = Instance.new("BindableEvent"),
+	ReceivedTick = tick(),
+	ServerDelay = 0,
+	scytheMoveVec = false,
+	SentTick = tick(),
+	MobileInUse = (inputService:GetPlatform() == Enum.Platform.Android or inputService:GetPlatform() == Enum.Platform.IOS),
+	vapePrivateCommands = {},
+	Enums = {},
+	ChatCommands = {},
+	jumpTick = tick(),
+	Api = {},
+	AverageFPS = 60,
+	FrameRate = 60,
+	AliveTick = tick(),
+	DeathFunction = nil,
+	switchItemTick = tick(),
+	vapeupdateroutine = nil,
+	MatchEndEvent = Instance.new("BindableEvent"),
+	BedShieldEnd = Instance.new("BindableEvent"),
+	TargetUpdateLoopDelay = tick(),
+	playerFriends = {},
+	movementDisabled = false
 }
 local playersService = game:GetService("Players")
 local textService = game:GetService("TextService")
@@ -10637,4 +10701,297 @@ runFunction(function()
 		Function = function() end
 	})
 	visualrootcolor.Object.Visible = false
+end)
+
+task.spawn(function()
+    local tweenmodules = {"BedTP", "EmeraldTP", "DiamondTP", "MiddleTP", "Autowin", "PlayerTP"}
+    local tweening = false
+    repeat
+    for i,v in pairs(tweenmodules) do
+        pcall(function()
+        if GuiLibrary.ObjectsThatCanBeSaved[v.."OptionsButton"].Api.Enabled then
+            tweening = true
+        end
+        end)
+    end
+    VoidwareStore.Tweening = tweening
+    tweening = false
+    task.wait()
+  until not vapeInjected
+end)
+local vapeAssert = function(argument, title, text, duration, hault, moduledisable, module) 
+	if not argument then
+    local suc, res = pcall(function()
+    local notification = GuiLibrary.CreateNotification(title or "Voidware", text or "Failed to call function.", duration or 20, "assets/WarningNotification.png")
+    notification.IconLabel.ImageColor3 = Color3.new(220, 0, 0)
+    notification.Frame.Frame.ImageColor3 = Color3.new(220, 0, 0)
+    if moduledisable and (module and GuiLibrary.ObjectsThatCanBeSaved[module.."OptionsButton"].Api.Enabled) then GuiLibrary.ObjectsThatCanBeSaved[module.."OptionsButton"].Api.ToggleButton(false) end
+    end)
+    if hault then while true do task.wait() end end
+end
+end
+local function GetMagnitudeOf2Objects(part, part2, bypass)
+	local magnitude, partcount = 0, 0
+	if not bypass then 
+		local suc, res = pcall(function() return part.Position end)
+		partcount = suc and partcount + 1 or partcount
+		suc, res = pcall(function() return part2.Position end)
+		partcount = suc and partcount + 1 or partcount
+	end
+	if partcount > 1 or bypass then 
+		magnitude = bypass and (part - part2).magnitude or (part.Position - part2.Position).magnitude
+	end
+	return magnitude
+end
+local function FindEnemyBed(maxdistance, highest)
+	local target = nil
+	local distance = maxdistance or math.huge
+	local whitelistuserteams = {}
+	local badbeds = {}
+	if not lplr:GetAttribute("Team") then return nil end
+	for i,v in pairs(playersService:GetPlayers()) do
+		if v ~= lplr then
+			local type, attackable = VoidwareFunctions:GetPlayerType(v)
+			if not attackable then
+			whitelistuserteams[v:GetAttribute("Team")] = true
+			end
+		end
+	end
+	for i,v in pairs(collectionService:GetTagged("bed")) do
+			local bedteamstring = string.split(v:GetAttribute("id"), "_")[1]
+			if whitelistuserteams[bedteamstring] ~= nil then
+			   badbeds[v] = true
+		    end
+	    end
+	for i,v in pairs(collectionService:GetTagged("bed")) do
+		if v:GetAttribute("id") and v:GetAttribute("id") ~= lplr:GetAttribute("Team").."_bed" and badbeds[v] == nil and lplr.Character and lplr.Character.PrimaryPart then
+			if v:GetAttribute("NoBreak") or v:GetAttribute("PlacedByUserId") and v:GetAttribute("PlacedByUserId") ~= 0 then continue end
+			local magdist = GetMagnitudeOf2Objects(lplr.Character.PrimaryPart, v)
+			if magdist < distance then
+				target = v
+				distance = magdist
+			end
+		end
+	end
+	local coveredblock = highest and target and GetTopBlock(target.Position, true)
+	if coveredblock then
+		target = coveredblock.Instance
+	end
+	return target
+end
+local function FindTeamBed()
+	local bedstate, res = pcall(function()
+		return lplr.leaderstats.Bed.Value
+	end)
+	return bedstate and res and res ~= nil and res == "✅"
+end
+local function FindItemDrop(item)
+	local itemdist = nil
+	local dist = math.huge
+	local function abletocalculate() return lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") end
+    for i,v in pairs(collectionService:GetTagged("ItemDrop")) do
+		if v and v.Name == item and abletocalculate() then
+			local itemdistance = GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v)
+			if itemdistance < dist then
+			itemdist = v
+			dist = itemdistance
+		end
+		end
+	end
+	return itemdist
+end
+local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
+	local sort, entity = healthmethod and math.huge or dist or math.huge, {}
+	local function abletocalculate() return lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") end
+	local sortmethods = {Normal = function(entityroot, entityhealth) return abletocalculate() and GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, entityroot) < sort end, Health = function(entityroot, entityhealth) return abletocalculate() and entityhealth < sort end}
+	local sortmethod = healthmethod and "Health" or "Normal"
+	local function raycasted(entityroot) return abletocalculate() and blockRaycast and workspace:Raycast(entityroot.Position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast) or not blockRaycast and true or false end
+	for i,v in pairs(playersService:GetPlayers()) do
+		if v ~= lplr and abletocalculate() and isAlive(v) and ({VoidwareFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
+			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+				continue
+			end
+			if sortmethods[sortmethod](v.Character.HumanoidRootPart, v.Character:GetAttribute("Health") or v.Character.Humanoid.Health) and raycasted(v.Character.HumanoidRootPart) then
+				sort = healthmethod and v.Character.Humanoid.Health or GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v.Character.HumanoidRootPart)
+				entity.Player = v
+				entity.Human = true 
+				entity.RootPart = v.Character.HumanoidRootPart
+				entity.Humanoid = v.Character.Humanoid
+			end
+		end
+	end
+	if includemobs then
+		local maxdistance = dist or math.huge
+		for i,v in pairs(bedwarsStore.pots) do
+			if abletocalculate() and v.PrimaryPart and GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v.PrimaryPart) < maxdistance then
+			entity.Player = {Character = v, Name = "PotEntity", DisplayName = "PotEntity", UserId = 1}
+			entity.Human = false
+			entity.RootPart = v.PrimaryPart
+			entity.Humanoid = {Health = 1, MaxHealth = 1}
+			end
+		end
+		for i,v in pairs(collectionService:GetTagged("DiamondGuardian")) do 
+			if v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health and abletocalculate() then
+				if sortmethods[sortmethod](v.PrimaryPart, v.Humanoid.Health) and raycasted(v.PrimaryPart) then
+				sort = healthmethod and v.Humanoid.Health or GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v.PrimaryPart)
+				entity.Player = {Character = v, Name = "DiamondGuardian", DisplayName = "DiamondGuardian", UserId = 1}
+				entity.Human = false
+				entity.RootPart = v.PrimaryPart
+				entity.Humanoid = v.Humanoid
+				end
+			end
+		end
+		for i,v in pairs(collectionService:GetTagged("GolemBoss")) do
+			if v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health and abletocalculate() then
+				if sortmethods[sortmethod](v.PrimaryPart, v.Humanoid.Health) and raycasted(v.PrimaryPart) then
+				sort = healthmethod and v.Humanoid.Health or GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v.PrimaryPart)
+				entity.Player = {Character = v, Name = "Titan", DisplayName = "Titan", UserId = 1}
+				entity.Human = false
+				entity.RootPart = v.PrimaryPart
+				entity.Humanoid = v.Humanoid
+				end
+			end
+		end
+		for i,v in pairs(collectionService:GetTagged("Drone")) do
+			local plr = playersService:GetPlayerByUserId(v:GetAttribute("PlayerUserId"))
+			if plr and plr ~= lplr and plr.Team and lplr.Team and plr.Team ~= lplr.Team and ({VoidwareFunctions:GetPlayerType(plr)})[2] and abletocalculate() and v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health then
+				if sortmethods[sortmethod](v.PrimaryPart, v.Humanoid.Health) and raycasted(v.PrimaryPart) then
+					sort = healthmethod and v.Humanoid.Health or GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v.PrimaryPart)
+					entity.Player = {Character = v, Name = "Drone", DisplayName = "Drone", UserId = 1}
+					entity.Human = false
+					entity.RootPart = v.PrimaryPart
+					entity.Humanoid = v.Humanoid
+				end
+			end
+		end
+		for i,v in pairs(collectionService:GetTagged("Monster")) do
+			if v:GetAttribute("Team") ~= lplr:GetAttribute("Team") and abletocalculate() and v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health then
+				if sortmethods[sortmethod](v.PrimaryPart, v.Humanoid.Health) and raycasted(v.PrimaryPart) then
+				sort = healthmethod and v.Humanoid.Health or GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v.PrimaryPart)
+				entity.Player = {Character = v, Name = "Monster", DisplayName = "Monster", UserId = 1}
+				entity.Human = false
+				entity.RootPart = v.PrimaryPart
+				entity.Humanoid = v.Humanoid
+			end
+		end
+	end
+    end
+    return entity
+end
+runFunction(function()
+	local Autowin = {Enabled = false}
+	local AutowinNotification = {Enabled = true}
+	local bedtween
+	local playertween
+	Autowin = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = "Autowin",
+		ExtraText = function() return bedwarsStore.queueType :find("5v5") and "BedShield" or "Normal" end,
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					if bedwarsStore.matchState == 0 then repeat task.wait() until bedwarsStore.matchState ~= 0 or not Autowin.Enabled end
+					if not shared.VapeFullyLoaded then repeat task.wait() until shared.VapeFullyLoaded or not Autowin.Enabled end
+					if not Autowin.Enabled then return end
+					vapeAssert(not bedwarsStore.queueType:find("skywars"), "Autowin", "Skywars not supported.", 7, true, true, "Autowin")
+					if isAlive(lplr, true) then
+						lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+						lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+					end
+					table.insert(Autowin.Connections, runService.Heartbeat:Connect(function()
+						pcall(function()
+						if not isnetworkowner(lplr.Character.HumanoidRootPart) and (FindEnemyBed() and GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, FindEnemyBed()) > 75 or not FindEnemyBed()) then
+							if isAlive(lplr, true) and FindTeamBed() and Autowin.Enabled and not VoidwareStore.GameFinished then
+								lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+								lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+							end
+						end
+					end)
+					end))
+					table.insert(Autowin.Connections, lplr.CharacterAdded:Connect(function()
+						if not isAlive(lplr, true) then repeat task.wait() until isAlive(lplr, true) end
+						local bed = FindEnemyBed()
+						if bed and (bed:GetAttribute("BedShieldEndTime") and bed:GetAttribute("BedShieldEndTime") < workspace:GetServerTimeNow() or not bed:GetAttribute("BedShieldEndTime")) then
+						bedtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.65, Enum.EasingStyle.Linear, Enum.EasingDirection.In, 0, false, 0), {CFrame = CFrame.new(bed.Position) + Vector3.new(0, 10, 0)})
+						task.wait(0.1)
+						bedtween:Play()
+						bedtween.Completed:Wait()
+						task.spawn(function()
+						task.wait(1.5)
+						local magnitude = GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, bed)
+						if magnitude >= 50 and FindTeamBed() and Autowin.Enabled then
+							lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+							lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+						end
+						end)
+						if AutowinNotification.Enabled then
+							local bedname = VoidwareStore.bedtable[bed] or "unknown"
+							warningNotification("Autowin", "Destroying "..bedname:lower().." team's bed", 5)
+						end
+						if not isEnabled("Nuker") then
+							GuiLibrary.ObjectsThatCanBeSaved.NukerOptionsButton.Api.ToggleButton(false)
+						end
+						repeat task.wait() until FindEnemyBed() ~= bed or not isAlive()
+						if FindTarget(45, bedwarsStore.blockRaycast).RootPart and isAlive() then
+							if AutowinNotification.Enabled then
+								local team = VoidwareStore.bedtable[bed] or "unknown"
+								warningNotification("Autowin", "Killing "..team:lower().." team's teamates", 5)
+							end
+							repeat
+							local target = FindTarget(45, bedwarsStore.blockRaycast)
+							if not target.RootPart then break end
+							playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.30), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
+							playertween:Play()
+							task.wait()
+							until not FindTarget(45, bedwarsStore.blockRaycast).RootPart or not Autowin.Enabled or not isAlive()
+						end
+						if isAlive(lplr, true) and FindTeamBed() and Autowin.Enabled then
+							lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+							lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+						end
+						elseif FindTarget(nil, bedwarsStore.blockRaycast).RootPart then
+							task.wait()
+							local target = FindTarget(nil, bedwarsStore.blockRaycast)
+							playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, target.RootPart) / 23.4 / 35, Enum.EasingStyle.Linear), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
+							playertween:Play()
+							if AutowinNotification.Enabled then
+								warningNotification("Autowin", "Killing "..target.Player.DisplayName.." ("..(target.Player.Team and target.Player.Team.Name or "neutral").." Team)", 5)
+							end
+							playertween.Completed:Wait()
+							if not Autowin.Enabled then return end
+								if FindTarget(50, bedwarsStore.blockRaycast).RootPart and isAlive() then
+									repeat
+									target = FindTarget(50, bedwarsStore.blockRaycast)
+									if not target.RootPart or not isAlive() then break end
+									playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.30), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
+									playertween:Play()
+									task.wait()
+									until not FindTarget(50, bedwarsStore.blockRaycast).RootPart or not Autowin.Enabled or not isAlive()
+								end
+							if isAlive(lplr, true) and FindTeamBed() and Autowin.Enabled then
+								lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+								lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+							end
+						else
+						if VoidwareStore.GameFinished then return end
+						lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+						lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+						end
+					end))
+					table.insert(Autowin.Connections, lplr.CharacterAdded:Connect(function()
+						if not isAlive(lplr, true) then repeat task.wait() until isAlive(lplr, true) end
+						if not VoidwareStore.GameFinished then return end
+						local oldpos = lplr.Character.HumanoidRootPart.CFrame
+						repeat 
+						lplr.Character.HumanoidRootPart.CFrame = oldpos
+						task.wait()
+						until not isAlive(lplr, true) or not Autowin.Enabled
+					end))
+				end)
+			else
+				pcall(function() playertween:Cancel() end)
+				pcall(function() bedtween:Cancel() end)
+			end
+		end,
+		HoverText = "best paid autowin 2023!1!!! rel11!11!1"
+	})
 end)
