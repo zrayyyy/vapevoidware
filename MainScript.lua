@@ -1815,6 +1815,8 @@ local GUIbind = GUI.CreateGUIBind()
 local teleportConnection = playersService.LocalPlayer.OnTeleport:Connect(function(State)
     if (not teleportedServers) and (not shared.VapeIndependent) then
 		teleportedServers = true
+		local VapeSwitchServers = false
+		shared.VapeSwitchServers = VapeSwitchServers
 		local teleportScript = [[
 			shared.VapeSwitchServers = true 
 			if shared.VapeDeveloper then 
