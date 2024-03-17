@@ -1869,7 +1869,6 @@ GuiLibrary.SelfDestruct = function()
 	shared.VapeExecuted = nil
 	shared.VapePrivate = nil
 	shared.VapeFullyLoaded = nil
-	shared.VapeSwitchServers = nil
 	shared.GuiLibrary = nil
 	shared.VapeIndependent = nil
 	shared.VapeManualLoad = nil
@@ -1894,7 +1893,6 @@ GeneralSettings.CreateButton2({
 		else
 			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
 		end
-		shared.VapeSwitchServers = true
 		shared.VapeOpenGui = true
 		shared.VapePrivate = vapePrivateCheck
 		loadstring(vapeGithubRequest("NewMainScript.lua"))()
@@ -1998,7 +1996,6 @@ local function loadVape()
 	GUIbind.Reload()
 	TextGUIUpdate()
 	GuiLibrary.UpdateUI(GUIColorSlider.Hue, GUIColorSlider.Sat, GUIColorSlider.Value, true)
-	if not shared.VapeSwitchServers then
 		if BlatantModeToggle.Enabled then
 			pcall(function()
 				local frame = GuiLibrary.CreateNotification("Blatant Enabled", "Vape is now in Blatant Mode.", 5.5, "assets/WarningNotification.png")
@@ -2006,9 +2003,6 @@ local function loadVape()
 			end)
 		end
 		GuiLibrary.LoadedAnimation(welcomeMessage.Enabled)
-	else
-		shared.VapeSwitchServers = nil
-	end
 	if shared.VapeOpenGui then
 		GuiLibrary.MainGui.ScaledGui.ClickGui.Visible = true
 		GuiLibrary.MainGui.ScaledGui.LegitGui.Visible = false
