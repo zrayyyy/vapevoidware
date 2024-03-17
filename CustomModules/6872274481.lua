@@ -10555,6 +10555,7 @@ local function isEnabled(toggle)
 	toggle = GuiLibrary.ObjectsThatCanBeSaved[toggle.."OptionsButton"] and GuiLibrary.ObjectsThatCanBeSaved[toggle.."OptionsButton"].Api
 	return toggle and toggle.Enabled or false
 end
+local isAlive = function() return false end
 runFunction(function() 
 	local Invisibility = {}
 	local collideparts = {}
@@ -10567,7 +10568,7 @@ runFunction(function()
 		HoverText = 'Makes your invisible.',
 		Function = function(calling)
 			if calling then 
-				repeat task.wait() until ((entityLibrary.isAlive(lplr, true) or not Invisibility.Enabled) and (isEnabled('Lobby Check', 'Toggle') == false or bedwars.matchState ~= 0))
+				repeat task.wait() until ((isAlive(lplr, true) or not Invisibility.Enabled) and (isEnabled('Lobby Check', 'Toggle') == false or bedwars.matchState ~= 0))
 				if not Invisibility.Enabled then 
 					return 
 				end
