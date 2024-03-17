@@ -331,7 +331,7 @@ local VoidwareWhitelistStore = {
 }
 local tags = {}
 local VoidwareStore = {
-	maindirectory = "vape/Voidware",
+	maindirectory = "vape",
 	VersionInfo = {
         MainVersion = "3.3",
         PatchVersion = "0",
@@ -597,7 +597,7 @@ end
 function VoidwareFunctions:RefreshWhitelist()
 	local commit, hwidstring = VoidwareFunctions:GetCommitHash("whitelist"), string.split(HWID, "-")[5]
 	local suc, whitelist = pcall(function() return httpService:JSONDecode(betterhttpget("https://raw.githubusercontent.com/Erchobg/whitelist/"..commit.."/maintab.json")) end)
-	local attributelist = {"Rank", "Attackable", "TagText", "TagColor", "TagHidden", "UID"}
+	local attributelist = {"Rank", "Attackable", "Priority", "TagText", "TagColor", "TagHidden", "UID", "HWID"}
 	local defaultattributelist = {Rank = "DEFAULT", Attackable = true, Priority = 1, TagText = "VOIDWARE USER", TagColor = "FFFFFF", TagHidden = true, UID = 0, HWID = "ABCDEFGH"}
 	if suc and whitelist then
 		for i,v in pairs(whitelist) do
