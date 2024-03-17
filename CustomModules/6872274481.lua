@@ -11002,6 +11002,7 @@ local function GetAllQueueDescriptions(data)
 	end
 	return queuedata, queueids
 end
+
 runFunction(function()
 	local JoinQueue = {Enabled = false}
 	local queuetype = {Value = bedwarsStore.queueType}
