@@ -24,49 +24,38 @@ local VoidwareWhitelistStore = {
 }
 local tags = {}
 local VoidwareStore = {
-	maindirectory = "vape/Voidware",
+	maindirectory = "vape",
 	VersionInfo = {
         MainVersion = "3.3",
         PatchVersion = "0",
-        Nickname = "Universal Update",
+        Nickname = "Universal Update V2",
 		BuildType = "Stable",
 		VersionID = "3.3"
     },
 	FolderTable = {"vape/Voidware", "vape/Voidware/data"},
 	SystemFiles = {"vape/NewMainScript.lua", "vape/MainScript.lua", "vape/GuiLibrary.lua", "vape/Universal.lua"},
-	teleportinprogress = false,
 	watermark = function(text) return ("[Voidware] "..text) end,
 	Tweening = false,
 	TimeLoaded = tick(),
-	ServerRegion = "none",
-	GameStarted = nil,
-	GameFinished = shared.VoidwareStore and shared.VoidwareStore.GameFinished or false,
 	CurrentPing = 0,
-	TargetObject = shared.VoidwareTargetObject,
-	bedtable = {},
-	entityIDs = shared.VoidwareStore and type(shared.VoidwareStore.entityIDs) == "table" and shared.VoidwareStore.entityIDs or {fakeIDs = {}},
 	HumanoidDied = Instance.new("BindableEvent"),
-	ReceivedTick = tick(),
-	ServerDelay = 0,
-	scytheMoveVec = false,
-	SentTick = tick(),
-	MobileInUse = (inputService:GetPlatform() == Enum.Platform.Android or inputService:GetPlatform() == Enum.Platform.IOS),
+	MobileInUse = (platform == Enum.Platform.Android or platform == Enum.Platform.IOS) and true or false,
 	vapePrivateCommands = {},
 	Enums = {},
-	ChatCommands = {},
 	jumpTick = tick(),
-	Api = {},
+	entityIDs = shared.VoidwareStore and type(shared.VoidwareStore.entityIDs) == "table" and shared.VoidwareStore.entityIDs or {fakeIDs = {}},
+	oldchatTabs = {
+		oldchanneltab = nil,
+		oldchannelfunc = nil,
+		oldchanneltabs = {}
+	},
 	AverageFPS = 60,
 	FrameRate = 60,
 	AliveTick = tick(),
 	DeathFunction = nil,
-	switchItemTick = tick(),
 	vapeupdateroutine = nil,
-	MatchEndEvent = Instance.new("BindableEvent"),
-	BedShieldEnd = Instance.new("BindableEvent"),
-	TargetUpdateLoopDelay = tick(),
-	playerFriends = {},
-	movementDisabled = false
+	entityTable = {},
+	objectraycast = RaycastParams.new()
 }
 local playersService = game:GetService("Players")
 local textService = game:GetService("TextService")
