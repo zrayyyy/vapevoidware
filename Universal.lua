@@ -373,6 +373,7 @@ local VoidwareStore = {
 		oldchanneltabs = {}
 	},
 	AverageFPS = 60,
+	bedtable = {},
 	FrameRate = 60,
 	AliveTick = tick(),
 	DeathFunction = nil,

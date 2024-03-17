@@ -44,6 +44,7 @@ local VoidwareStore = {
 	Enums = {},
 	jumpTick = tick(),
 	entityIDs = shared.VoidwareStore and type(shared.VoidwareStore.entityIDs) == "table" and shared.VoidwareStore.entityIDs or {fakeIDs = {}},
+	bedtable = {},
 	oldchatTabs = {
 		oldchanneltab = nil,
 		oldchannelfunc = nil,
@@ -123,7 +124,26 @@ local bedwarsStore = {
 }
 bedwarsStore.blockRaycast.FilterType = Enum.RaycastFilterType.Include
 local AutoLeave = {Enabled = false}
+local function GetBedTeam(bedtomark)
+    for i,v in pairs(game.Teams:GetChildren()) do
+        if bedtomark.Covers.BrickColor == v.TeamColor then
+	        VoidwareStore.bedtable[bedtomark] = v.Name
+	       break
+      end
+    end
+end
 
+table.insert(vapeConnections, collectionService:GetInstanceAddedSignal("bed"):Connect(function(bed)
+	task.spawn(GetBedTeam, bed)
+end))
+
+task.spawn(function()
+	pcall(function()
+		for i,v in pairs(collectionService:GetTagged("bed")) do
+		pcall(GetBedTeam, v)
+		end
+	end)
+end)
 table.insert(vapeConnections, workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA("Camera")
 end))
