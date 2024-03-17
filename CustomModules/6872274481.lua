@@ -10948,7 +10948,7 @@ runFunction(function()
 							warningNotification("Autowin", "Destroying "..bedname:lower().." team's bed", 5)
 						end
 						if not isEnabled("Nuker") then
-							GuiLibrary.ObjectsThatCanBeSaved.NukerOptionsButton.Api.ToggleButton(false)
+							GuiLibrary.ObjectsThatCanBeSaved.NukerOptionsButton.Api.ToggleButton(true)
 						end
 						repeat task.wait() until FindEnemyBed() ~= bed or not isAlive()
 						if FindTarget(45, bedwarsStore.blockRaycast).RootPart and isAlive() then
