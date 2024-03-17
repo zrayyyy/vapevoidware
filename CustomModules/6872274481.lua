@@ -11102,6 +11102,19 @@ GetAllTargets = function(distance, sort)
 	return targets
 end
 
+local dumptable = function() return {} end
+dumptable = function(tab, tabtype, sortfunction)
+	local data = {}
+	for i,v in next, tab do
+		local tabtype = tabtype and tabtype == 1 and i or v
+		table.insert(data, tabtype)
+	end
+	if sortfunction then
+		table.sort(data, sortfunction)
+	end
+	return data
+end
+
 runFunction(function()
 	local ProjectileAura = {}
 	local ProjectileAuraSort = {Value = 'Distance'}
