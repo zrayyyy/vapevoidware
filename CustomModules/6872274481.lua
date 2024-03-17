@@ -10599,7 +10599,6 @@ runFunction(function()
 					else 
 						if Invisibility.Enabled then 
 							Invisibility.ToggleButton() 
-							Invisibility.ToggleButton()
 							break 
 						end
 					end	
