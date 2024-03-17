@@ -7,8 +7,24 @@ local textChatService = game:GetService("TextChatService")
 local inputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local replicatedStorageService = game:GetService("ReplicatedStorage")
+local function isEnabled(module)
+	return GuiLibrary.ObjectsThatCanBeSaved[module] and GuiLibrary.ObjectsThatCanBeSaved[module].Api.Enabled and true or false
+end
 if shared == nil then
 	getgenv().shared = {} 
+end
+local isAlive = function() return false end
+isAlive = function(plr, nohealth) 
+	plr = plr or lplr
+	local alive = false
+	if plr.Character and plr.Character:FindFirstChildWhichIsA('Humanoid') and plr.Character.PrimaryPart and plr.Character:FindFirstChild('Head') then 
+		alive = true
+	end
+	local success, health = pcall(function() return plr.Character:FindFirstChildWhichIsA('Humanoid').Health end)
+	if success and health <= 0 and not nohealth then
+		alive = false
+	end
+	return alive
 end
 local teleportService = game:GetService('TeleportService')
 local tweenService = game:GetService("TweenService")
