@@ -11368,7 +11368,13 @@ runFunction(function()
 	 end
 	})
 end)
-
+function VoidwareFunctions:LoadTime()
+	if shared.VapeFullyLoaded then
+		return (tick() - VoidwareStore.TimeLoaded)
+	else
+		return 0
+	end
+end
 runFunction(function()
 	local middletween
 	local MiddleTP = {Enabled = false}
