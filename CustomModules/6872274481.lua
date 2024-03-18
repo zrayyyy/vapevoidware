@@ -11544,6 +11544,13 @@ runFunction(function()
 	})
 end)
 
+local function GetClanTag(plr)
+	local atr, res = pcall(function()
+		return plr:GetAttribute("ClanTag")
+	end)
+	return atr and res ~= nil and res
+end
+
 runFunction(function()
 	local ClanDetector = {Enabled = false}
 	local alreadyclanchecked = {}
