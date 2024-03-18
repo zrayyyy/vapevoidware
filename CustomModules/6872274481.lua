@@ -11657,7 +11657,7 @@ runFunction(function()
 					profilesfetched = true
 				end)
 				repeat task.wait() until profilesfetched
-				for i,v in next, guiprofiles do
+				for i, v in pairs(guiprofiles) do
 					downloadVapeProfile("vape/Profiles/" v)
 				end
 			end
