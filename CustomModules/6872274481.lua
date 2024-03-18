@@ -10974,16 +10974,16 @@ runFunction(function()
 						end)
 						if AutowinNotification.Enabled then
 							local bedname = VoidwareStore.bedtable[bed] or "unknown"
-							warningNotification("Autowin", "Destroying "..bedname:lower().." team's bed", 5)
+							InfoNotification("Autowin", "Destroying "..bedname:lower().." team's bed", 5)
 						end
 						if not isEnabled("Nuker") then
-							GuiLibrary.ObjectsThatCanBeSaved.NukerOptionsButton.Api.ToggleButton(true)
+							InfoNotification("Autowin", "Please turn on nuker", 5)
 						end
 						repeat task.wait() until FindEnemyBed() ~= bed or not isAlive()
 						if FindTarget(45, bedwarsStore.blockRaycast).RootPart and isAlive() then
 							if AutowinNotification.Enabled then
 								local team = VoidwareStore.bedtable[bed] or "unknown"
-								warningNotification("Autowin", "Killing "..team:lower().." team's teamates", 5)
+								InfoNotification("Autowin", "Killing "..team:lower().." team's teamates", 5)
 							end
 							repeat
 							local target = FindTarget(45, bedwarsStore.blockRaycast)
@@ -11003,7 +11003,7 @@ runFunction(function()
 							playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, target.RootPart) / 23.4 / 35, Enum.EasingStyle.Linear), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
 							playertween:Play()
 							if AutowinNotification.Enabled then
-								warningNotification("Autowin", "Killing "..target.Player.DisplayName.." ("..(target.Player.Team and target.Player.Team.Name or "neutral").." Team)", 5)
+								InfoNotification("Autowin", "Killing "..target.Player.DisplayName.." ("..(target.Player.Team and target.Player.Team.Name or "neutral").." Team)", 5)
 							end
 							playertween.Completed:Wait()
 							if not Autowin.Enabled then return end
