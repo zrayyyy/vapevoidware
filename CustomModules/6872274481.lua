@@ -11596,3 +11596,34 @@ runFunction(function()
 		end
 	})
 end)
+local function vapeGithubRequest(scripturl)
+	if not isfolder("vape/Profiles") then
+		makefolder("vape/Profiles")
+	else
+		continue
+	end
+	if not isfile("vape/Profiles"..scripturl) then
+		local suc, res
+		suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+		if not suc or res == "404: Not Found" then
+			displayErrorPopup("Failed to connect to github : vape/"..scripturl.." : "..res)
+			error(res)
+		end
+		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
+		writefile("vape/"..scripturl, res)
+	end
+	return readfile("vape/"..scripturl)
+end
+
+runFunction(function()
+	local DownloadProfiles = {Enabled = false}
+	DownloadProfiles = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = "DownloadProfiles",
+		HoverText = "Downloads profiles",
+		Function = function(callback) 
+			if callback then
+				
+			end
+		end
+	})
+end)
