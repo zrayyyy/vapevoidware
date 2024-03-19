@@ -450,14 +450,14 @@ end)
 
 pcall(function()
 	table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(plr)
-		local GenerateGUID = false
+		local GenerateGUID2 = false
 		for _, v in pairs(VoidwareStore.entityIDs) do 
 			if v == plr.UserId then
-				GenerateGUID= true
+				GenerateGUID2 = true
 				break
 			end
 		end
-		if not GenerateGUID then 
+		if not GenerateGUID2 then 
 			local generatedid = httpService:GenerateGUID()
 			VoidwareStore.entityIDs[generatedid] = plr.UserId
 		end
