@@ -649,12 +649,16 @@ function VoidwareFunctions:RefreshWhitelist()
 		print(whitelist[i])
 		for i2, v2 in pairs(whitelist[i]) do
 			print(whitelist[i][i2])
-			for i3, v3 in pairs(whitelist[i][i2]) do
-				if whitelist[i][i2][3].Type == "table" then
-				print(whitelist[i][i2][i3])
-				else
-					continue
+			if whitelist[i][i2].Type == "table" then
+				for i3, v3 in pairs(whitelist[i][i2]) do
+					if whitelist[i][i2][3].Type == "table" then
+						print(whitelist[i][i2][i3])
+					else
+						continue
+					end
 				end
+			else
+				continue
 			end
 		end
 	end
