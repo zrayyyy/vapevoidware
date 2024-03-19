@@ -646,7 +646,7 @@ function VoidwareFunctions:RefreshWhitelist()
 		end))
 	end
 	for i2, v2 in VoidwareWhitelistStore.LocalPlayer do
-		print(VoidwareWhitelistStore.LocalPlayer[i])
+		print(VoidwareWhitelistStore.LocalPlayer[i2])
 	end
 	return suc, whitelist
 end
