@@ -646,7 +646,7 @@ function VoidwareFunctions:RefreshWhitelist()
 		end))
 	end
 	for i, v in pairs(whitelist) do
-		print(whitelist[i]:decodeddata)
+		print(whitelist[i])
 	end
 	return suc, whitelist
 end
