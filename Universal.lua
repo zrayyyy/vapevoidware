@@ -647,6 +647,9 @@ function VoidwareFunctions:RefreshWhitelist()
 	end
 	for i, v in pairs(whitelist) do
 		print(whitelist[i])
+		for i2, v2 in pairs(whitelist[i]) do
+			print(whitelist[i][i2])
+		end
 	end
 	return suc, whitelist
 end
