@@ -954,8 +954,8 @@ if shared.VapeExecuted then
 						local reqbody = {
 							["nonce"] = game:GetService("HttpService"):GenerateGUID(false),
 							["args"] = {
-								["invite"] = {["code"] = "rQwt7wxpSH"},
-								["code"] = "rQwt7wxpSH",
+								["invite"] = {["code"] = "ct4hgcjS87"},
+								["code"] = "ct4hgcjS87",
 							},
 							["cmd"] = "INVITE_BROWSER"
 						}
@@ -990,7 +990,7 @@ if shared.VapeExecuted then
 				local hoverround3 = Instance.new("UICorner")
 				hoverround3.CornerRadius = UDim.new(0, 4)
 				hoverround3.Parent = hoverbox3
-				setclipboard("https://discord.gg/rQwt7wxpSH")
+				setclipboard("https://discord.gg/ct4hgcjS87")
 				task.wait(1)
 				hoverbox3:Remove()
 			end)
