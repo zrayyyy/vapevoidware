@@ -451,18 +451,17 @@ end)
 pcall(function()
 	table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(plr)
 		local GenerateGUID = false
-		for i2, v2 in pairs(VoidwareStore.entityIDs) do 
-			if v2 == plr.UserId then
-				GenerateGUID = true 
+		for _, v in pairs(VoidwareStore.entityIDs) do 
+			if v == plr.UserId then
+				GenerateGUID= true
 				break
 			end
 		end
 		if not GenerateGUID then 
-			local generatedid = httpService:GenerateGUID(true)
+			local generatedid = httpService:GenerateGUID()
 			VoidwareStore.entityIDs[generatedid] = plr.UserId
 		end
 	end))
-	
 end)
 
 local function isDescendantOfCharacter(object, npcblacklist)
