@@ -645,27 +645,6 @@ function VoidwareFunctions:RefreshWhitelist()
 			end
 		end))
 	end
-	for i, v in pairs(whitelist) do
-		print(whitelist[i])
-		for i2, v2 in pairs(whitelist[i]) do
-			print(whitelist[i][i2])
-			if whitelist[i][i2] == boolean then
-				continue
-			else
-				if whitelist[i][i2].Type == "table" then
-					for i3, v3 in pairs(whitelist[i][i2]) do
-						if whitelist[i][i2][3].Type == "table" then
-							print(whitelist[i][i2][i3])
-						else
-							continue
-						end
-					end
-				else
-					continue
-				end
-			end
-		end
-	end
 	return suc, whitelist
 end
 task.spawn(function()
