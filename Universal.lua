@@ -645,6 +645,8 @@ function VoidwareFunctions:RefreshWhitelist()
 			end
 		end))
 	end
+	print(suc)
+	print(whitelist)
 	return suc, whitelist
 end
 task.spawn(function()
