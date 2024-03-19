@@ -11619,7 +11619,7 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 	local emo2 = {}
 	SetEmote = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'SetEmote',
-		HoverText = "Sets your emote [Render]"
+		HoverText = "Sets your emote [Render]",
 		Function = function(calling)
 			if calling then
 				oldemote = lplr:GetAttribute('EmoteTypeSlot1')
