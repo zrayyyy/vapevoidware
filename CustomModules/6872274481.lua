@@ -11611,3 +11611,142 @@ runFunction(function()
 		end
 	})
 end)
+
+runFunction(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
+	local SetEmote = {}
+	local SetEmoteList = {Value = ''}
+	local oldemote
+	local emo2 = {}
+	SetEmote = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'SetEmote',
+		HoverText = "Sets your emote [Render]"
+		Function = function(calling)
+			if calling then
+				oldemote = lplr:GetAttribute('EmoteTypeSlot1')
+				lplr:SetAttribute('EmoteTypeSlot1', emo2[SetEmoteList.Value])
+			else
+				if oldemote then 
+					lplr:GetAttribute('EmoteTypeSlot1', oldemote)
+					oldemote = nil 
+				end
+			end
+		end
+	})
+	local emo = {}
+	for i,v in pairs(bedwars.EmoteMeta) do 
+		table.insert(emo, v.name)
+		emo2[v.name] = i
+	end
+	table.sort(emo, function(a, b) return a:lower() < b:lower() end)
+	SetEmoteList = SetEmote.CreateDropdown({
+		Name = 'Emote',
+		List = emo,
+		Function = function(emote)
+			if SetEmote.Enabled then 
+				lplr:SetAttribute('EmoteTypeSlot1', emo2[emote])
+			end
+		end
+	})
+end)
+
+runFunction(function()
+	local NoEmoteWheel = {}
+	local emoting
+	NoEmoteWheel = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'NoEmoteWheel',
+		HoverText = 'Removes the old emote wheel and uses the first\nemote in your emote slot. [Render]',
+		Function = function(calling)
+			if calling then 
+				table.insert(NoEmoteWheel.Connections, lplr.PlayerGui.ChildAdded:Connect(function(v)
+					local anim
+					if tostring(v) == 'RoactTree' and isAlive(lplr, true) and not emoting then 
+						v:WaitForChild('1'):WaitForChild('1')
+						if not v['1']:IsA('ImageButton') then 
+							return 
+						end
+						v['1'].Visible = false
+						emoting = true
+						bedwars.ClientHandler:Get('Emote'):CallServer({emoteType = lplr:GetAttribute('EmoteTypeSlot1')})
+						local oldpos = lplr.Character.HumanoidRootPart.Position 
+						if tostring(lplr:GetAttribute('EmoteTypeSlot1')):lower():find('nightmare') then 
+							anim = Instance.new('Animation')
+							anim.AnimationId = 'rbxassetid://9191822700'
+							anim = lplr.Character.Humanoid.Animator:LoadAnimation(anim)
+							task.spawn(function()
+								repeat 
+									anim:Play()
+									anim.Completed:Wait()
+								until not anim
+							end)
+						end
+						repeat task.wait() until ((lplr.Character.HumanoidRootPart.Position - oldpos).Magnitude >= 0.3 or not isAlive(lplr, true))
+						pcall(function() anim:Stop() end)
+						anim = nil
+						emoting = false
+						bedwars.ClientHandler:Get('EmoteCancelled'):CallServer({emoteType = lplr:GetAttribute('EmoteTypeSlot1')})
+					end
+				end))
+			end
+		end
+	})
+end)
+
+runFunction(function()
+	local AutoEgg = {}
+	AutoEgg = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'AutoEgg',
+		HoverText = 'Automatically deposit eggs. [Render]',
+		Function = function(calling)
+			if calling then 
+				repeat 
+					for i,v in next, bedwarsStore.nests do 
+						local egg = getItem('throwable_egg')
+						if egg and v.Parent and v:FindFirstChild('NestDepositPrompt') then 
+							fireproximityprompt(v.NestDepositPrompt)
+						end
+					end
+					for i,v in next, bedwarsStore.eggs do 
+						if isAlive(lplr, true) and v.Parent and v:FindFirstChild('EggCollectPrompt') then 
+							local distance = (lplr.Character.HumanoidRootPart.Position - v.Position).Magnitude 
+							if distance < 10 then 
+								fireproximityprompt(v.EggCollectPrompt)
+							end
+						end
+					end
+					task.wait()
+				until (not AutoEgg.Enabled)
+			end
+		end
+	})
+end)
+
+runFunction(function()
+	local ScytheDisabler = {}
+	ScytheDisabler = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = 'ScytheDisabler',
+		HoverText = 'Only works in custom matches, sorry <3 [Render]',
+		Function = function(calling)
+			if calling then 
+				repeat
+					task.wait()
+					if killauraNearPlayer then 
+						continue
+					end
+					local scythe = getItemNear('_scythe')
+					if isAlive(lplr, true) and not scythe then 
+						bedwars.ClientHandler:Get('ForgePurchaseUpgrade'):SendToServer(bedwars.ForgeConstants.SCYTHE)
+						continue
+					end
+					if isAlive(lplr, true) then 
+						local move = lplr.Character.Humanoid.MoveDirection
+						switchItem(scythe.tool)
+						bedwars.ClientHandler:Get('ScytheDash'):SendToServer({direction = move == Vector3.zero and Vector3.new(9e9, 9e9, 9e9) or move * 9e15})
+						if lplr:GetAttribute('ScytheSpinning') then 
+							bedwarsStore.scythe = (tick() + 1) 
+						end
+					end
+				until (not ScytheDisabler.Enabled)
+			end
+		end
+	})
+end)
