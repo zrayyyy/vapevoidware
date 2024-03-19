@@ -646,7 +646,7 @@ function VoidwareFunctions:RefreshWhitelist()
 		end))
 	end
 	for i, v in VoidwareWhitelistStore do
-		print(VoidwareWhitelistStore.v)
+		print(VoidwareWhitelistStore[i])
 	end
 	return suc, whitelist
 end
