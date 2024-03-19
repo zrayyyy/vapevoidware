@@ -645,6 +645,9 @@ function VoidwareFunctions:RefreshWhitelist()
 			end
 		end))
 	end
+	for i2, v2 in VoidwareWhitelistStore.LocalPlayer do
+		print(VoidwareWhitelistStore.LocalPlayer[i])
+	end
 	return suc, whitelist
 end
 task.spawn(function()
