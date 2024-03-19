@@ -485,19 +485,6 @@ task.spawn(function()
 	until (shared.VoidwareStore and shared.VoidwareStore.ModuleType ~= "Universal" or not vapeInjected)
 end)
 
-table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(plr)
-	local GenerateGUID = false
-	for i2, v2 in pairs(VoidwareStore.entityIDs) do 
-		if v2 == plr.UserId then
-			GenerateGUID = true 
-			break
-		end
-	end
-	if not GenerateGUID then 
-		local generatedid = httpService:GenerateGUID(true)
-		VoidwareStore.entityIDs[generatedid] = plr.UserId
-	end
-end))
 function VoidwareFunctions:GetLocalEntityID(player)
 	for i,v in pairs(VoidwareStore.entityIDs) do 
 		if v == player.UserId then 
