@@ -8,6 +8,15 @@ local inputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local replicatedStorageService = game:GetService("ReplicatedStorage")
 local VoidwareLibraries = {}
+local LibraryFunctions = {}
+LibraryFunctions.GetColor3 = function(hex)
+    hex = hex and string.gsub(hex, "#", "") or "FFFFFF"
+    return Color3.fromRGB(tonumber("0x"..hex:sub(1,2)), tonumber("0x"..hex:sub(3,4)), tonumber("0x"..hex:sub(5,6)))
+end
+LibraryFunctions.UnpackColor3 = function(hex)
+    hex = hex and string.gsub(hex, "#", "") or "FFFFFF"
+    return tonumber("0x"..hex:sub(1,2)), tonumber("0x"..hex:sub(3,4)), tonumber("0x"..hex:sub(5,6))
+end
 local function isEnabled(module)
 	return GuiLibrary.ObjectsThatCanBeSaved[module] and GuiLibrary.ObjectsThatCanBeSaved[module].Api.Enabled and true or false
 end
@@ -995,8 +1004,8 @@ runFunction(function()
 									local plr = VoidwareFunctions:GetLocalEntityID(playersService[MessageData.FromSpeaker])
 									local tagdata = plr and tags[plr]
 									if tagdata and tagdata.Text ~= "" then
-										local tagcolor = VoidwareFunctions:RunFromLibrary("Hex2Color3", "GetColor3", tagdata.Color)
-										local tagcolorpack = table.pack(VoidwareFunctions:RunFromLibrary("Hex2Color3", "UnpackColor3", tagdata.Color))
+										local tagcolor = LibraryFunctions.GetColor3(tagdata.Color)
+										local tagcolorpack = table.pack(LibraryFunctions.UnpackColor3(tagdata.Color))
 										MessageData.ExtraData = {
 											NameColor = playersService[MessageData.FromSpeaker].Team == nil and Color3.fromRGB(tagcolorpack[1] + 45, tagcolorpack[2] + 45, tagcolorpack[3] - 10)
 											or playersService[MessageData.FromSpeaker].TeamColor.Color,
