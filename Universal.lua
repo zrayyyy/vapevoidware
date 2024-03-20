@@ -562,17 +562,17 @@ local isfile = isfile or function(file)
 	return suc and res ~= nil
 end
 
-function VoidwareFunctions:GetPlayerType(plr)
-	if not VoidwareFunctions.WhitelistLoaded then return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH" end
-	plr = plr or lplr
-	local tab = VoidwareWhitelistStore.Players[plr.UserId]
-	if tab == nil then
-		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH"
-	else
-		tab.Priority = VoidwarePriority[tab.Rank:upper()]
-		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
+--[[local thing = game:GetService("Players"):GetChildren()
+task.spawn(function()
+	for i, v in pairs(thing) do
+		table.insert(VoidwareWhitelistStore.Players, thing[i].UserId)
+		print(VoidwareWhitelistStore.Players[i])
 	end
-end
+end) --]]
+
+--for i,v in pairs(VoidwareWhitelistStore.Players) do
+--	print("aaa "..VoidwareWhitelistStore.Players[i])
+--end
 task.spawn(function()
 	local lastrank = VoidwareWhitelistStore.Rank:upper()
 	repeat
@@ -684,6 +684,22 @@ task.spawn(function()
 	task.wait(0.3)
 	VoidwareFunctions.WhitelistLoaded = true
 end)
+
+function VoidwareFunctions:GetPlayerType(plr)
+	if not VoidwareFunctions.WhitelistLoaded then
+		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH" 
+	end
+	plr = plr or lplr
+	local tab = VoidwareWhitelistStore.Players[plr.UserId]
+	if tab == nil then
+		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH"
+	else
+		tab.Priority = VoidwarePriority[tab.Rank:upper()]
+		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
+	end
+end
+
+
 task.spawn(function()
 	local blacklist = false
 	repeat task.wait() until VoidwareFunctions.WhitelistLoaded
