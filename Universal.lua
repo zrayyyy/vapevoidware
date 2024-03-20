@@ -584,6 +584,21 @@ task.spawn(function()
 	task.wait()
 	until not vapeInjected
 end)
+
+function VoidwareFunctions:GetPlayerType(plr)
+	if not VoidwareFunctions.WhitelistLoaded then
+		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH" 
+	end
+	plr = plr or lplr
+	local tab = VoidwareWhitelistStore.Players[plr.UserId]
+	if tab == nil then
+		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH"
+	else
+		tab.Priority = VoidwarePriority[tab.Rank:upper()]
+		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
+	end
+end
+
 function VoidwareFunctions:SpecialInGame()
 	local specialtable = {}
 	for i,v in pairs(playersService:GetPlayers()) do
@@ -684,20 +699,6 @@ task.spawn(function()
 	task.wait(0.3)
 	VoidwareFunctions.WhitelistLoaded = true
 end)
-
-function VoidwareFunctions:GetPlayerType(plr)
-	if not VoidwareFunctions.WhitelistLoaded then
-		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH" 
-	end
-	plr = plr or lplr
-	local tab = VoidwareWhitelistStore.Players[plr.UserId]
-	if tab == nil then
-		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH"
-	else
-		tab.Priority = VoidwarePriority[tab.Rank:upper()]
-		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
-	end
-end
 
 
 task.spawn(function()
