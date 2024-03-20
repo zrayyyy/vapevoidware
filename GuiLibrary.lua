@@ -104,6 +104,8 @@ if shared.VapeExecuted then
 	local translations = shared.VapeTranslation or {}
 	local translatedlogo = false
 
+	local Platform = inputService:GetPlatform()
+
 	GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
 		local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
 		for i, v in pairs(GuiLibrary.RainbowSliders) do 
@@ -6889,7 +6891,7 @@ if shared.VapeExecuted then
 	GuiLibrary["LoadedAnimation"] = function(enabled)
 		if enabled then
 			--no cache but its ran 1 time so idc
-			local bad = not (inputService:GetPlatform() == Enum.Platform.Windows or inputService:GetPlatform() == Enum.Platform.OSX)
+			local bad = not (Platform == Enum.Platform.Windows or Platform == Enum.Platform.OSX)
 			GuiLibrary.CreateNotification("Finished Loading", bad and GuiLibrary["GUIKeybind"] == "RightShift" and "Press the button in the top right to open GUI" or "Press "..string.upper(GuiLibrary["GUIKeybind"]).." to open GUI", 5)
 		end
 	end
@@ -6897,7 +6899,7 @@ if shared.VapeExecuted then
 	local holdingalt = false
 	local uninjected = false
 
-	if inputService.TouchEnabled or inputService:GetPlatform() == Enum.Platform.UWP then 
+	if inputService.TouchEnabled or Platform == Enum.Platform.UWP then 
 		local button = Instance.new("TextButton")
 		button.Position = UDim2.new(1, -30, 0, 0)
 		button.Text = "Vape"

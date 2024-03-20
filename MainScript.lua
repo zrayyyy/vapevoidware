@@ -88,7 +88,9 @@ local vapeAssetTable = {
 	["vape/assets/VapeLogo2.png"] = "rbxassetid://13350876307",
 	["vape/assets/VapeLogo4.png"] = "rbxassetid://13350877564"
 }
-if inputService:GetPlatform() ~= Enum.Platform.Windows then 
+local Platform = inputService:GetPlatform()
+
+if Platform ~= Enum.Platform.Windows then 
 	--mobile exploit fix
 	getgenv().getsynasset = nil
 	getgenv().getcustomasset = nil
@@ -1006,7 +1008,7 @@ local function TextGUIUpdate()
 		VapeTextExtra.Text = formattedText
         VapeText.Size = UDim2.fromOffset(154, (formattedText ~= "" and textService:GetTextSize(formattedText, VapeText.TextSize, VapeText.Font, Vector2.new(1000000, 1000000)) or Vector2.zero).Y)
 
-		local offsets = TextGUIOffsets[inputService:GetPlatform()] or {
+		local offsets = TextGUIOffsets[Platform] or {
 			5,
 			1,
 			23,
