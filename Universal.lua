@@ -7,6 +7,7 @@ local textChatService = game:GetService("TextChatService")
 local inputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local replicatedStorageService = game:GetService("ReplicatedStorage")
+local VoidwareLibraries = {}
 local function isEnabled(module)
 	return GuiLibrary.ObjectsThatCanBeSaved[module] and GuiLibrary.ObjectsThatCanBeSaved[module].Api.Enabled and true or false
 end
@@ -146,6 +147,15 @@ local function getPlayerColor(plr)
 	end
 	return tostring(plr.TeamColor) ~= "White" and plr.TeamColor.Color
 end
+
+task.spawn(function()
+	repeat 
+	for i,v in pairs({"base64", "Hex2Color3"}) do 
+		task.spawn(function() VoidwareLibraries[v] = loadstring(vapeGithubRequest("Libraries/"..v..".lua"))() end)
+	end
+	task.wait(5)
+	until not vapeInjected
+end)
 
 local entityLibrary = loadstring(vapeGithubRequest("Libraries/entityHandler.lua"))()
 shared.vapeentity = entityLibrary
@@ -757,6 +767,11 @@ end)
 
 for i,v in pairs(playersService:GetPlayers()) do
 	task.spawn(voidwareNewPlayer, v)
+end
+
+function VoidwareFunctions:RunFromLibrary(tablename, func, argstable)
+	if VoidwareLibraries[tablename] == nil then repeat task.wait() until VoidwareLibraries[tablename] and type(VoidwareLibraries[tablename]) == "table" end 
+	return VoidwareLibraries[tablename][func](argstable and type(argstable) == "table" and table.unpack(argstable) or argstable or nil)
 end
 
 table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
