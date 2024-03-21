@@ -4182,7 +4182,7 @@ runFunction(function()
 	end 
 	table.insert(vapeConnections, playersService.PlayerAdded:Connect(whitelistFunction))
 	if RenderFunctions:GetPlayerType(1) ~= 'STANDARD' then 
-		InfoNotification('Render Whitelist', 'You are now authenticated, welcome!', 4.5)
+		InfoNotification('Voidware Whitelist', 'You are now authenticated, welcome!', 4.5)
 	end
 end)
 
