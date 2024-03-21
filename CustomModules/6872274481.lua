@@ -11056,7 +11056,7 @@ runFunction(function()
 		end
 	})
 end)
-local function GetAllQueueDescriptions(data)
+--[[local function GetAllQueueDescriptions(data)
 	local queuedata, queueids = {}, {}
 	local rankedunlocked = lplr:GetAttribute("PlayerLevel") and tonumber(lplr:GetAttribute("PlayerLevel")) >= 10 and tonumer(lplr.AccountAge) >= 7
 	for i,v in pairs(bedwars.QueueMeta) do 
@@ -11113,7 +11113,7 @@ runFunction(function()
 			end
 		end
 	end)
-end)
+end)--]]
 
 local GetAllTargets = function() return {} end
 GetAllTargets = function(distance, sort)
