@@ -63,7 +63,7 @@ task.spawn(function()
 	end)
 end)
 
-local RenderFunctions = loadfile('vape/Libraries/voidwarefunctions.lua')()
+local RenderFunctions = loadstring(vapeGithubRequest("Libraries/voidwarefunctions.lua"))()
 
 local isAlive = function() return false end 
 local playSound = function() end
