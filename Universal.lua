@@ -4159,6 +4159,27 @@ runFunction(function()
 	end)
 end)
 
+task.spawn(function()
+	local notified = tick()
+	local commit, hash = pcall(function() return readfile('vape/Libraries/commit.ren') end)
+	repeat  
+		local newcommit = RenderFunctions:GithubHash() 
+		if hash ~= newcommit then 
+			RenderFunctions:DebugPrint('Successfully fetected a new update! '..(commit and hash or 'nil')..' to '..newcommit)
+			if tick() > notified then 
+				InfoNotification('Voidware', 'Voidware is currently processing updates in the background.', 15) 
+				notified = (tick() + 300)
+			end
+			hash = newcommit
+			local success = pcall(function() return RenderDeveloper == nil and RenderFunctions:RefreshLocalEnv() end)
+			if success and isfolder('vape/Libraries') then 
+				writefile('vape/Libraries/commit.ren', newcommit) 
+			end
+		end
+		task.wait(23)
+	until not vapeInjected
+end)
+
 runFunction(function()
 	local function whitelistFunction(plr)
 		repeat task.wait() until RenderFunctions.WhitelistLoaded

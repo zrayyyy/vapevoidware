@@ -70,16 +70,30 @@ local function errorNotification(title, text, duration)
     end)
 end
 
+function RenderFunctions:GithubHash(repo, owner)
+    local html = httprequest({Url = 'https://github.com/'..(owner or 'Erchobg')..'/'..(repo or 'vapevoidware')}).Body -- had to use this cause "Arceus X" is absolute bs LMFAO
+	for i,v in next, html:split("\n") do 
+	    if v:find('commit') and v:find('fragment') then 
+	       local str = v:split("/")[5]
+	       local success, commit = pcall(function() return str:sub(0, v:split('/')[5]:find('"') - 1) end) 
+           if success and commit then 
+               return commit 
+           end
+	    end
+	end
+    return (repo == 'vapevoidware' and 'source' or 'main')
+end
+
 function RenderFunctions:CreateLocalDirectory(directory)
-    local splits = tostring(directory:gsub('vape/Render/', '')):split('/')
+    local splits = tostring(directory:gsub('vape/Libraries/', '')):split('/')
     local last = ''
     for i,v in next, splits do 
-        if not isfolder('vape/Render') then 
-            makefolder('vape/Render') 
+        if not isfolder('vape/Libraries') then 
+            makefolder('vape/Libraries') 
         end
         if i ~= #splits then 
             last = ('/'..last..'/'..v)
-            makefolder('vape/Render'..last)
+            makefolder('vape/Libraries'..last)
         end
     end 
     return directory
@@ -89,17 +103,11 @@ function RenderFunctions:RefreshLocalEnv()
     local signal = Instance.new('BindableEvent')
     local start = tick()
     local coreinstalled = 0
-    for i,v in next, ({'Libraries', 'scripts'}) do  
-        if isfolder('vape/Render/'..v) then 
-            delfolder('vape/Render/'..v) 
-            RenderFunctions:DebugWarning('vape/Render/'..v, 'folder has been deleted due to updates.')
-        end
-    end
     for i,v in next, ({'Universal.lua', 'MainScript.lua', 'NewMainScript.lua', 'GuiLibrary.lua'}) do 
         task.spawn(function()
-            local contents = game:HttpGet('https://raw.githubusercontent.com/SystemXVoid/'..RenderFunctions:GithubHash()..'/packages/'..v)
+            local contents = game:HttpGet('https://raw.githubusercontent.com/Erchobg/'..RenderFunctions:GithubHash()..v)
             if contents ~= '404: Not Found' then 
-                contents = (tostring(contents:split('\n')[1]):find('Render Custom Vape Signed File') and contents or '-- Render Custom Vape Signed File\n'..contents)
+                contents = (tostring(contents:split('\n')[1]):find('Voidware Custom Vape Signed File') and contents or '-- Voidware Custom Vape Signed File\n'..contents)
                 if isfolder('vape') then 
                     RenderFunctions:DebugWarning('vape/', v, 'has been overwritten due to updates.')
                     writefile('vape/'..v, contents) 
@@ -108,19 +116,16 @@ function RenderFunctions:RefreshLocalEnv()
             end 
         end)
     end
-    local files = httpService:JSONDecode(game:HttpGet('https://api.github.com/repos/SystemXVoid/Render/contents/packages'))
-    local customsinstalled = 0
-    local totalcustoms = 0
-    for i,v in next, files do 
-        totalcustoms = (totalcustoms + 1)
-        task.spawn(function() 
-            local number = tonumber(tostring(v.name:split('.')[1]))
-            if number then 
-				local contents = game:HttpGet('https://raw.githubusercontent.com/SystemXVoid/Render/'..RenderFunctions:GithubHash()..'/packages/'..v.name) 
-                contents = (tostring(contents:split('\n')[1]):find('Render Custom Vape Signed File') and contents or '-- Render Custom Vape Signed File\n'..contents)
-				writefile('vape/CustomModules/'..v.name, contents)
-                customsinstalled = (customsinstalled + 1)
-                RenderFunctions:DebugWarning('vape/Render/'..v, 'was overwritten due to updates.')
+    for i,v in next, ({'6872274481.lua', '6872265039.lua'}) do 
+        task.spawn(function()
+            local contents = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/CustomModules/'..RenderFunctions:GithubHash()..v)
+            if contents ~= '404: Not Found' then 
+                contents = (tostring(contents:split('\n')[1]):find('Voidware Custom Vape Signed File') and contents or '-- Voidware Custom Vape Signed File\n'..contents)
+                if isfolder('vape') then 
+                    RenderFunctions:DebugWarning('vape/', v, 'has been overwritten due to updates.')
+                    writefile('vape/'..v, contents) 
+                    coreinstalled = (coreinstalled + 1)
+                end
             end 
         end)
     end
@@ -132,41 +137,27 @@ function RenderFunctions:RefreshLocalEnv()
     return signal
 end
 
-function RenderFunctions:GithubHash(repo, owner)
-    local html = httprequest({Url = 'https://github.com/'..(owner or 'SystemXVoid')..'/'..(repo or 'Render')}).Body -- had to use this cause "Arceus X" is absolute bs LMFAO
-	for i,v in next, html:split("\n") do 
-	    if v:find('commit') and v:find('fragment') then 
-	       local str = v:split("/")[5]
-	       local success, commit = pcall(function() return str:sub(0, v:split('/')[5]:find('"') - 1) end) 
-           if success and commit then 
-               return commit 
-           end
-	    end
-	end
-    return (repo == 'Render' and 'source' or 'main')
-end
-
 local cachederrors = {}
 function RenderFunctions:GetFile(file, onlineonly, custompath, customrepo)
     if not file or type(file) ~= 'string' then 
         return ''
     end
-    customrepo = customrepo or 'Render'
-    local filepath = (custompath and custompath..'/'..file or 'vape/Render')..'/'..file
+    customrepo = customrepo or 'vapevoidware'
+    local filepath = (custompath and custompath..'/'..file or 'vape/Libraries')..'/'..file
     if not isfile(filepath) or onlineonly then 
         local Rendercommit = RenderFunctions:GithubHash(customrepo)
-        local success, body = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/SystemXVoid/'..customrepo..'/'..Rendercommit..'/'..file, true) end)
+        local success, body = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/'..customrepo..'/'..Rendercommit..'/'..file, true) end)
         if success and body ~= '404: Not Found' and body ~= '400: Invalid request' then 
             local directory = RenderFunctions:CreateLocalDirectory(filepath)
-            body = file:sub(#file - 3, #file) == '.lua' and body:sub(1, 35) ~= 'Render Custom Vape Signed File' and '-- Render Custom Vape Signed File /n'..body or body
+            body = file:sub(#file - 3, #file) == '.lua' and body:sub(1, 35) ~= 'Voidware Custom Vape Signed File' and '-- Voidware Custom Vape Signed File /n'..body or body
             if not onlineonly then 
                 writefile(directory, body)
             end
             return body
         else
-            task.spawn(error, '[Render] Failed to Download '..filepath..(body and ' | '..body or ''))
+            task.spawn(error, '[Voidware] Failed to Download '..filepath..(body and ' | '..body or ''))
             if table.find(cachederrors, file) == nil then 
-                errorNotification('Render', 'Failed to Download '..filepath..(body and ' | '..body or ''), 30)
+                errorNotification('Voidware', 'Failed to Download '..filepath..(body and ' | '..body or ''), 30)
                 table.insert(cachederrors, file)
             end
         end
