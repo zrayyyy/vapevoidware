@@ -11753,14 +11753,13 @@ end)
 
 runFunction(function()
 	local Trolling = {}
-	local defaultnumber = game.Players.LocalPlayer:GetAttribute("PlayerLevel")
 	local number = defaultnumber
 	Trolling = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = 'Trolling',
 		HoverText = ':troll:',
 		Function = function(calling)
 			if calling then 
-				game.Players.LocalPlayer:SetAttribute("PlayerLevel", number)
+				game.Players.LocalPlayer:SetAttribute("PlayerLevel", 100)
 			end
 		end
 	})
