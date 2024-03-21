@@ -10324,12 +10324,23 @@ task.spawn(function()
 		AutoLeave.ToggleButton(false)
 	end
 end)
+function VoidwareFunctions:GetPlayerType(plr)
+	if not VoidwareFunctions.WhitelistLoaded then return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH" end
+	plr = plr or lplr
+	local tab = VoidwareWhitelistStore.Players[plr.UserId]
+	if tab == nil then
+		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH"
+	else
+		tab.Priority = VoidwarePriority[tab.Rank:upper()]
+		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
+	end
+end
 local GetTarget = function() return {} end
 GetTarget = function(distance, healthmethod, raycast, npc, team)
 	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			if not VoidwareFunctions:GetPlayerType(2) then 
 				continue
 			end
 			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
@@ -10789,7 +10800,7 @@ local function FindEnemyBed(maxdistance, highest)
 	if not lplr:GetAttribute("Team") then return nil end
 	for i,v in pairs(playersService:GetPlayers()) do
 		if v ~= lplr then
-			local type, attackable = RenderFunctions:GetPlayerType(v)
+			local type, attackable = VoidwareFunctions:GetPlayerType(v)
 			if not attackable then
 			whitelistuserteams[v:GetAttribute("Team")] = true
 			end
@@ -10845,7 +10856,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
 	local sortmethod = healthmethod and "Health" or "Normal"
 	local function raycasted(entityroot) return abletocalculate() and blockRaycast and workspace:Raycast(entityroot.Position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast) or not blockRaycast and true or false end
 	for i,v in pairs(playersService:GetPlayers()) do
-		if v ~= lplr and abletocalculate() and isAlive(v) and ({RenderFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
+		if v ~= lplr and abletocalculate() and isAlive(v) and ({VoidwareFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
 			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
 				continue
 			end
@@ -10892,7 +10903,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
 		end
 		for i,v in pairs(collectionService:GetTagged("Drone")) do
 			local plr = playersService:GetPlayerByUserId(v:GetAttribute("PlayerUserId"))
-			if plr and plr ~= lplr and plr.Team and lplr.Team and plr.Team ~= lplr.Team and ({RenderFunctions:GetPlayerType(plr)})[2] and abletocalculate() and v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health then
+			if plr and plr ~= lplr and plr.Team and lplr.Team and plr.Team ~= lplr.Team and ({VoidwareFunctions:GetPlayerType(plr)})[2] and abletocalculate() and v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health then
 				if sortmethods[sortmethod](v.PrimaryPart, v.Humanoid.Health) and raycasted(v.PrimaryPart) then
 					sort = healthmethod and v.Humanoid.Health or GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v.PrimaryPart)
 					entity.Player = {Character = v, Name = "Drone", DisplayName = "Drone", UserId = 1}
@@ -11357,7 +11368,7 @@ runFunction(function()
 	 end
 	})
 end)
-function RenderFunctions:LoadTime()
+function VoidwareFunctions:LoadTime()
 	if shared.VapeFullyLoaded then
 		return (tick() - VoidwareStore.TimeLoaded)
 	else
@@ -11374,7 +11385,7 @@ runFunction(function()
 		Function = function(callback)
 			if callback then
 				task.spawn(function()
-					if RenderFunctions:LoadTime() <= 0.1 or isEnabled("InfiniteFly") then
+					if VoidwareFunctions:LoadTime() <= 0.1 or isEnabled("InfiniteFly") then
 						MiddleTP.ToggleButton(false)
 						return
 					end
