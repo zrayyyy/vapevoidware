@@ -84,7 +84,7 @@ function RenderFunctions:GithubHash(repo, owner)
     return (repo == 'vapevoidware' and 'source' or 'main')
 end
 
-function RenderFunctions:CreateLocalDirectory(directory)
+--[[function RenderFunctions:CreateLocalDirectory(directory)
     local splits = tostring(directory:gsub('vape/Libraries/', '')):split('/')
     local last = ''
     for i,v in next, splits do 
@@ -97,7 +97,7 @@ function RenderFunctions:CreateLocalDirectory(directory)
         end
     end 
     return directory
-end
+end--]]
 
 function RenderFunctions:RefreshLocalEnv()
     local signal = Instance.new('BindableEvent')
@@ -105,7 +105,7 @@ function RenderFunctions:RefreshLocalEnv()
     local coreinstalled = 0
     for i,v in next, ({'Universal.lua', 'MainScript.lua', 'NewMainScript.lua', 'GuiLibrary.lua'}) do 
         task.spawn(function()
-            local contents = game:HttpGet('https://raw.githubusercontent.com/Erchobg/'..RenderFunctions:GithubHash()..v)
+            local contents = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/'..RenderFunctions:GithubHash()..v)
             if contents ~= '404: Not Found' then 
                 contents = (tostring(contents:split('\n')[1]):find('Voidware Custom Vape Signed File') and contents or '-- Voidware Custom Vape Signed File\n'..contents)
                 if isfolder('vape') then 
@@ -129,11 +129,6 @@ function RenderFunctions:RefreshLocalEnv()
             end 
         end)
     end
-    task.spawn(function()
-        repeat task.wait() until (coreinstalled == 4 and customsinstalled == totalcustoms)
-        RenderFunctions:DebugWarning('The local environment has been refreshed fully.')
-        signal:Fire(tick() - start)
-    end)
     return signal
 end
 
