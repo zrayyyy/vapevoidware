@@ -10977,7 +10977,7 @@ runFunction(function()
 							InfoNotification("Autowin", "Destroying "..bedname:lower().." team's bed", 5)
 						end
 						if not isEnabled("Nuker") then
-							InfoNotification("Autowin", "Please turn on nuker", 5)
+							--InfoNotification("Autowin", "Please turn on nuker", 5)
 						end
 						repeat task.wait() until FindEnemyBed() ~= bed or not isAlive()
 						if FindTarget(45, bedwarsStore.blockRaycast).RootPart and isAlive() then
