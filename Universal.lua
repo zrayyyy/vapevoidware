@@ -42,20 +42,22 @@ end
 
 pcall(function() core = game:GetService('CoreGui') end)
 
-if not isfile('vape/Libraries/voidwarefunctions.lua') then 
-	local success, response = pcall(function()
-		return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Libraries/voidwarefunctions.lua')
-	end)
-	if success then
-		writefile('vape/Libraries/voidwarefunctions.lua', '-- Voidware Custom Modules Signed File\n'..response) 
+local function vapeGithubRequest(scripturl)
+	if not isfile('vape/'..scripturl) then
+		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
+		assert(suc, res)
+		assert(res ~= '404: Not Found', res)
+		if scripturl:find('.lua') then res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n'..res end
+		writefile('vape/'..scripturl, res)
 	end
+	return readfile('vape/'..scripturl)
 end
 
 table.insert(vapeConnections, workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(function()
 	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('Camera')
 end))
 
-local RenderFunctions = loadfile('vape/Libraries/voidwarefunctions.lua')()
+local RenderFunctions = vapeGithubRequest("Libraries/voidwarefunctions.lua")
 
 local isAlive = function() return false end 
 local playSound = function() end
@@ -99,17 +101,6 @@ local worldtoviewportpoint = function(pos)
 		return scr[1], scr[1].Z > 0
 	end
 	return gameCamera.WorldToViewportPoint(gameCamera, pos)
-end
-
-local function vapeGithubRequest(scripturl)
-	if not isfile('vape/'..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
-		assert(suc, res)
-		assert(res ~= '404: Not Found', res)
-		if scripturl:find('.lua') then res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n'..res end
-		writefile('vape/'..scripturl, res)
-	end
-	return readfile('vape/'..scripturl)
 end
 
 local function downloadVapeAsset(path)
