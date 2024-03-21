@@ -57,12 +57,6 @@ table.insert(vapeConnections, workspace:GetPropertyChangedSignal('CurrentCamera'
 	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('Camera')
 end))
 
-task.spawn(function()
-	pcall(function()
-		vapeGithubRequest("Libraries/voidwarefunctions.lua")
-	end)
-end)
-
 local RenderFunctions = loadstring(vapeGithubRequest("Libraries/voidwarefunctions.lua"))()
 
 local isAlive = function() return false end 
