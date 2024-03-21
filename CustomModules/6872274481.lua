@@ -11036,9 +11036,6 @@ end)
 
 local function GetAllQueueDescriptions(data)
 	local queuedata, queueids = {}, {}
-	if tonumber(lprl:GetAttribute("PlayerLevel")) > 10 then
-		lplr:SetAttribute("PlayerLevel", 2)
-	end
 	local rankedunlocked = lplr:GetAttribute("PlayerLevel") and tonumber(lplr:GetAttribute("PlayerLevel")) >= 10 and tonumer(lplr.AccountAge) >= 7 and Trolling.Enabled(false)
 	for i,v in pairs(bedwars.QueueMeta) do 
 		if v.rankCategory and not rankedunlocked then
