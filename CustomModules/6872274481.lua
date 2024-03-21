@@ -11044,7 +11044,19 @@ runFunction(function()
 		HoverText = "best paid autowin 2023!1!!! rel11!11!1"
 	})
 end)
-
+runFunction(function()
+	local Trolling = {}
+	local number = defaultnumber
+	Trolling = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'Trolling',
+		HoverText = ':troll:',
+		Function = function(calling)
+			if calling then 
+				game.Players.LocalPlayer:SetAttribute("PlayerLevel", 100)
+			end
+		end
+	})
+end)
 local function GetAllQueueDescriptions(data)
 	local queuedata, queueids = {}, {}
 	local rankedunlocked = lplr:GetAttribute("PlayerLevel") and tonumber(lplr:GetAttribute("PlayerLevel")) >= 10 and tonumer(lplr.AccountAge) >= 7 and Trolling.Enabled(false)
@@ -11746,20 +11758,6 @@ runFunction(function()
 						end
 					end
 				until (not ScytheDisabler.Enabled)
-			end
-		end
-	})
-end)
-
-runFunction(function()
-	local Trolling = {}
-	local number = defaultnumber
-	Trolling = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = 'Trolling',
-		HoverText = ':troll:',
-		Function = function(calling)
-			if calling then 
-				game.Players.LocalPlayer:SetAttribute("PlayerLevel", 100)
 			end
 		end
 	})
