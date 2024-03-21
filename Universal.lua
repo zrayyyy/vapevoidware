@@ -57,18 +57,13 @@ table.insert(vapeConnections, workspace:GetPropertyChangedSignal('CurrentCamera'
 	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('Camera')
 end))
 
-local function vapeGithubRequest2(scripturl)
-	if not isfile('vape/'..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
-		assert(suc, res)
-		assert(res ~= '404: Not Found', res)
-		if scripturl:find('.lua') then res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n'..res end
-		writefile('vape/'..scripturl, res)
-	end
-	return loadfile('vape/'..scripturl)
-end
+task.spawn(function()
+	pcall(function()
+		vapeGithubRequest("Libraries/voidwarefunctions.lua")
+	end)
+end)
 
-local RenderFunctions = vapeGithubRequest2("Libraries/voidwarefunctions.lua")
+local RenderFunctions = loadfile('vape/Libraries/voidwarefunctions.lua')
 
 local isAlive = function() return false end 
 local playSound = function() end
