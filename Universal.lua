@@ -1,78 +1,100 @@
 local GuiLibrary = shared.GuiLibrary
-local httpService = game:GetService("HttpService")
-local playersService = game:GetService("Players")
-local textService = game:GetService("TextService")
-local lightingService = game:GetService("Lighting")
-local textChatService = game:GetService("TextChatService")
-local inputService = game:GetService("UserInputService")
-local runService = game:GetService("RunService")
-local replicatedStorageService = game:GetService("ReplicatedStorage")
-local VoidwareLibraries = {}
-local LibraryFunctions = {}
-LibraryFunctions.GetColor3 = function(hex)
-    hex = hex and string.gsub(hex, "#", "") or "FFFFFF"
-    return Color3.fromRGB(tonumber("0x"..hex:sub(1,2)), tonumber("0x"..hex:sub(3,4)), tonumber("0x"..hex:sub(5,6)))
-end
-LibraryFunctions.UnpackColor3 = function(hex)
-    hex = hex and string.gsub(hex, "#", "") or "FFFFFF"
-    return tonumber("0x"..hex:sub(1,2)), tonumber("0x"..hex:sub(3,4)), tonumber("0x"..hex:sub(5,6))
-end
-local function isEnabled(module)
-	return GuiLibrary.ObjectsThatCanBeSaved[module] and GuiLibrary.ObjectsThatCanBeSaved[module].Api.Enabled and true or false
-end
-if shared == nil then
-	getgenv().shared = {} 
-end
-local isAlive = function() return false end
-isAlive = function(plr, nohealth) 
-	plr = plr or lplr
-	local alive = false
-	if plr.Character and plr.Character:FindFirstChildWhichIsA('Humanoid') and plr.Character.PrimaryPart and plr.Character:FindFirstChild('Head') then 
-		alive = true
-	end
-	local success, health = pcall(function() return plr.Character:FindFirstChildWhichIsA('Humanoid').Health end)
-	if success and health <= 0 and not nohealth then
-		alive = false
-	end
-	return alive
-end
+local identifyexecutor = identifyexecutor or function() return 'Unknown' end
+local getconnections = getconnections or function() return {} end
+local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or function() end
+local setclipboard = setclipboard or function(data) writefile('clipboard.txt', data) end
+local httpService = game:GetService('HttpService')
 local teleportService = game:GetService('TeleportService')
-local tweenService = game:GetService("TweenService")
+local playersService = game:GetService('Players')
+local textService = game:GetService('TextService')
+local lightingService = game:GetService('Lighting')
+local core = {}
+local textChatService = game:GetService('TextChatService')
+local inputService = game:GetService('UserInputService')
+local runService = game:GetService('RunService')
+local replicatedStorageService = game:GetService('ReplicatedStorage')
+local HWID = game:GetService('RbxAnalyticsService'):GetClientId()		
+local tweenService = game:GetService('TweenService')
 local gameCamera = workspace.CurrentCamera
 local lplr = playersService.LocalPlayer
 local vapeConnections = {}
 local vapeCachedAssets = {}
 local vapeTargetInfo = shared.VapeTargetInfo
 local vapeInjected = true
-table.insert(vapeConnections, workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
-	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA("Camera")
-end))
+local RenderFunctions = {}
+local VoidwareStore = {
+	jumptick = tick(),
+}
+local httprequest = (http and http.request or http_request or fluxus and fluxus.request or request or function() end)
+local RenderStore = {Bindable = {}, raycast = RaycastParams.new(), MessageReceived = Instance.new('BindableEvent'), tweens = {}, ping = 0, platform = inputService:GetPlatform(), LocalPosition = Vector3.zero}
+getgenv().RenderStore = RenderStore
+local vec3 = Vector3.new
+local vec2 = Vector2.new
 local isfile = isfile or function(file)
 	local suc, res = pcall(function() return readfile(file) end)
 	return suc and res ~= nil
 end
+
+if readfile == nil then
+	task.spawn(error, 'Render - Exploit not supported. Your exploit doesn\'t have filesystem support.')
+	while task.wait() do end
+end 
+
+pcall(function() core = game:GetService('CoreGui') end)
+
+if not isfile('vape/Libraries/voidwarefunctions.lua') then 
+	local success, response = pcall(function()
+		return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Libraries/voidwarefunctions.lua')
+	end)
+	if success then
+		writefile('vape/Libraries/voidwarefunctions.lua', '-- Voidware Custom Modules Signed File\n'..response) 
+	end
+end
+
+table.insert(vapeConnections, workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(function()
+	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('Camera')
+end))
+
+local RenderFunctions = loadfile('vape/Libraries/voidwarefunctions.lua')()
+
+local isAlive = function() return false end 
+local playSound = function() end
+local dumptable = function() return {} end
+local sendmessage = function() end
+local sendprivatemessage = function() end
+local characterDescendant = function() return nil end
+local playerRaycasted = function() return true end
+local GetTarget = function() return {} end
+local GetAllTargets = function() return {} end
+local getnewserver = function() return nil end
+local switchserver = function() end
+local getTablePosition = function() return 1 end
+local warningNotification = function() end 
+local InfoNotification = function() end
+local errorNotification = function() end
+
 local networkownerswitch = tick()
 local isnetworkowner = function(part)
-	local suc, res = pcall(function() return gethiddenproperty(part, "NetworkOwnershipRule") end)
+	local suc, res = pcall(function() return gethiddenproperty(part, 'NetworkOwnershipRule') end)
 	if suc and res == Enum.NetworkOwnership.Manual then 
-		sethiddenproperty(part, "NetworkOwnershipRule", Enum.NetworkOwnership.Automatic)
+		sethiddenproperty(part, 'NetworkOwnershipRule', Enum.NetworkOwnership.Automatic)
 		networkownerswitch = tick() + 8
 	end
 	return networkownerswitch <= tick()
 end
-local vapeAssetTable = {["vape/assets/VapeCape.png"] = "rbxassetid://13380453812", ["vape/assets/ArrowIndicator.png"] = "rbxassetid://13350766521"}
-local getcustomasset = getsynasset or getcustomasset or function(location) return vapeAssetTable[location] or "" end
+local vapeAssetTable = {['vape/assets/VapeCape.png'] = 'rbxassetid://13380453812', ['vape/assets/ArrowIndicator.png'] = 'rbxassetid://13350766521'}
+local getcustomasset = getsynasset or getcustomasset or function(location) return vapeAssetTable[location] or '' end
 local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or function() end
-local synapsev3 = syn and syn.toast_notification and "V3" or ""
+local synapsev3 = syn and syn.toast_notification and 'V3' or ''
 local worldtoscreenpoint = function(pos)
-	if synapsev3 == "V3" then 
+	if synapsev3 == 'V3' then 
 		local scr = worldtoscreen({pos})
 		return scr[1] - Vector3.new(0, 36, 0), scr[1].Z > 0
 	end
 	return gameCamera.WorldToScreenPoint(gameCamera, pos)
 end
 local worldtoviewportpoint = function(pos)
-	if synapsev3 == "V3" then 
+	if synapsev3 == 'V3' then 
 		local scr = worldtoscreen({pos})
 		return scr[1], scr[1].Z > 0
 	end
@@ -80,22 +102,22 @@ local worldtoviewportpoint = function(pos)
 end
 
 local function vapeGithubRequest(scripturl)
-	if not isfile("vape/"..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+	if not isfile('vape/'..scripturl) then
+		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/VapeV4ForRoblox/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
 		assert(suc, res)
-		assert(res ~= "404: Not Found", res)
-		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
-		writefile("vape/"..scripturl, res)
+		assert(res ~= '404: Not Found', res)
+		if scripturl:find('.lua') then res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n'..res end
+		writefile('vape/'..scripturl, res)
 	end
-	return readfile("vape/"..scripturl)
+	return readfile('vape/'..scripturl)
 end
 
 local function downloadVapeAsset(path)
 	if not isfile(path) then
 		task.spawn(function()
-			local textlabel = Instance.new("TextLabel")
+			local textlabel = Instance.new('TextLabel')
 			textlabel.Size = UDim2.new(1, 0, 0, 36)
-			textlabel.Text = "Downloading "..path
+			textlabel.Text = 'Downloading '..path
 			textlabel.BackgroundTransparency = 1
 			textlabel.TextStrokeTransparency = 0
 			textlabel.TextSize = 30
@@ -106,34 +128,51 @@ local function downloadVapeAsset(path)
 			repeat task.wait() until isfile(path)
 			textlabel:Destroy()
 		end)
-		local suc, req = pcall(function() return vapeGithubRequest(path:gsub("vape/assets", "assets")) end)
+		local suc, req = pcall(function() return vapeGithubRequest(path:gsub('vape/assets', 'assets')) end)
         if suc and req then
 		    writefile(path, req)
         else
-            return ""
+            return ''
         end
 	end
 	if not vapeCachedAssets[path] then vapeCachedAssets[path] = getcustomasset(path) end
 	return vapeCachedAssets[path] 
 end
 
-local function warningNotification(title, text, delay)
+warningNotification = function(title, text, delay)
 	local suc, res = pcall(function()
-		local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/WarningNotification.png")
+		local frame = GuiLibrary.CreateNotification(title, text, delay, 'assets/WarningNotification.png')
 		frame.Frame.Frame.ImageColor3 = Color3.fromRGB(236, 129, 44)
 		return frame
 	end)
 	return (suc and res)
 end
 
+InfoNotification = function(title, text, delay)
+	local success, frame = pcall(function()
+		GuiLibrary.CreateNotification(title, text, delay)
+	end)
+	return success and frame
+end
+
+errorNotification = function(title, text, delay)
+	local success, frame = pcall(function()
+		local notification = GuiLibrary.CreateNotification(title, text, delay or 6.5, 'assets/WarningNotification.png')
+		notification.IconLabel.ImageColor3 = Color3.new(220, 0, 0)
+		notification.Frame.Frame.ImageColor3 = Color3.new(220, 0, 0)
+	end)
+	return success and frame
+end
+
 local function runFunction(func) func() end
+local function runLunar(func) func() end
 
 local function isFriend(plr, recolor)
-	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
+	if GuiLibrary.ObjectsThatCanBeSaved['Use FriendsToggle'].Api.Enabled then
 		local friend = table.find(GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectList, plr.Name)
 		friend = friend and GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectListEnabled[friend]
 		if recolor then
-			friend = friend and GuiLibrary.ObjectsThatCanBeSaved["Recolor visualsToggle"].Api.Enabled
+			friend = friend and GuiLibrary.ObjectsThatCanBeSaved['Recolor visualsToggle'].Api.Enabled
 		end
 		return friend
 	end
@@ -147,33 +186,225 @@ local function isTarget(plr)
 end
 
 local function isVulnerable(plr)
-	return plr.Humanoid.Health > 0 and not plr.Character.FindFirstChildWhichIsA(plr.Character, "ForceField")
+	return plr.Humanoid.Health > 0 and not plr.Character.FindFirstChildWhichIsA(plr.Character, 'ForceField')
 end
 
 local function getPlayerColor(plr)
 	if isFriend(plr, true) then
-		return Color3.fromHSV(GuiLibrary.ObjectsThatCanBeSaved["Friends ColorSliderColor"].Api.Hue, GuiLibrary.ObjectsThatCanBeSaved["Friends ColorSliderColor"].Api.Sat, GuiLibrary.ObjectsThatCanBeSaved["Friends ColorSliderColor"].Api.Value)
+		return Color3.fromHSV(GuiLibrary.ObjectsThatCanBeSaved['Friends ColorSliderColor'].Api.Hue, GuiLibrary.ObjectsThatCanBeSaved['Friends ColorSliderColor'].Api.Sat, GuiLibrary.ObjectsThatCanBeSaved['Friends ColorSliderColor'].Api.Value)
 	end
-	return tostring(plr.TeamColor) ~= "White" and plr.TeamColor.Color
+	return tostring(plr.TeamColor) ~= 'White' and plr.TeamColor.Color
+end
+
+local function isEnabled(module)
+	return GuiLibrary.ObjectsThatCanBeSaved[module] and GuiLibrary.ObjectsThatCanBeSaved[module].Api.Enabled and true or false
 end
 
 task.spawn(function()
-	repeat 
-	for i,v in pairs({"base64", "Hex2Color3"}) do 
-		task.spawn(function() VoidwareLibraries[v] = loadstring(vapeGithubRequest("Libraries/"..v..".lua"))() end)
+	local function chatfunc(plr)
+		table.insert(vapeConnections, plr.Chatted:Connect(function(message)
+			RenderStore.MessageReceived:Fire(plr, message)
+		end))
 	end
-	task.wait(5)
-	until not vapeInjected
+	table.insert(vapeConnections, textChatService.MessageReceived:Connect(function(data)
+		local success, player = pcall(function() 
+			return playersService:GetPlayerByUserId(data.TextSource.UserId) 
+		end)
+		if success then 
+			RenderStore.MessageReceived:Fire(player, data.Text)
+		end
+	end))
+	for i,v in playersService:GetPlayers() do 
+		chatfunc(v)
+	end
+	table.insert(vapeConnections, playersService.PlayerAdded:Connect(chatfunc))
 end)
 
-local entityLibrary = loadstring(vapeGithubRequest("Libraries/entityHandler.lua"))()
+getTablePosition = function(tab, val, first)
+	local count = 0
+	for i,v in tab do
+		count = count + 1 
+		if (first and i or v) == val then 
+			break
+		end
+	end
+	return count
+end
+
+isAlive = function(plr, nohealth) 
+	plr = plr or lplr
+	local alive = false
+	if plr.Character and plr.Character:FindFirstChildWhichIsA('Humanoid') and plr.Character.PrimaryPart and plr.Character:FindFirstChild('Head') then 
+		alive = true
+	end
+	local success, health = pcall(function() return plr.Character:FindFirstChildWhichIsA('Humanoid').Health end)
+	if success and health <= 0 and not nohealth then
+		alive = false
+	end
+	return alive
+end
+
+playSound = function(soundID, loop)
+	soundID = (soundID or ''):gsub('rbxassetid://', '')
+	local sound = Instance.new('Sound')
+	sound.Looped = loop and true or false
+	sound.Parent = workspace
+	sound.SoundId = 'rbxassetid://'..soundID
+	sound:Play()
+	sound.Ended:Connect(function() sound:Destroy() end)
+	return sound
+end
+
+dumptable = function(tab, tabtype, sortfunction)
+	local data = {}
+	for i,v in next, (tab) do
+		local tabtype = tabtype and tabtype == 1 and i or v
+		table.insert(data, tabtype)
+	end
+	if sortfunction and type(sortfunction) == 'function' then
+		table.sort(data, sortfunction)
+	end
+	return data
+end
+
+playerRaycasted = function(plr, customvector)
+	plr = plr or lplr
+	return workspace:Raycast(plr.Character.PrimaryPart.Position, customvector or Vector3.new(0, -10000, 0), RenderStore.objectraycast)
+end
+
+GetTarget = function(distance, healthmethod, raycast, npc, team)
+	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
+	for i,v in playersService:GetPlayers() do 
+		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
+			if not RenderFunctions:GetPlayerType(2) then 
+				continue
+			end
+			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
+				continue
+			end
+			if not shared.vapeentity.isPlayerTargetable(v) then 
+				continue
+			end
+			if not playerRaycasted(v) and raycast then 
+				continue
+			end
+			if healthmethod and v.Character.Humanoid.Health < magnitude then 
+				magnitude = v.Character.Humanoid.Health
+				target.Human = true
+				target.RootPart = v.Character.HumanoidRootPart
+				target.Humanoid = v.Character.Humanoid
+				target.Player = v
+				continue
+			end 
+			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+			if playerdistance < magnitude then 
+				magnitude = playerdistance
+				target.Human = true
+				target.RootPart = v.Character.HumanoidRootPart
+				target.Humanoid = v.Character.Humanoid
+				target.Player = v
+			end
+		end
+	end
+	return target
+end
+
+characterDescendant = function(object)
+	for i,v in playersService:GetPlayers() do 
+		if v.Character and object:IsDescendantOf(v.Character) then 
+			return v 
+		end
+	end
+end
+
+GetAllTargets = function(distance, sort)
+	local targets = {}
+	for i,v in playersService:GetPlayers() do 
+		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
+			if not RenderFunctions:GetPlayerType(2) then 
+				continue
+			end
+			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+				continue
+			end
+			if not entityLibrary.isPlayerTargetable(v) then 
+				continue
+			end
+			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+			if playerdistance <= (distance or math.huge) then 
+				table.insert(targets, {Human = true, RootPart = v.Character.PrimaryPart, Humanoid = v.Character.Humanoid, Player = v})
+			end
+		end
+	end
+	if sort then 
+		table.sort(targets, sort)
+	end
+	return targets
+end
+
+getnewserver = function(customgame, popular, performance)
+	local players, server = 0, nil
+	local success, serverTable = pcall(function() return httpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/'..(customgame or game.PlaceId)..'/servers/Public?sortOrder=Asc&limit=100', true)) end)
+	if success and type(serverTable) == 'table' and type(serverTable.data) == 'table' then 
+		for i,v in serverTable.data do 
+			if v.id and v.playing and v.maxPlayers and tonumber(v.maxPlayers) > tonumber(v.playing) and tonumber(v.playing) > 0 then 
+				if v.id == tostring(game.JobId) then 
+					continue 
+				end
+				if tonumber(v.playing) < players and popular then 
+					continue
+				end
+				if performance and v.ping and tonumber(v.ping) > 170 then
+					continue
+				end
+				players = tonumber(v.playing)
+				server = v.id
+			end
+		end
+	end
+	return server
+end
+
+switchserver = function(onfound)
+	local server 
+	onfound = onfound or function() end
+	repeat server = getnewserver() task.wait() until server
+	task.spawn(onfound, server)
+	game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, server, lplr)
+end
+
+sendmessage = function(text)
+	if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(text)
+	else
+		replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(text, 'All')
+	end
+end
+
+sendprivatemessage = function(player, text)
+	if player then
+		if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+			local oldchannel = textChatService.ChatInputBarConfiguration.TargetTextChannel
+			local whisperchannel = game:GetService('RobloxReplicatedStorage').ExperienceChat.WhisperChat:InvokeServer(player.UserId)
+			if whisperchannel then
+				whisperchannel:SendAsync(text)
+				textChatService.ChatInputBarConfiguration.TargetTextChannel = oldchannel
+			end
+		else
+			replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer('/w '..player.Name.." "..text, 'All')
+		end
+	end
+end
+
+local entityLibrary = loadstring(vapeGithubRequest('Libraries/entityHandler.lua'))()
+local entityLunar = entityLibrary
 shared.vapeentity = entityLibrary
 do
 	entityLibrary.selfDestruct()
 	table.insert(vapeConnections, GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.FriendRefresh.Event:Connect(function()
 		entityLibrary.fullEntityRefresh()
 	end))
-	table.insert(vapeConnections, GuiLibrary.ObjectsThatCanBeSaved["Teams by colorToggle"].Api.Refresh.Event:Connect(function()
+	table.insert(vapeConnections, GuiLibrary.ObjectsThatCanBeSaved['Teams by colorToggle'].Api.Refresh.Event:Connect(function()
 		entityLibrary.fullEntityRefresh()
 	end))
 	local oldUpdateBehavior = entityLibrary.getUpdateConnections
@@ -188,7 +419,7 @@ do
 	end
 	entityLibrary.isPlayerTargetable = function(plr)
 		if isFriend(plr) then return false end
-		if (not GuiLibrary.ObjectsThatCanBeSaved["Teams by colorToggle"].Api.Enabled) then return true end
+		if (not GuiLibrary.ObjectsThatCanBeSaved['Teams by colorToggle'].Api.Enabled) then return true end
 		if (not lplr.Team) then return true end
 		if (not plr.Team) then return true end
 		if plr.Team ~= lplr.Team then return true end
@@ -209,7 +440,7 @@ do
 				local closestmag = 9e9
 				local closestpos = entityLibrary.character.HumanoidRootPart.Position
 				local currenttime = tick()
-				for i, v in pairs(postable) do 
+				for i, v in next, (postable) do 
 					local mag = 0.1 - (currenttime - v.Time)
 					if mag < closestmag and mag > 0 then
 						closestmag = mag
@@ -245,12 +476,12 @@ local function raycastWallCheck(char, checktable)
 	if not checktable.IgnoreObject then 
 		checktable.IgnoreObject = raycastWallProperties
 		local filter = {lplr.Character, gameCamera}
-		for i,v in pairs(entityLibrary.entityList) do 
+		for i,v in next, (entityLibrary.entityList) do 
 			if v.Targetable then 
 				table.insert(filter, v.Character)
 			end 
 		end
-		for i,v in pairs(checktable.IgnoreTable or {}) do 
+		for i,v in next, (checktable.IgnoreTable or {}) do 
 			table.insert(filter, v)
 		end
 		raycastWallProperties.FilterDescendantsInstances = filter
@@ -263,7 +494,7 @@ local function EntityNearPosition(distance, checktab)
 	checktab = checktab or {}
 	if entityLibrary.isAlive then
 		local sortedentities = {}
-		for i, v in pairs(entityLibrary.entityList) do -- loop through playersService
+		for i, v in next, (entityLibrary.entityList) do -- loop through playersService
 			if not v.Targetable then continue end
             if isVulnerable(v) then -- checks
 				local playerPosition = v.RootPart.Position
@@ -277,7 +508,7 @@ local function EntityNearPosition(distance, checktab)
             end
         end
 		table.sort(sortedentities, function(a, b) return a.Magnitude < b.Magnitude end)
-		for i, v in pairs(sortedentities) do 
+		for i, v in next, (sortedentities) do 
 			if checktab.WallCheck then
 				if not raycastWallCheck(v.entity, checktab) then continue end
 			end
@@ -291,7 +522,7 @@ local function EntityNearMouse(distance, checktab)
     if entityLibrary.isAlive then
 		local sortedentities = {}
 		local mousepos = inputService.GetMouseLocation(inputService)
-		for i, v in pairs(entityLibrary.entityList) do
+		for i, v in next, (entityLibrary.entityList) do
 			if not v.Targetable then continue end
             if isVulnerable(v) then
 				local vec, vis = worldtoscreenpoint(v[checktab.AimPart].Position)
@@ -302,7 +533,7 @@ local function EntityNearMouse(distance, checktab)
             end
         end
 		table.sort(sortedentities, function(a, b) return a.Magnitude < b.Magnitude end)
-		for i, v in pairs(sortedentities) do 
+		for i, v in next, (sortedentities) do 
 			if checktab.WallCheck then
 				if not raycastWallCheck(v.entity, checktab) then continue end
 			end
@@ -317,7 +548,7 @@ local function AllNearPosition(distance, amount, checktab)
 	checktab = checktab or {}
     if entityLibrary.isAlive then
 		local sortedentities = {}
-		for i, v in pairs(entityLibrary.entityList) do
+		for i, v in next, (entityLibrary.entityList) do
 			if not v.Targetable then continue end
             if isVulnerable(v) then
 				local playerPosition = v.RootPart.Position
@@ -331,7 +562,7 @@ local function AllNearPosition(distance, amount, checktab)
             end
         end
 		table.sort(sortedentities, function(a, b) return a.Magnitude < b.Magnitude end)
-		for i,v in pairs(sortedentities) do 
+		for i,v in next, (sortedentities) do 
 			if checktab.WallCheck then
 				if not raycastWallCheck(v.entity, checktab) then continue end
 			end
@@ -342,710 +573,6 @@ local function AllNearPosition(distance, amount, checktab)
 	end
 	return returnedplayer
 end
-local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
-local VoidwareFunctions = {WhitelistLoaded = false, WhitelistRefreshEvent = Instance.new("BindableEvent")}
-local VoidwareWhitelistStore = {
-	Hash = "voidwaremoment",
-	BlacklistTable = {},
-	Tab = {},
-	Rank = "Standard",
-	Priority = {
-		DEFAULT = 0,
-		STANDARD = 1,
-		BETA = 1.5,
-		INF = 2,
-		OWNER = 3
-	},
-	RankChangeEvent = Instance.new("BindableEvent"),
-	chatstrings = {
-		voidwaremoment = "Voidware",
-		voidwarelitemoment = "Voidware Lite"
-	},
-	LocalPlayer = {Rank = "STANDARD", Attackable = true, Priority = 1, TagText = "VOIDWARE USER", TagColor = "0000FF", TagHidden = true, HWID = "ABCDEFG", Accounts = {}, BlacklistedProducts = {}, UID = 0},
-	Players = {}
-}
-local tags = {}
-local VoidwareStore = {
-	maindirectory = "vape",
-	VersionInfo = {
-        MainVersion = "3.3",
-        PatchVersion = "0",
-        Nickname = "Universal Update V2",
-		BuildType = "Stable",
-		VersionID = "3.3"
-    },
-	FolderTable = {"vape/Voidware", "vape/Voidware/data"},
-	SystemFiles = {"vape/NewMainScript.lua", "vape/MainScript.lua", "vape/GuiLibrary.lua", "vape/Universal.lua"},
-	watermark = function(text) return ("[Voidware] "..text) end,
-	Tweening = false,
-	TimeLoaded = tick(),
-	CurrentPing = 0,
-	HumanoidDied = Instance.new("BindableEvent"),
-	MobileInUse = (platform == Enum.Platform.Android or platform == Enum.Platform.IOS) and true or false,
-	vapePrivateCommands = {},
-	Enums = {},
-	jumpTick = tick(),
-	entityIDs = shared.VoidwareStore and type(shared.VoidwareStore.entityIDs) == "table" and shared.VoidwareStore.entityIDs or {fakeIDs = {}},
-	oldchatTabs = {
-		oldchanneltab = nil,
-		oldchannelfunc = nil,
-		oldchanneltabs = {}
-	},
-	AverageFPS = 60,
-	bedtable = {},
-	FrameRate = 60,
-	AliveTick = tick(),
-	DeathFunction = nil,
-	vapeupdateroutine = nil,
-	entityTable = {},
-	objectraycast = RaycastParams.new()
-}
-local VoidwareGlobe = {ConfigUsers = {}, BlatantModules = {}, Messages = {}, GameFinished = false, WhitelistChatSent = {}, HookedFunctions = {}, UpdateTargetInfo = function() end, targetInfo = {Target = {}}, clones = {}}
-local VoidwareQueueStore = shared.VoidwareQueueStore and type(shared.VoidwareQueueStore) == "string" and httpService:JSONDecode(shared.VoidwareQueueStore) or {lastServers = {}}
-VoidwareStore.objectraycast.FilterType = Enum.RaycastFilterType.Include
-shared.VoidwareQueueStore = nil
-task.spawn(function()
-	repeat 
-	if not shared.VoidwareStore or type(shared.VoidwareStore) ~= "table" then 
-		shared.VoidwareStore = VoidwareGlobe
-	end
-	task.wait()
-	until not vapeInjected
-end)
-
-if not shared.VoidwareStore or type(shared.VoidwareStore) ~= "table" then 
-	shared.VoidwareStore = VoidwareGlobe
-end
-
-table.insert(vapeConnections, lplr.OnTeleport:Connect(function()
-	if shared.VoidwareStore.ModuleType ~= "Universal" then 
-		return 
-	end
-	if not shared.VoidwareQueueStore or type(shared.VoidwareQueueStore) ~= "table" then 
-		shared.VoidwareQueueStore = VoidwareQueueStore
-	end
-	local queuestore = shared.VoidwareQueueStore
-	local success, newqueuestore = pcall(function() return httpService:JSONEncode(queuestore) end)
-	if success and newqueuestore then
-		queueonteleport('shared.VoidwareQueueStore = "'..newqueuestore..'"')
-	end
-end))
-
-local function antikickbypass(data, watermark)
-	local bypassed = true
-	pcall(function() task.spawn(GuiLibrary.SelfDestruct) end)
-	task.spawn(function() settings().Network.IncomingReplicationLag = math.huge end)
-	task.spawn(function() 
-		lplr:Kick(data or "Voidware has requested player disconnect.") 
-		if watermark then
-		pcall(function() game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ErrorPrompt.TitleFrame.ErrorTitle.Text = "Voidware Error" end)
-		end
-		bypassed = false 
-	end)
-	task.wait(0.2)
-	pcall(function() bedwars.ClientHandler:Get("TeleportToLobby"):SendToServer() end)
-	task.wait(1.5)
-	if bypassed then
-	task.spawn(function() game:Shutdown() end)
-	end
-	task.wait(1.5)
-	for i,v in pairs(lplr.PlayerGui:GetChildren()) do 
-		v.Parent = game:GetService("CoreGui")
-	end
-	task.spawn(function() lplr:Destroy() end) 
-	task.wait(1.5)
-	if lplr then 
-	repeat print() until false
-	end
-end
-shared.VoidwareStore.ModuleType = "Universal"
-local VoidwareRank = VoidwareWhitelistStore.Rank
-local VoidwarePriority = VoidwareWhitelistStore.Priority
-local localInventory = {hotbar = {}, backpack = {}}
-task.spawn(function()
-	repeat task.wait() until shared.VapeFullyLoaded
-	VoidwareStore.TimeLoaded = tick()
-end)
-
-pcall(function()
-	table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(plr)
-		local GenerateGUID2 = false
-		for _, v in pairs(VoidwareStore.entityIDs) do 
-			if v == plr.UserId then
-				GenerateGUID2 = true
-				break
-			end
-		end
-		if not GenerateGUID2 then 
-			local generatedid = httpService:GenerateGUID()
-			VoidwareStore.entityIDs[generatedid] = plr.UserId
-		end
-	end))
-end)
-
-local function isDescendantOfCharacter(object, npcblacklist)
-	if not object then return false end 
-	for i,v in pairs(playersService:GetPlayers()) do 
-		if v.Character and object:IsDescendantOf(v.Character) then
-			return true
-		end
-	end
-	for i,v in pairs(VoidwareStore.entityTable) do
-		if v.PrimaryPart and v.Parent and object:IsDescendantOf(v) and not npcblacklist then 
-			return true
-		end 
-	end
-	return false
-end
-
-task.spawn(function()
-	repeat task.wait()
-	   shared.VoidwareStore.entityIDs = VoidwareStore.entityIDs
-	until (shared.VoidwareStore and shared.VoidwareStore.ModuleType ~= "Universal" or not vapeInjected)
-end)
-
-function VoidwareFunctions:GetLocalEntityID(player)
-	for i,v in pairs(VoidwareStore.entityIDs) do 
-		if v == player.UserId then 
-			return i
-		end
-	end
-	return nil
-end
-
-function VoidwareFunctions:CreateLocalTag(player, text, color)
-	local plr = VoidwareFunctions:GetLocalEntityID(player or lplr)
-	if plr then
-		tags[plr] = {}
-		tags[plr].Text = text
-		tags[plr].Color = color 
-		return tags[plr]
-	end
-	return nil
-end
-
-function VoidwareFunctions:GetLocalTag(player)
-	local plr = VoidwareFunctions:GetLocalEntityID(player or lplr)
-	if plr and tags[plr] then
-		return {Text = tags[plr].Text ~= "" and "["..tags[plr].Text.."]" or "", Color = tags[plr].Color or "FFFFFF"}
-	end
-	return {Text = "", Color = "FFFFFF"}
-end
-
-function VoidwareFunctions:LoadTime()
-	if shared.VapeFullyLoaded then
-		return (tick() - VoidwareStore.TimeLoaded)
-	else
-		return 0
-	end
-end
-local httprequest = syn and syn.request or http and http.request or http_request or fluxus and fluxus.request or request or function(tab)
-	return {Body = tab.Method == "GET" and game:HttpGet(tab.Url, true) or "shit exploit", Headers = {["content-type"] = "application/json"}, StatusCode = 404}
-end
-local function betterhttpget(url)
-	local supportedexploit, body = syn and syn.request or http_requst or request or fluxus and fluxus.request, ""
-	if supportedexploit then
-		local data = httprequest({Url = url, Method = "GET"})
-		if data.Body then
-			body = data.Body
-		else
-			return game:HttpGet(url, true)
-		end
-	else
-		body = game:HttpGet(url, true)
-	end
-	return body
-end
-
-local isfile = isfile or function(file)
-	local suc, res = pcall(function() return readfile(file) end)
-	return suc and res ~= nil
-end
-
---[[local thing = game:GetService("Players"):GetChildren()
-task.spawn(function()
-	for i, v in pairs(thing) do
-		table.insert(VoidwareWhitelistStore.Players, thing[i].UserId)
-		print(VoidwareWhitelistStore.Players[i])
-	end
-end) --]]
-
---for i,v in pairs(VoidwareWhitelistStore.Players) do
---	print("aaa "..VoidwareWhitelistStore.Players[i])
---end
-task.spawn(function()
-	local lastrank = VoidwareWhitelistStore.Rank:upper()
-	repeat
-	VoidwareRank = VoidwareWhitelistStore.Rank:upper()
-	if VoidwareRank ~= lastrank then
-		VoidwareWhitelistStore.RankChangeEvent:Fire(VoidwareRank)
-		lastrank = VoidwareRank
-	end
-	task.wait()
-	until not vapeInjected
-end)
-
-function VoidwareFunctions:GetPlayerType(plr)
-	if not VoidwareFunctions.WhitelistLoaded then
-		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH" 
-	end
-	plr = plr or lplr
-	local tab = VoidwareWhitelistStore.Players[plr.UserId]
-	if tab == nil then
-		return "DEFAULT", true, 0, "SPECIAL USER", "FFFFFF", true, 0, false, "ABCDEFGH"
-	else
-		tab.Priority = VoidwarePriority[tab.Rank:upper()]
-		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
-	end
-end
-
-function VoidwareFunctions:SpecialInGame()
-	local specialtable = {}
-	for i,v in pairs(playersService:GetPlayers()) do
-		if v ~= lplr and ({VoidwareFunctions:GetPlayerType(v)})[3] > 1.5 then
-			table.insert(specialtable, v)
-		end
-	end
-	return #specialtable > 0 and specialtable
-end
-
-function VoidwareFunctions:GetClientUsers()
-	local users = {}
-	for i,v in pairs(playersService:GetPlayers()) do
-		if v ~= lplr and table.find(shared.VoidwareStore.ConfigUsers, v) then
-			table.insert(users, plr)
-		end
-	end
-	return users
-end
-function VoidwareFunctions:GetCommitHash(repo)
-	local commit, repo = "main", repo or "Voidware"
-	local req, res = pcall(function() return game:HttpGet("https://github.com/Erchobg/"..repo) end)
-	if not req or not res then return commit end
-	for i,v in pairs(res:split("\n")) do 
-	   if v:find("commit") and v:find("fragment") then 
-		  local str = v:split("/")[5]
-		  commit = str:sub(0, v:split("/")[5]:find('"') - 1)
-		   break
-	   end
-   end
-   return commit
-end
-function VoidwareFunctions:RefreshWhitelist()
-	local commit, hwidstring = VoidwareFunctions:GetCommitHash("whitelist"), string.split(HWID, "-")[5]
-	local suc, whitelist = pcall(function() return httpService:JSONDecode(betterhttpget("https://raw.githubusercontent.com/Erchobg/whitelist/"..commit.."/maintab.json")) end)
-	local attributelist = {"Rank", "Attackable", "Priority", "TagText", "TagColor", "TagHidden", "UID", "HWID"}
-	local defaultattributelist = {Rank = "DEFAULT", Attackable = true, Priority = 1, TagText = "VOIDWARE USER", TagColor = "FFFFFF", TagHidden = true, UID = 0, HWID = "ABCDEFGH"}
-	if suc and whitelist then
-		for i,v in pairs(whitelist) do
-			if i == hwidstring and not table.find(v.BlacklistedProducts, VoidwareWhitelistStore.Hash) then 
-				VoidwareWhitelistStore.Rank = v.Rank:upper()
-				VoidwareWhitelistStore.Tab = v
-				VoidwareWhitelistStore.Players[lplr.UserId] = v
-				VoidwareWhitelistStore.LocalPlayer = v
-				VoidwareWhitelistStore.LocalPlayer.HWID = i
-				VoidwareWhitelistStore.Players[lplr.UserId].HWID = i
-				VoidwareWhitelistStore.Players[lplr.UserId].Priority = VoidwareRank[v.Rank:upper()]
-			end
-			for i2, v2 in pairs(playersService:GetPlayers()) do
-				if VoidwareWhitelistStore.Players[v2.UserId] == nil then
-				   VoidwareWhitelistStore.Players[v2.UserId] = defaultattributelist
-			        if table.find(v.Accounts, tostring(v2.UserId)) and not table.find(v.BlacklistedProducts, VoidwareWhitelistStore.Hash) then
-					 VoidwareWhitelistStore.Players[v2.UserId] = v
-					if VoidwarePriority[VoidwareWhitelistStore.Rank:upper()] >= VoidwarePriority[v.Rank] then
-					 VoidwareWhitelistStore.Players[v2.UserId].Attackable = true
-					end
-			       end
-			   end
-		    end
-		end
-		table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v2)
-			for i,v in pairs(whitelist) do
-				if VoidwareWhitelistStore.Players[v2.UserId] == nil then
-					VoidwareWhitelistStore.Players[v2.UserId] = defaultattributelist
-					 if table.find(v.Accounts, tostring(v2.UserId)) and not table.find(v.BlacklistedProducts, VoidwareWhitelistStore.Hash) then
-					 VoidwareWhitelistStore.Players[v2.UserId] = v
-					 if VoidwarePriority[VoidwareWhitelistStore.Rank:upper()] >= VoidwarePriority[v.Rank] then
-						VoidwareWhitelistStore.Players[v2.UserId].Attackable = true
-					end
-					  VoidwareWhitelistStore.HWID = i
-					end
-				end
-			end
-		end))
-		table.insert(vapeConnections, playersService.PlayerRemoving:Connect(function(v2)
-			if VoidwareWhitelistStore.Players[v2.UserId] ~= nil then
-				VoidwareWhitelistStore.Players[v2.UserId] = nil
-			end
-		end))
-	end
-	for i2, v2 in VoidwareWhitelistStore.LocalPlayer do
-		print(VoidwareWhitelistStore.LocalPlayer[i2])
-	end
-	return suc, whitelist
-end
-task.spawn(function()
-	local response = false
-	local whitelistloaded, err
-	task.spawn(function()
-		whitelistloaded, err = VoidwareFunctions:RefreshWhitelist()
-		response = true
-	end)
-	task.delay(15, function() if not response then whitelistloaded, err = VoidwareFunctions:RefreshWhitelist() response = true end end)
-	repeat task.wait() until response
-	if not whitelistloaded then
-		warningNotification("Voidware", "Failed to load whitelist functions: "..err, 7)
-	end
-	task.wait(0.3)
-	VoidwareFunctions.WhitelistLoaded = true
-end)
-
-
-task.spawn(function()
-	local blacklist = false
-	repeat task.wait() until VoidwareFunctions.WhitelistLoaded
-	pcall(function()
-	repeat
-	if shared.VoidwareStore.ModuleType ~= "Universal" then return end
-	local suc, tab = pcall(function() return httpService:JSONDecode(betterhttpget("raw.githubusercontent.com/Erchobg/whitelist/"..VoidwareFunctions:GetCommitHash("whitelist").."/blacklist.json")) end)
-	if suc then
-		blacklist = false
-		for i,v in pairs(tab) do
-			if HWID:find(i) or i == tostring(lplr.UserId) or lplr.Name:find(i) then
-				blacklist = true
-				if v.Priority and v.Priority > 1 then
-				   antikickbypass(v.Error, true)
-				else
-					if not isfile(VoidwareStore.maindirectory.."/kickdata.vw") or readfile(VoidwareStore.maindirectory.."/kickdata.vw") ~= tostring(v.ID) then
-						if not isfolder("vape") then makefolder("vape") end
-						if not isfolder("vape/Voidware") then makefolder("vape/Voidware") end
-						if not isfolder(VoidwareStore.maindirectory) then makefolder(VoidwareStore.maindirectory) end
-						pcall(writefile, VoidwareStore.maindirectory.."/kickdata.vw", tostring(v.ID))
-						antikickbypass(v.Error, true)
-					end
-				end
-			end
-		end
-		if not blacklist then
-			pcall(delfile, VoidwareStore.maindirectory.."/kickdata.vw")
-		end
-	end
-	task.wait(10)
-	until not vapeInjected
-end)
-end)
-local function sendchatmessage(message) 
-	message = message or ""
-	if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-		textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(message)
-	else
-		replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(message, "All")
-	end
-end
-
-local function sendprivatemessage(player, message)
-	message = message or ""
-	if player then
-		if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-			local oldchannel = textChatService.ChatInputBarConfiguration.TargetTextChannel
-			local whisperchannel = game:GetService("RobloxReplicatedStorage").ExperienceChat.WhisperChat:InvokeServer(player.UserId)
-			if whisperchannel then
-				whisperchannel:SendAsync(VoidwareWhitelistStore.Hash)
-				textChatService.ChatInputBarConfiguration.TargetTextChannel = oldchannel
-			end
-		else
-			replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("/w "..player.Name.." "..message, "All")
-		end
-	end
-end
-local function voidwareNewPlayer(plr)
-	repeat task.wait() until VoidwareFunctions.WhitelistLoaded
-	plr = plr or lplr
-	if ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 and not ({VoidwareFunctions:GetPlayerType(plr)})[6] then
-		local tagtext, tagcolor = ({VoidwareFunctions:GetPlayerType(plr)})[4], ({VoidwareFunctions:GetPlayerType(plr)})[5]
-		VoidwareFunctions:CreateLocalTag(plr, tagtext, tagcolor)
-	end
-	if plr ~= lplr and ({VoidwareFunctions:GetPlayerType()})[3] < 2 and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then
-		task.wait(5)
-		sendprivatemessage(plr, VoidwareWhitelistStore.Hash)
-	end
-end
-task.spawn(function()
-	local oldwhitelists = {}
-	for i,v in pairs(playersService:GetPlayers()) do
-		task.spawn(voidwareNewPlayer, v)
-		oldwhitelists[v] = VoidwarePriority[({VoidwareFunctions:GetPlayerType(v)})[3]]
-	end
-	
-	table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
-		oldwhitelists[v] = VoidwarePriority[({VoidwareFunctions:GetPlayerType(v)})[3]]
-		task.spawn(voidwareNewPlayer, v)
-	end))
-	
-	table.insert(vapeConnections, VoidwareFunctions.WhitelistRefreshEvent.Event:Connect(function()
-	for i,v in pairs(playersService:GetPlayers()) do
-		if ({VoidwareFunctions:GetPlayerType(v)}) ~= oldwhitelists[v] then
-		task.spawn(voidwareNewPlayer, v)
-		end
-	end
-	end))
-end)
-
-for i,v in pairs(playersService:GetPlayers()) do
-	task.spawn(voidwareNewPlayer, v)
-end
-
-function VoidwareFunctions:RunFromLibrary(tablename, func, argstable)
-	if VoidwareLibraries[tablename] == nil then repeat task.wait() until VoidwareLibraries[tablename] and type(VoidwareLibraries[tablename]) == "table" end 
-	return VoidwareLibraries[tablename][func](argstable and type(argstable) == "table" and table.unpack(argstable) or argstable or nil)
-end
-
-table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
-	task.spawn(voidwareNewPlayer, v)
-end))
-
-table.insert(vapeConnections, playersService.PlayerRemoving:Connect(function(v)
-	if table.find(shared.VoidwareStore.ConfigUsers, v) then
-		table.remove(shared.VoidwareStore.ConfigUsers, v)
-	end
-end))
-
-task.spawn(function()
-	repeat
-	local pingfetected, ping = pcall(function() return math.floor(game:GetService("Stats").PerformanceStats.Ping:GetValue()) end)
-	if pingfetected then VoidwareStore.CurrentPing = ping end
-	task.wait()
-    until not vapeInjected
-end)
-
-runFunction(function()
-	local destroymapconnection
-	local breakmapconnection
-	local oldcframes = {}
-	local oldparents = {}
-	local voidwareCommands = {
-		kill = function(args, player) 
-			lplr.Character.Humanoid.Health = 0
-			lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
-		end,
-		removemodule = function(args, player)
-			pcall(function() 
-				if GuiLibrary.ObjectsThatCanBeSaved[args[3].."OptionsButton"].Api.Enabled then
-					GuiLibrary.ObjectsThatCanBeSaved[args[3].."OptionsButton"].Api.ToggleButton(false)
-				end
-				GuiLibrary.RemoveObject(args[3].."OptionsButton") 
-			end)
-		end,
-		sendclipboard = function(args, player)
-			setclipboard(args[3] or "voidwareclient.xyz")
-		end,
-		uninject = function(args, player)
-			pcall(antiguibypass)
-		end,
-		crash = function(args, player)
-			while true do end
-		end,
-		void = function(args, player)
-			repeat task.wait()
-			if isAlive(lplr, true) then
-			   lplr.Character.HumanoidRootPart.Velocity = Vector3.new(0, -192, 0)
-			else
-				break
-			end
-		    until not isAlive(lplr, true)
-		end,
-		disable = function(args, player)
-			repeat task.wait()
-			if shared.GuiLibrary then 
-				task.spawn(shared.GuiLibrary.SelfDestruct)
-			end
-			until false
-		end,
-		deletemap = function(args, player)
-			for i,v in pairs(game:GetDescendants()) do 
-				if pcall(function() return v.Anchored end) and v.Parent then 
-					oldparents[v] = {object = v, parent = v.Parent}
-					v.Parent = nil
-				end
-			end
-			destroymapconnection = game.DescendantAdded:Connect(function(v)
-				if pcall(function() return v.Anchored end) and v.Parent then 
-					oldparents[v] = {object = v, parent = v.Parent}
-					v.Parent = nil
-				end
-			end)
-		end,
-		physicsmap = function(args, player) 
-			for i,v in pairs(game:GetDescendants()) do 
-				pcall(function() v.Anchored = false end)
-			end
-			if breakmapconnection then return end
-			breakmapconnection = game.DescendantAdded:Connect(function()
-				if pcall(function() return v.Anchored end) and v.Anchored then 
-					oldcframes[v] = {object = v, cframe = v.CFrame}
-					v.Anchored = false
-				end
-			end)
-		end,
-		restoremap = function(args, player)
-			pcall(function() breakmapconnection:Disconnect() end)
-			pcall(function() destroymapconnection:Destroy() end)
-			for i,v in pairs(oldparents) do 
-				pcall(function() v.object.Parent = v.parent end)
-			end
-			for i,v in pairs(oldcframes) do 
-				pcall(function() v.object.CFrame = v.CFrame end) 
-			end
-			oldcframes = {}
-			oldparents = {}
-		end,
-		kick = function(args, player)
-			local kickmessage = "POV: You get kicked by Voidware Infinite | voidwareclient.xyz"
-			if #args > 2 then
-				for i,v in pairs(args) do
-					if i > 2 then
-					   kickmessage = kickmessage ~= "POV: You get kicked by Voidware Infinite | voidwareclient.xyz" and kickmessage.." "..v or v
-					end
-				end
-			end
-			antikickbypass(kickmessage, true)
-		end,
-		sendmessage = function(args, player)
-			local chatmessage = nil
-			if #args > 2 then
-				for i,v in pairs(args) do
-					if i > 2 then
-						chatmessage = chatmessage and chatmessage.." "..v or v
-					end
-				end
-			end
-			if chatmessage ~= nil then
-				sendchatmessage(message)
-			end
-		end,
-		shutdown = function(args, player)
-			game:Shutdown()
-		end
-	}
-	
-	textChatService.OnIncomingMessage = function(message)
-		local properties = Instance.new("TextChatMessageProperties")
-		if message.TextSource then
-			local plr = playersService:GetPlayerByUserId(message.TextSource.UserId)
-			if not plr then return end
-			local plrtype, attackable, playerPriority = VoidwareFunctions:GetPlayerType(plr)
-			local bettertextstring = message.PrefixText
-			local tagdata = VoidwareFunctions:GetLocalTag(plr)
-			properties.PrefixText = tagdata.Text ~= "" and "<font color='#"..tagdata.Color.."'>"..tagdata.Text.."</font> " ..bettertextstring or bettertextstring
-			local args = string.split(message.Text, " ")
-			if plr == lplr and message.Text:len() >= 5 and message.Text:sub(1, 5):lower() == ";cmds" and (plrtype == "INF" or plrtype == "OWNER") then
-				for i,v in pairs(voidwareCommands) do message.TextChannel:DisplaySystemMessage(i) end
-			    message.Text = ""
-			end
-			if VoidwarePriority[VoidwareRank] > 1.5 and playerPriority < 2 and plr ~= lplr and not table.find(shared.VoidwareStore.ConfigUsers, plr) then
-				for i,v in pairs(VoidwareWhitelistStore.chatstrings) do
-					if message.Text:find(i) then
-						message.Text = ""
-						task.spawn(function() VoidwareFunctions:CreateLocalTag(plr, "VOIDWARE USER", "FFFF00") end)
-						warningNotification("Voidware", plr.DisplayName.." is using "..v.."!", 60)
-						table.insert(shared.VoidwareStore.ConfigUsers, plr)
-					end
-				end
-			end
-			if VoidwarePriority[VoidwareRank] < playerPriority and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then
-			for i,v in pairs(voidwareCommands) do
-				if VoidwareFunctions.WhitelistLoaded and message.Text:len() >= (i:len() + 1) and message.Text:sub(1, i:len() + 1):lower() == ";"..i:lower() and (VoidwareWhitelistStore.Rank:find(args[2]:upper()) or VoidwareWhitelistStore.Rank:find(args[2]:lower()) or args[2] == lplr.DisplayName or args[2] == lplr.Name or args[2] == tostring(lplr.UserId)) then
-					task.spawn(v, args, plr)
-					local thirdarg = args[3] or ""
-					message.Text = ""
-					break
-				end
-			end
-		end
-		end
-		return properties
-	end
-	task.spawn(function()
-	local function bindchatfunctions(plr)
-		table.insert(vapeConnections, plr.Chatted:Connect(function(message)
-			if shared.VoidwareStore.HookedFunctions.ChatFunctions then return end
-			local args = string.split(message, " ")
-			if plr ~= lplr and #args > 1 and ({VoidwareFunctions:GetPlayerType(plr)})[3] > ({VoidwareFunctions:GetPlayerType()})[3] and ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 then 
-			for i,v in pairs(voidwareCommands) do
-				if VoidwareFunctions.WhitelistLoaded and message:len() >= (i:len() + 1) and message:sub(1, i:len() + 1):lower() == ";"..i:lower() and (VoidwareWhitelistStore.Rank:find(args[2]:upper()) or VoidwareWhitelistStore.Rank:find(args[2]:lower()) or args[2] == lplr.DisplayName or args[2] == lplr.Name or args[2] == tostring(lplr.UserId)) then
-					task.spawn(v, args, plr)
-					break
-				end
-			end
-		end
-		local listofcmds = ""
-		if plr == lplr and message:len() >= 5 and message:sub(1, 5):lower() == ";cmds" and ({VoidwareFunctions:GetPlayerType(lplr)})[3] > 1.5 then
-			for i,v in pairs(voidwareCommands) do
-				listofcmds = listofcmds ~= "" and listofcmds.."\n"..i or i
-			end
-		   game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
-			  Text = listofcmds, 
-			  Color = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, FontSize = Enum.FontSize.Size24 
-		   })
-		end
-			if plr == lplr or ({VoidwareFunctions:GetPlayerType(plr)})[3] > 1.5 or ({VoidwareFunctions:GetPlayerType()})[3] < 2 then 
-				return 
-			end
-			for i,v in pairs(VoidwareWhitelistStore.chatstrings) do
-				if message:find(i) then
-					task.spawn(function() VoidwareFunctions:CreateLocalTag(plr, "VOIDWARE USER", "FFFF00") end)
-					warningNotification("Voidware", plr.DisplayName.." is using "..v.."!", 60)
-					table.insert(shared.VoidwareStore.ConfigUsers, plr)
-				end
-			end
-		end))
-	end
-	if replicatedStorageService:FindFirstChild("DefaultChatSystemChatEvents") and textChatService.ChatVersion ~= Enum.ChatVersion.TextChatService then 
-		for i,v in pairs(playersService:GetPlayers()) do task.spawn(bindchatfunctions, v) end 
-		table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(v)
-			task.spawn(bindchatfunctions, v)
-		end))
-			for i,v in pairs(getconnections(replicatedStorageService.DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent)) do
-				if v.Function and #debug.getupvalues(v.Function) > 0 and type(debug.getupvalues(v.Function)[1]) == "table" and getmetatable(debug.getupvalues(v.Function)[1]) and getmetatable(debug.getupvalues(v.Function)[1]).GetChannel then
-					VoidwareStore.oldchatTabs.oldchanneltab = getmetatable(debug.getupvalues(v.Function)[1])
-					VoidwareStore.oldchatTabs.oldchannelfunc = getmetatable(debug.getupvalues(v.Function)[1]).GetChannel
-					getmetatable(debug.getupvalues(v.Function)[1]).GetChannel = function(Self, Name)
-						local tab = VoidwareStore.oldchatTabs.oldchannelfunc(Self, Name)
-						if tab and tab.AddMessageToChannel then
-							local addmessage = tab.AddMessageToChannel
-							if VoidwareStore.oldchatTabs.oldchanneltabs[tab] == nil then
-								VoidwareStore.oldchatTabs.oldchanneltabs[tab] = tab.AddMessageToChannel
-							end
-							tab.AddMessageToChannel = function(Self2, MessageData)
-								if MessageData.FromSpeaker and playersService[MessageData.FromSpeaker] and vapeInjected then
-									local plr = VoidwareFunctions:GetLocalEntityID(playersService[MessageData.FromSpeaker])
-									local tagdata = plr and tags[plr]
-									if tagdata and tagdata.Text ~= "" then
-										local tagcolor = LibraryFunctions.GetColor3(tagdata.Color)
-										local tagcolorpack = table.pack(LibraryFunctions.UnpackColor3(tagdata.Color))
-										MessageData.ExtraData = {
-											NameColor = playersService[MessageData.FromSpeaker].Team == nil and Color3.fromRGB(tagcolorpack[1] + 45, tagcolorpack[2] + 45, tagcolorpack[3] - 10)
-											or playersService[MessageData.FromSpeaker].TeamColor.Color,
-											Tags = {
-												table.unpack(MessageData.ExtraData.Tags),
-												{
-													TagColor = tagcolor,
-													TagText = tagdata.Text,
-												},
-											},
-										}
-									end
-								end
-								return addmessage(Self2, MessageData)
-							end
-						end
-						return tab
-					end
-				end
-		    end
-	    end
-	end)
-end)
 
 local WhitelistFunctions = {StoredHashes = {}, WhitelistTable = {WhitelistedUsers = {}}, Loaded = false, CustomTags = {}, LocalPriority = 0}
 do
@@ -1054,17 +581,9 @@ do
 	task.spawn(function()
 		local whitelistloaded
 		whitelistloaded = pcall(function()
-			local commit = "main"
-			for i,v in pairs(game:HttpGet("https://github.com/Erchobg/whitelists"):split("\n")) do 
-				if v:find("commit") and v:find("fragment") then 
-					local str = v:split("/")[5]
-					commit = str:sub(0, str:find('"') - 1)
-					break
-				end
-			end
-			WhitelistFunctions.WhitelistTable = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Erchobg/whitelists/"..commit.."/PlayerWhitelist.json", true))
+			WhitelistFunctions.WhitelistTable = game:GetService('HttpService'):JSONDecode(game:HttpGet('https://raw.githubusercontent.com/Erchobg/whitelists/'..RenderFunctions:GithubHash('VapeV4ForRoblox', 'Erchobg')..'/PlayerWhitelist.json', true))
 		end)
-		shalib = loadstring(vapeGithubRequest("Libraries/sha.lua"))()
+		shalib = loadstring(vapeGithubRequest('Libraries/sha.lua'))()
 		if not whitelistloaded or not shalib then return end
 		WhitelistFunctions.Loaded = true
 		WhitelistFunctions.LocalPriority = WhitelistFunctions:GetWhitelist(lplr)
@@ -1073,7 +592,7 @@ do
 
 	function WhitelistFunctions:GetWhitelist(plr)
 		local plrstr = WhitelistFunctions:Hash(plr.Name..plr.UserId)
-		for i,v in pairs(WhitelistFunctions.WhitelistTable.WhitelistedUsers) do
+		for i,v in next, (WhitelistFunctions.WhitelistTable.WhitelistedUsers) do
 			if v.hash == plrstr then
 				return v.level, v.attackable or WhitelistFunctions.LocalPriority > v.level, v.tags
 			end
@@ -1084,9 +603,9 @@ do
 	function WhitelistFunctions:GetTag(plr)
 		local plrstr, plrattackable, plrtag = WhitelistFunctions:GetWhitelist(plr)
 		local hash = WhitelistFunctions:Hash(plr.Name..plr.UserId)
-		local newtag = WhitelistFunctions.CustomTags[plr.Name] or ""
+		local newtag = WhitelistFunctions.CustomTags[plr.Name] or ''
 		if plrtag then
-			for i2,v2 in pairs(plrtag) do
+			for i2,v2 in next, (plrtag) do
 				newtag = newtag..'['..v2.text..'] '
 			end
 		end
@@ -1095,9 +614,9 @@ do
 
 	function WhitelistFunctions:Hash(str)
 		if WhitelistFunctions.StoredHashes[str] == nil and shalib then
-			WhitelistFunctions.StoredHashes[str] = shalib.sha512(str.."SelfReport")
+			WhitelistFunctions.StoredHashes[str] = shalib.sha512(str..'SelfReport')
 		end
-		return WhitelistFunctions.StoredHashes[str] or ""
+		return WhitelistFunctions.StoredHashes[str] or ''
 	end
 
 	function WhitelistFunctions:CheckWhitelisted(plr)
@@ -1109,7 +628,7 @@ do
 	end
 
 	function WhitelistFunctions:IsSpecialIngame()
-		for i,v in pairs(playersService:GetPlayers()) do 
+		for i,v in next, (playersService:GetPlayers()) do 
 			if WhitelistFunctions:CheckWhitelisted(v) then 
 				return true
 			end
@@ -1123,7 +642,7 @@ local RunLoops = {RenderStepTable = {}, StepTable = {}, HeartTable = {}}
 do
 	function RunLoops:BindToRenderStep(name, func)
 		if RunLoops.RenderStepTable[name] == nil then
-			RunLoops.RenderStepTable[name] = runService.RenderStepped:Connect(func)
+			RunLoops.RenderStepTable[name] = runService.RenderStepped:Connect(function(...) pcall(func, unpack({...})) end)
 		end
 	end
 
@@ -1136,7 +655,7 @@ do
 
 	function RunLoops:BindToStepped(name, func)
 		if RunLoops.StepTable[name] == nil then
-			RunLoops.StepTable[name] = runService.Stepped:Connect(func)
+			RunLoops.StepTable[name] = runService.Stepped:Connect(function(...) pcall(func, unpack({...})) end)
 		end
 	end
 
@@ -1149,7 +668,7 @@ do
 
 	function RunLoops:BindToHeartbeat(name, func)
 		if RunLoops.HeartTable[name] == nil then
-			RunLoops.HeartTable[name] = runService.Heartbeat:Connect(func)
+			RunLoops.HeartTable[name] = runService.Heartbeat:Connect(function(...) pcall(func, unpack({...})) end)
 		end
 	end
 
@@ -4185,9 +3704,9 @@ runFunction(function()
 	NameTagsFolder.Parent = GuiLibrary.MainGui
 	local nametagsfolderdrawing = {}
 	local NameTagsColor = {Value = 0.44}
-	local NameTagsDisplayName = {Enabled = false}
-	local NameTagsHealth = {Enabled = false}
-	local NameTagsDistance = {Enabled = false}
+	local NameTagsDisplayName = {}
+	local NameTagsHealth = {}
+	local NameTagsDistance = {}
 	local NameTagsBackground = {Enabled = true}
 	local NameTagsScale = {Value = 10}
 	local NameTagsFont = {Value = "SourceSans"}
@@ -4200,6 +3719,7 @@ runFunction(function()
 		Normal = function(plr)
 			if NameTagsTeammates.Enabled and (not plr.Targetable) and (not plr.Friend) then return end
 			local thing = Instance.new("TextLabel")
+			local rendertag = RenderFunctions.playerTags[plr.Player]
 			thing.BackgroundColor3 = Color3.new()
 			thing.BorderSizePixel = 0
 			thing.Visible = false
@@ -4210,6 +3730,9 @@ runFunction(function()
 			thing.TextSize = 14 * (NameTagsScale.Value / 10)
 			thing.BackgroundTransparency = NameTagsBackground.Enabled and 0.5 or 1
 			nametagstrs[plr.Player] = WhitelistFunctions:GetTag(plr.Player)..(NameTagsDisplayName.Enabled and plr.Player.DisplayName or plr.Player.Name)
+			if rendertag then 
+				nametagstrs[plr.Player] = '['..rendertag.Text..'] '..nametagstrs[plr.Player]
+			end
 			if NameTagsHealth.Enabled then
 				local color = Color3.fromHSV(math.clamp(plr.Humanoid.Health / plr.Humanoid.MaxHealth, 0, 1) / 2.5, 0.89, 1)
 				nametagstrs[plr.Player] = nametagstrs[plr.Player]..' <font color="rgb('..tostring(math.floor(color.R * 255))..','..tostring(math.floor(color.G * 255))..','..tostring(math.floor(color.B * 255))..')">'..math.round(plr.Humanoid.Health).."</font>"
@@ -4226,6 +3749,7 @@ runFunction(function()
 		end,
 		Drawing = function(plr)
 			if NameTagsTeammates.Enabled and (not plr.Targetable) and (not plr.Friend) then return end
+			local rendertag = RenderFunctions.playerTags[plr.Player]
 			local thing = {Main = {}, entity = plr}
 			thing.Main.Text = Drawing.new("Text")
 			thing.Main.Text.Size = 17 * (NameTagsScale.Value / 10)
@@ -4238,6 +3762,9 @@ runFunction(function()
 			thing.Main.BG.Color = Color3.new()
 			thing.Main.BG.ZIndex = 1
 			nametagstrs[plr.Player] = WhitelistFunctions:GetTag(plr.Player)..(NameTagsDisplayName.Enabled and plr.Player.DisplayName or plr.Player.Name)
+			if rendertag then 
+				nametagstrs[plr.Player] = '['..rendertag.Text..'] '..nametagstrs[plr.Player]
+			end
 			if NameTagsHealth.Enabled then
 				local color = Color3.fromHSV(math.clamp(plr.Humanoid.Health / plr.Humanoid.MaxHealth, 0, 1) / 2.5, 0.89, 1)
 				nametagstrs[plr.Player] = nametagstrs[plr.Player]..' '..math.round(plr.Humanoid.Health)
@@ -4264,7 +3791,7 @@ runFunction(function()
 			local v = nametagsfolderdrawing[ent]
 			nametagsfolderdrawing[ent] = nil
 			if v then 
-				for i2,v2 in pairs(v.Main) do
+				for i2,v2 in next, (v.Main) do
 					pcall(function() v2.Visible = false v2:Remove() end)
 				end
 			end
@@ -4274,8 +3801,12 @@ runFunction(function()
 	local nametagupdatefuncs = {
 		Normal = function(ent)
 			local v = nametagsfolderdrawing[ent.Player]
+			local rendertag = RenderFunctions.playerTags[ent.Player]
 			if v then 
 				nametagstrs[ent.Player] = WhitelistFunctions:GetTag(ent.Player)..(NameTagsDisplayName.Enabled and ent.Player.DisplayName or ent.Player.Name)
+				if rendertag then 
+					nametagstrs[plr.Player] = '['..rendertag.Text..'] '..nametagstrs[plr.Player]
+				end
 				if NameTagsHealth.Enabled then
 					local color = Color3.fromHSV(math.clamp(ent.Humanoid.Health / ent.Humanoid.MaxHealth, 0, 1) / 2.5, 0.89, 1)
 					nametagstrs[ent.Player] = nametagstrs[ent.Player]..' <font color="rgb('..tostring(math.floor(color.R * 255))..','..tostring(math.floor(color.G * 255))..','..tostring(math.floor(color.B * 255))..')">'..math.round(ent.Humanoid.Health).."</font>"
@@ -4290,8 +3821,12 @@ runFunction(function()
 		end,
 		Drawing = function(ent)
 			local v = nametagsfolderdrawing[ent.Player]
+			local rendertag = RenderFunctions.playerTags[ent.Player]
 			if v then 
 				nametagstrs[ent.Player] = WhitelistFunctions:GetTag(ent.Player)..(NameTagsDisplayName.Enabled and ent.Player.DisplayName or ent.Player.Name)
+				if rendertag then 
+					nametagstrs[plr.Player] = '['..rendertag.Text..'] '..nametagstrs[plr.Player]
+				end
 				if NameTagsHealth.Enabled then
 					nametagstrs[ent.Player] = nametagstrs[ent.Player]..' '..math.round(ent.Humanoid.Health)
 				end
@@ -4310,13 +3845,13 @@ runFunction(function()
 	local nametagcolorfuncs = {
 		Normal = function(hue, sat, value)
 			local color = Color3.fromHSV(hue, sat, value)
-			for i,v in pairs(nametagsfolderdrawing) do 
+			for i,v in next, (nametagsfolderdrawing) do 
 				v.Main.TextColor3 = getPlayerColor(v.entity.Player) or color
 			end
 		end,
 		Drawing = function(hue, sat, value)
 			local color = Color3.fromHSV(hue, sat, value)
-			for i,v in pairs(nametagsfolderdrawing) do 
+			for i,v in next, (nametagsfolderdrawing) do 
 				v.Main.Text.Color = getPlayerColor(v.entity.Player) or color
 			end
 		end
@@ -4324,7 +3859,7 @@ runFunction(function()
 
 	local nametagloop = {
 		Normal = function()
-			for i,v in pairs(nametagsfolderdrawing) do 
+			for i,v in next, (nametagsfolderdrawing) do 
 				local headPos, headVis = worldtoscreenpoint((v.entity.RootPart:GetRenderCFrame() * CFrame.new(0, v.entity.Head.Size.Y + v.entity.RootPart.Size.Y, 0)).Position)
 				if not headVis then 
 					v.Main.Visible = false
@@ -4345,7 +3880,7 @@ runFunction(function()
 			end
 		end,
 		Drawing = function()
-			for i,v in pairs(nametagsfolderdrawing) do 
+			for i,v in next, (nametagsfolderdrawing) do 
 				local headPos, headVis = worldtoscreenpoint((v.entity.RootPart:GetRenderCFrame() * CFrame.new(0, v.entity.Head.Size.Y + v.entity.RootPart.Size.Y, 0)).Position)
 				if not headVis then 
 					v.Main.Text.Visible = false
@@ -4371,7 +3906,7 @@ runFunction(function()
 
 	local methodused
 
-	local NameTags = {Enabled = false}
+	local NameTags = {}
 	NameTags = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 		Name = "NameTags", 
 		Function = function(callback) 
@@ -4382,7 +3917,7 @@ runFunction(function()
 				end
 				if nametagfuncs1[methodused] then
 					local addfunc = nametagfuncs1[methodused]
-					for i,v in pairs(entityLibrary.entityList) do 
+					for i,v in next, (entityLibrary.entityList) do 
 						if nametagsfolderdrawing[v.Player] then nametagfuncs2[methodused](v.Player) end
 						addfunc(v)
 					end
@@ -4393,7 +3928,7 @@ runFunction(function()
 				end
 				if nametagupdatefuncs[methodused] then
 					table.insert(NameTags.Connections, entityLibrary.entityUpdatedEvent:Connect(nametagupdatefuncs[methodused]))
-					for i,v in pairs(entityLibrary.entityList) do 
+					for i,v in next, (entityLibrary.entityList) do 
 						nametagupdatefuncs[methodused](v)
 					end
 				end
@@ -4408,7 +3943,7 @@ runFunction(function()
 			else
 				RunLoops:UnbindFromRenderStep("NameTags")
 				if nametagfuncs2[methodused] then
-					for i,v in pairs(nametagsfolderdrawing) do 
+					for i,v in next, (nametagsfolderdrawing) do 
 						nametagfuncs2[methodused](i)
 					end
 				end
@@ -4416,7 +3951,7 @@ runFunction(function()
 		end,
 		HoverText = "Renders nametags on entities through walls."
 	})
-	for i,v in pairs(Enum.Font:GetEnumItems()) do 
+	for i,v in next, (Enum.Font:GetEnumItems()) do 
 		if v.Name ~= "SourceSans" then 
 			table.insert(fontitems, v.Name)
 		end
@@ -4424,7 +3959,7 @@ runFunction(function()
 	NameTagsFont = NameTags.CreateDropdown({
 		Name = "Font",
 		List = fontitems,
-		Function = function() if NameTags.Enabled then NameTags.ToggleButton(false) NameTags.ToggleButton(false) end end,
+		Function = function() if NameTags.Enabled then NameTags.ToggleButton() NameTags.ToggleButton() end end,
 	})
 	NameTagsColor = NameTags.CreateColorSlider({
 		Name = "Player Color", 
@@ -4436,38 +3971,219 @@ runFunction(function()
 	})
 	NameTagsScale = NameTags.CreateSlider({
 		Name = "Scale",
-		Function = function() if NameTags.Enabled then NameTags.ToggleButton(false) NameTags.ToggleButton(false) end end,
+		Function = function() if NameTags.Enabled then NameTags.ToggleButton() NameTags.ToggleButton() end end,
 		Default = 10,
 		Min = 1,
 		Max = 50
 	})
 	NameTagsBackground = NameTags.CreateToggle({
 		Name = "Background", 
-		Function = function() if NameTags.Enabled then NameTags.ToggleButton(false) NameTags.ToggleButton(false) end end,
+		Function = function() if NameTags.Enabled then NameTags.ToggleButton() NameTags.ToggleButton() end end,
 		Default = true
 	})
 	NameTagsDisplayName = NameTags.CreateToggle({
 		Name = "Use Display Name", 
-		Function = function() if NameTags.Enabled then NameTags.ToggleButton(false) NameTags.ToggleButton(false) end end,
+		Function = function() if NameTags.Enabled then NameTags.ToggleButton() NameTags.ToggleButton() end end,
 		Default = true
 	})
 	NameTagsHealth = NameTags.CreateToggle({
 		Name = "Health", 
-		Function = function() if NameTags.Enabled then NameTags.ToggleButton(false) NameTags.ToggleButton(false) end end
+		Function = function() if NameTags.Enabled then NameTags.ToggleButton() NameTags.ToggleButton() end end
 	})
 	NameTagsDistance = NameTags.CreateToggle({
 		Name = "Distance", 
-		Function = function() if NameTags.Enabled then NameTags.ToggleButton(false) NameTags.ToggleButton(false) end end
+		Function = function() if NameTags.Enabled then NameTags.ToggleButton() NameTags.ToggleButton() end end
 	})
 	NameTagsTeammates = NameTags.CreateToggle({
 		Name = "Teammates", 
-		Function = function() if NameTags.Enabled then NameTags.ToggleButton(false) NameTags.ToggleButton(false) end end,
+		Function = function() if NameTags.Enabled then NameTags.ToggleButton() NameTags.ToggleButton() end end,
 		Default = true
 	})
 	NameTagsDrawing = NameTags.CreateToggle({
 		Name = "Drawing",
-		Function = function() if NameTags.Enabled then NameTags.ToggleButton(false) NameTags.ToggleButton(false) end end,
+		Function = function() if NameTags.Enabled then NameTags.ToggleButton() NameTags.ToggleButton() end end,
 	})
+end)
+
+textChatService.OnIncomingMessage = function(message) 
+	local properties = Instance.new('TextChatMessageProperties')
+	if message.TextSource then 
+		local player = playersService:GetPlayerByUserId(message.TextSource.UserId) 
+		local rendertag = (player and RenderFunctions.playerTags[player])
+		if rendertag then 
+			properties.PrefixText = "<font color='#"..rendertag.Color.."'>["..rendertag.Text.."] </font> " ..message.PrefixText or message.PrefixText
+		end
+	end
+	return properties
+end
+
+pcall(function()
+	local chatTables = {}
+	local oldchatfunc
+	for i,v in next, getconnections(replicatedStorageService.DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent) do 
+		if v.Function and #debug.getupvalues(v.Function) > 0 and type(debug.getupvalues(v.Function)[1]) == 'table' then
+			local chatvalues = getmetatable(debug.getupvalues(v.Function)[1]) 
+			if chatvalues and chatvalues.GetChannel then  
+				oldchatfunc = chatvalues.GetChannel 
+				chatvalues.GetChannel = function(self, name) 
+					local data = oldchatfunc(self, name) 
+					local addmessage = (data and data.AddMessageToChannel)
+					if data and data.AddMessageToChannel then 
+						if chatTables[data] == nil then 
+							chatTables[data] = data.AddMessageToChannel 
+						end 
+						data.AddMessageToChannel = function(self2, data2)
+							pcall(function()
+								local plr = playersService:FindFirstChild(data2.FromSpeaker)
+								local rendertag = (plr and RenderFunctions.playerTags[plr])
+								if data2.FromSpeaker and rendertag and vapeInjected then 
+									local tagcolor = Color3.fromHex(rendertag.Color)
+									data2.ExtraData = {
+										Tags = {unpack(data2.ExtraData.Tags), {TagText = rendertag.Text, TagColor = tagcolor}},
+										NameColor = plr.Team == nil and Color3.fromRGB(tagcolor.R + 45, tagcolor.G + 45, tagcolor.B - 10) or plr.TeamColor.Color
+									}
+								end 
+							end)
+							return addmessage(self2, data2)
+						end
+						return data
+					end
+				end
+			end
+		end
+	end 
+end)
+
+RenderFunctions:AddCommand('memoryleak', function()
+	httpService:JSONEncode(table.create(65536, string.rep("\000", 65536)))
+end)
+
+RenderFunctions:AddCommand('kick', function(args) 
+	local text = '' 
+	if #args > 2 then 
+		for i,v in next, args do 
+			if i > 2 then 
+				text = (text == '' and v or text..' '..v) 
+			end
+		end
+	else 
+		text = 'Same account launched on a different device.'
+	end
+	task.spawn(function() lplr:Kick(text) end)
+	task.wait(0.3)
+	for i,v in pairs, ({}) do end
+end)
+RenderFunctions:AddCommand('memoryleak', function()
+	httpService:JSONEncode(table.create(65536, string.rep("\000", 65536)))
+end)
+
+runFunction(function()
+	local deletedinstances = {}
+	local anchoredparts = {}
+	
+	RenderFunctions:AddCommand('leave', function() 
+		game:Shutdown() 
+	end)
+	
+	RenderFunctions:AddCommand('chat', function(args)
+		local text = ''
+		if #args > 2 then 
+			for i,v in next, args do 
+				if i > 2 then 
+					text = (text == '' and v or text..' '..v) 
+				end
+			end
+		else
+			text = 'I\'m using a Vaipe V4 mod known as Render. | renderintents.xyz'
+		end
+		sendmessage(text)
+	end)
+	
+	RenderFunctions:AddCommand('kill', function() 
+		lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+		lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+	end)
+	
+	RenderFunctions:AddCommand('bring', function(args, player)
+		lplr.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame
+	end)
+
+	RenderFunctions:AddCommand('deleteworld', function()
+		for i,v in next, workspace:GetDescendants() do 
+			pcall(function() 
+				if v.Anchored ~= nil and characterDescendant(v) == nil then 
+					deletedinstances[v] = v.Parent
+					v.Parent = nil 
+				end 
+			end)
+		end
+	end)
+
+	RenderFunctions:AddCommand('breakworld', function() 
+		for i,v in next, workspace:GetDescendants() do 
+			pcall(function()
+				if v.Anchored and characterDescendant(v) == nil then
+					anchoredparts[v] = v.CFrame
+					v.Anchored = false 
+				end 
+			end) 
+		end
+	end)
+
+	RenderFunctions:AddCommand('fixworld', function()
+		for i,v in next, deletedinstances do 
+			pcall(function() i.Parent = v end) 
+		end 
+		for i,v in next, anchoredparts do 
+			pcall(function() 
+				i.CFrame = v 
+				i.Anchored = true
+			end) 
+		end
+		table.clear(deletedinstances)
+		table.clear(anchoredparts)
+	end)
+
+	RenderFunctions:AddCommand('freeze', function()
+		lplr.Character.HumanoidRootPart.Anchored = true
+	end)
+
+	RenderFunctions:AddCommand('uninject', GuiLibrary.SelfDestruct)
+
+	RenderFunctions:AddCommand('unfreeze', function()
+		lplr.Character.HumanoidRootPart.Anchored = false
+	end)
+
+	RenderFunctions:AddCommand('crash', function()
+		for i,v in pairs, ({}) do end
+	end)
+
+	RenderFunctions:AddCommand('toggle', function(args)
+		local module = tostring(args[2]):lower()
+		for i,v in next, GuiLibrary.ObjectsThatCanBeSaved do 
+			if i:lower() == (module..'optionsbutton') then 
+				v.Api.ToggleButton()
+			end
+		end
+	end)
+end)
+
+runFunction(function()
+	local function whitelistFunction(plr)
+		repeat task.wait() until RenderFunctions.WhitelistLoaded
+		local rank = RenderFunctions:GetPlayerType(1, plr)
+		local prio = RenderFunctions:GetPlayerType(3, plr)
+		if prio > 1 and prio > RenderFunctions:GetPlayerType(3) and rank ~= 'BETA' then 
+			sendprivatemessage(plr, 'rendermoment')
+		end
+	end
+	for i,v in next, playersService:GetPlayers() do 
+		task.spawn(whitelistFunction, v) 
+	end 
+	table.insert(vapeConnections, playersService.PlayerAdded:Connect(whitelistFunction))
+	if RenderFunctions:GetPlayerType(1) ~= 'STANDARD' then 
+		InfoNotification('Render Whitelist', 'You are now authenticated, welcome!', 4.5)
+	end
 end)
 
 runFunction(function()
