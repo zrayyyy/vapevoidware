@@ -11046,7 +11046,6 @@ runFunction(function()
 end)
 runFunction(function()
 	local Trolling = {}
-	local number = defaultnumber
 	Trolling = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'Trolling',
 		HoverText = ':troll:',
