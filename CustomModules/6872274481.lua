@@ -145,6 +145,28 @@ local function GetBedTeam(bedtomark)
     end
 end
 
+local gethighestblock = function() return nil end
+
+gethighestblock = function(position, smart, raycast, customvector)
+	if not position then 
+		return nil 
+	end
+	if raycast and not workspace:Raycast(position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast) then
+	    return nil
+    end
+	local lastblock
+	for i = 1, 500 do 
+		local newray = workspace:Raycast(lastblock and lastblock.Position or position, customvector or Vector3.new(0.55, 9e9, 0.55), bedwarsStore.blockRaycast)
+		local smartest = newray and smart and workspace:Raycast(lastblock and lastblock.Position or position, Vector3.new(0, 5.5, 0), bedwarsStore.blockRaycast) or not smart
+		if newray and smartest then
+			lastblock = newray
+		else
+			break
+		end
+	end
+	return lastblock
+end
+
 table.insert(vapeConnections, collectionService:GetInstanceAddedSignal("bed"):Connect(function(bed)
 	task.spawn(GetBedTeam, bed)
 end))
@@ -156,6 +178,7 @@ task.spawn(function()
 		end
 	end)
 end)
+
 table.insert(vapeConnections, workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA("Camera")
 end))
@@ -10372,216 +10395,6 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	end
 	return target
 end
---[[local function dumptable(tab, tabtype, sortfunction)
-	local data = {}
-	for i,v in pairs(tab) do
-		local tabtype = tabtype and tabtype == 1 and i or v
-		table.insert(data, tabtype)
-	end
-	if sortfunction and type(sortfunction) == "function" then
-		table.sort(data, sortfunction)
-	end
-	return data
-end
-local GetAllTargets = function() return {} end
-GetAllTargets = function(distance, sort)
-	local targets = {}
-	for i,v in playersService:GetPlayers() do 
-		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
-				continue
-			end
-			if not entityLibrary.isPlayerTargetable(v) then 
-				continue
-			end
-			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
-			if playerdistance <= (distance or math.huge) then 
-				table.insert(targets, {Human = true, RootPart = v.Character.PrimaryPart, Humanoid = v.Character.Humanoid, Player = v})
-			end
-		end
-	end
-	if sort then 
-		table.sort(targets, sort)
-	end
-	return targets
-end
-runFunction(function()
-	local ProjectileAura = {}
-	local ProjectileAuraSort = {Value = 'Distance'}
-	local ProjectileAuraMobs = {}
-	local ProjectileAuraRangeSlider = {Value = 50}
-	local ProjectileAuraRange = {}
-	local ProjectileAuraBlacklist = {ObjectList = {}}
-	local ProjectileMobIgnore = {'spear'}
-	local ProjectileAuraDelay = {Value = 0}
-	local ProjectileAuraSwitchDelay = {Value = 0}
-	local crackerdelay = tick()
-	local specialprojectiles = {
-		rainbow_bow = 'rainbow_arrow',
-		orions_belt_bow = 'star',
-		fireball = 'fireball',
-		frosted_snowball = 'frosted_snowball',
-		snowball = 'snowball',
-		spear = 'spear',
-		carrot_cannon = 'carrot_rocket',
-		light_sword = 'sword_wave1',
-		firecrackers = 'firecrackers'
-	}
-	local biggestTargets = {
-		spirit_assassin = 1,
-		hannah = 2,
-		melody = 3,
-		kaliyah = 4
-	}
-	local sortfunctions = {
-		Distance = function()
-			return GetTarget(ProjectileAuraRange.Enabled and ProjectileAuraRangeSlider.Value, nil, true, ProjectileAuraMobs.Enabled)
-		end,
-		Health = function()
-			return GetTarget(nil, true, true, ProjectileAuraMobs.Enabled)
-		end,
-		Mouse = function()
-			return GetTarget(nil, nil, true, ProjectileAuraMobs.Enabled, true, true)
-		end, 
-		Kit = function() 
-			local target, prio = {}, -1
-			for i,v in next, GetAllTargets() do
-				local kit = (v.Player:GetAttribute('PlayingAsKit') or 'none')
-				local kitprio = (biggestTargets[kit] or 0)
-				if kitprio > prio then 
-					target = v
-				end
-			end
-			if prio < 1 then 
-				return GetTarget(nil, nil, true)
-			end
-			return target
-		end
-	}
-	local function betterswitch(item)
-		if tostring(item) == 'firecrackers' then 
-			if crackerdelay > tick() then 
-				return 
-			else 
-				crackerdelay = tick() + 3.5 
-			end 
-		end
-		if tick() > bedwarsStore.switchdelay then 
-			switchItem(item) 
-		end
-		local oldval = ProjectileAuraSwitchDelay.Value
-		local valdelay = (tick() + ProjectileAuraSwitchDelay.Value)
-		repeat task.wait() until (tick() > valdelay or ProjectileAuraSwitchDelay.Value ~= oldval)
-	end
-	local function getarrow()
-		for i,v in next, bedwarsStore.localInventory.inventory.items do  
-			if v.itemType:find('arrow') then 
-				return v 
-			end
-		end
-	end
-	local function getammo(item)
-		if (item.itemType:find('bow') or item.itemType:find('headhunter')) and specialprojectiles[item.itemType] == nil then 
-			return getarrow() or {} 
-		end
-		if item.itemType:find('ninja_chakram') then 
-			return getItem(item.itemType) 
-		end
-		if item.itemType == 'light_sword' then 
-			return {tool = 'sword_wave1'} 
-		end
-		local special = specialprojectiles[item.itemType]
-		for i,v in next, ProjectileAuraBlacklist.ObjectList do 
-			if item.itemType:find(v:lower()) then 
-				return {} 
-			end 
-		end 
-		if special then 
-			return getItem(special) or {} 
-		end
-		return {}
-	end
-	ProjectileAura = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-		Name = 'ProjectileAura',
-		HoverText = 'Automatically shoots hostile projectiles\nwithout aiming.',
-		Function = function(calling)
-			if calling then 
-				repeat 
-					local range = (ProjectileAuraRange.Enabled and ProjectileAuraRangeSlider.Value or 9e9)
-					local target = sortfunctions[ProjectileAuraSort.Value]()
-					if target.RootPart and target.RootPart.Parent:FindFirstChildWhichIsA('ForceField') == nil then 
-						for i,v in next, bedwarsStore.localInventory.inventory.items do 
-							local ammo = getammo(v)
-							if target.Human == nil and table.find(ProjectileMobIgnore, v.itemType) or tweenInProgress() then 
-								continue 
-							end 
-							if bedwarsStore.matchState ~= 0 and bedwarsStore.equippedKit == 'dragon_sword' then 
-								bedwars.ClientHandler:Get('DragonSwordFire'):SendToServer({target = target.RootPart.Parent}) 
-							end
-							if ammo.tool then 
-								betterswitch(v.tool)
-								bedwars.ClientHandler:Get(bedwars.ProjectileRemote):CallServerAsync(v.tool, tostring(ammo.tool), tostring(ammo.tool) == 'star' and 'star_projectile' or tostring(ammo.tool) == 'mage_spell_base' and target.RootPart.Position + Vector3.new(0, 3, 0) or tostring(ammo.tool), target.RootPart.Position + Vector3.new(0, 3, 0), target.RootPart.Position + Vector3.new(0, 3, 0), Vector3.new(0, -1, 0), httpService:GenerateGUID(), {drawDurationSeconds = 1}, workspace:GetServerTimeNow(), target)
-							end
-						end
-					end
-					bedwarsStore.switchdelay += (ProjectileAuraDelay.Value * 0.2)
-					task.wait(getItem('star') and 0 or killauraNearPlayer and 0.25 or ProjectileAuraDelay.Value + 0.15)
-				until not ProjectileAura.Enabled
-			end
-		end
-	})
-	ProjectileAuraBlacklist = ProjectileAura.CreateTextList({
-		Name = 'Blacklisted Projectiles',
-		TempText = 'blacklisted items',
-		AddFunction = function() end
-	})
-	ProjectileAuraSort = ProjectileAura.CreateDropdown({
-		Name = 'Sort',
-		List = dumptable(sortfunctions, 1),
-		Function = function(method)
-			pcall(function() ProjectileAuraRange.Object.Visible = (method == 'Distance') end) 
-			pcall(function() ProjectileAuraRangeSlider.Object.Visible = (method == 'Distance' and ProjectileAuraRange.Enabled) end) 
-			pcall(function() ProjectileAuraMobs.Object.Visible = (method ~= 'Kit') end)
-		end
-	})
-	ProjectileAuraDelay = ProjectileAura.CreateSlider({
-		Name = 'Target Delay',
-		Min = 0,
-		Max = 60,
-		Function = function() 
-			bedwarsStore.switchdelay = tick() 
-		end
-	})
-	ProjectileAuraSwitchDelay = ProjectileAura.CreateSlider({
-		Name = 'Switch Delay',
-		Min = 0,
-		Max = 60,
-		Function = function() 
-			bedwarsStore.switchdelay = tick() 
-		end
-	})
-	ProjectileAuraRange = ProjectileAura.CreateToggle({
-		Name = 'Range Check',
-		Function = function(calling) 
-			pcall(function() ProjectileAuraRangeSlider.Object.Visible = calling end)
-		end 
-	}) 
-	ProjectileAuraRangeSlider = ProjectileAura.CreateSlider({
-		Name = 'Range',
-		Min = 5,
-		Max = 80,
-		Default = 75,
-		Function = function() end
-	})
-	ProjectileAuraMobs = ProjectileAura.CreateToggle({
-		Name = 'NPC',
-		HoverText = 'Targets NPCs too.',
-		Function = function() end 
-	})
-	ProjectileAuraRange.Object.Visible = false
-	ProjectileAuraRangeSlider.Object.Visible = false
-	ProjectileAuraMobs.Object.Visible = false
-end)--]]
 
 runFunction(function()
 	local DoubleHighJump = {Enabled = false}
@@ -11056,64 +10869,6 @@ runFunction(function()
 		end
 	})
 end)
---[[local function GetAllQueueDescriptions(data)
-	local queuedata, queueids = {}, {}
-	local rankedunlocked = lplr:GetAttribute("PlayerLevel") and tonumber(lplr:GetAttribute("PlayerLevel")) >= 10 and tonumer(lplr.AccountAge) >= 7
-	for i,v in pairs(bedwars.QueueMeta) do 
-		if v.rankCategory and not rankedunlocked then
-			continue
-		end
-		if v.voiceChatOnly and not game:GetService("VoiceChatService"):IsVoiceEnabledForUserIdAsync(lplr.UserId) then
-			continue
-		end
-		if not v.disabled then
-			table.insert(queuedata, data and v[data] or i)
-			queueids[i] = v.title
-		end
-	end
-	return queuedata, queueids
-end
-
-runFunction(function()
-	local JoinQueue = {Enabled = false}
-	local queuetype = {Value = bedwarsStore.queueType}
-	local queuedescriptions = ({GetAllQueueDescriptions("title")})
-	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = "StartQueue",
-		HoverText = "Starts a queue for the selected gamemode.",
-		Function = function(callback) 
-			if callback then
-				task.spawn(function()
-					JoinQueue.ToggleButton(false)
-					local queue = nil 
-					for i,v in pairs(queuedescriptions[2]) do 
-						if v == queuetype.Value then 
-							queue = i
-							break
-						end
-					end
-					warningNotification("StartQueue", "QueueType not found.", 5)
-					pcall(function() bedwars.LobbyEvents.leaveQueue:FireServer() end)
-					bedwars.LobbyClientEvents:joinQueue(queue)
-				end)
-			end
-		end
-	})
-	queuetype = JoinQueue.CreateDropdown({
-		Name = "Mode",
-		List = queuedescriptions[1],
-		Function = function() end
-	})
-	task.spawn(function()
-		repeat task.wait() until bedwarsStore.queueType ~= "bedwars_test"
-		for i,v in pairs(queuedescriptions[2]) do 
-			if i == bedwarsStore.queueType then
-				queuetype.SetValue(v)
-				break
-			end
-		end
-	end)
-end)--]]
 
 local GetAllTargets = function() return {} end
 GetAllTargets = function(distance, sort)
@@ -11703,35 +11458,6 @@ runFunction(function()
 end)
 
 runFunction(function()
-	local AutoEgg = {}
-	AutoEgg = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-		Name = 'AutoEgg',
-		HoverText = 'Automatically deposit eggs. [Render]',
-		Function = function(calling)
-			if calling then 
-				repeat 
-					for i,v in next, bedwarsStore.nests do 
-						local egg = getItem('throwable_egg')
-						if egg and v.Parent and v:FindFirstChild('NestDepositPrompt') then 
-							fireproximityprompt(v.NestDepositPrompt)
-						end
-					end
-					for i,v in next, bedwarsStore.eggs do 
-						if isAlive(lplr, true) and v.Parent and v:FindFirstChild('EggCollectPrompt') then 
-							local distance = (lplr.Character.HumanoidRootPart.Position - v.Position).Magnitude 
-							if distance < 10 then 
-								fireproximityprompt(v.EggCollectPrompt)
-							end
-						end
-					end
-					task.wait()
-				until (not AutoEgg.Enabled)
-			end
-		end
-	})
-end)
-
-runFunction(function()
 	local ScytheDisabler = {}
 	ScytheDisabler = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = 'ScytheDisabler',
@@ -11757,6 +11483,21 @@ runFunction(function()
 						end
 					end
 				until (not ScytheDisabler.Enabled)
+			end
+		end
+	})
+end)
+
+runFunction(function()
+	local Testing = {Enabled = false}
+	Testing = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = "Testing",
+		HoverText = "Some testing",
+		Function = function(callback) 
+			if callback then
+				task.spawn(function()
+					--game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
+				end)
 			end
 		end
 	})
