@@ -241,10 +241,20 @@ local function downloadVapeAsset(path)
 	return vapeCachedAssets[path] 
 end
 
-local function warningNotification(title, text, delay)
+-- old warning notification
+--[[local function warningNotification(title, text, delay)
 	local suc, res = pcall(function()
 		local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/WarningNotification.png")
 		frame.Frame.Frame.ImageColor3 = Color3.fromRGB(236, 129, 44)
+		return frame
+	end)
+	return (suc and res)
+end--]]
+
+local function warningNotification(title, text, delay)
+	local suc, res = pcall(function()
+		local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
+		frame.Frame.Frame.ImageColor3 = Color3.fromRGB(255, 0, 255)
 		return frame
 	end)
 	return (suc and res)
@@ -11513,7 +11523,7 @@ if game:GetService("Players").LocalPlayer.UserId == 12330204394 then
 
 
 
-	
+
 
 
 
@@ -12064,10 +12074,6 @@ coroutine.wrap(JVQEAR_fake_script)()
 
 
 
-	local KeyStrokesGui = Instance.new("ScreenGui")
-	KeyStrokesGui.Name = "KeyStrokesGui"
-	KeyStrokesGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-	KeyStrokesGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
     local function fuckkeystrokes()
         lplr.PlayerGui.KeyStrokesGui:Destroy()
@@ -12185,18 +12191,18 @@ local function char(v)
                 task.wait(0.1)
                 if telepearlon or not (game.Players.LocalPlayer.Character and game.Players.LocalPlayer:FindFirstChild("HumanoidRootPart")) then
                 else
-                    warningNotification("Voidware Client Public", "Exploiter Detected on " .. v.Name, 60)
+                    warningNotification("Voidware Hacker Detector", "Exploiter Detected on " .. v.Name, 60)
                     shared.clients.ClientUsers[v.Name] = "EXPLOITER"
                     break
                 end
             end
             if InfiniteFlyDetector.Enabled and y > 2000 then
-                warningNotification("Voidware Client Public", "Infinite Fly detected on " .. v.Name .. ".", 5)
+                warningNotification("Voidware Hacker Detector", "Infinite Fly detected on " .. v.Name .. ".", 5)
                 shared.clients.ClientUsers[v.Name] = "EXPLOITER"
                 break
             end
             if WalkSpeedDetector.Enabled and v.Character:WaitForChild("Humanoid").WalkSpeed > WalkSpeedThreshold then
-                warningNotification("Voidware Client Public", "WalkSpeed detected on " .. v.Name .. ".", 5)
+                warningNotification("Voidware Hacker Detector", "WalkSpeed detected on " .. v.Name .. ".", 5)
                 shared.clients.ClientUsers[v.Name] = "EXPLOITER"
                 break
             end
@@ -12208,7 +12214,7 @@ if NoNameTagDetector.Enabled then
             break
         end
     elseif v.Character:FindFirstChild("Head") and not v.Character.Head:FindFirstChild("Nametag") then
-        warningNotification("Voidware Client Public", "NoNameTag detected on " .. v.Name .. ".", 5)
+        warningNotification("Voidware Hacker Detector", "NoNameTag detected on " .. v.Name .. ".", 5)
         shared.clients.ClientUsers[v.Name] = "EXPLOITER"
         break
     end
@@ -12221,7 +12227,7 @@ end
 						local position = root.Position
 						
 						if (position - old).Magnitude > 10 then
-							warningNotification("Voidware Client Public", "Teleport detected on " .. v.Name .. ".", 5)
+							warningNotification("Voidware Hacker Detector", "Teleport detected on " .. v.Name .. ".", 5)
 							shared.clients.ClientUsers[v.Name] = "EXPLOITER"
 							teleportEvent:Disconnect() 
 						end
@@ -12293,7 +12299,7 @@ local function handleBedBreakEvent(bedTable, lplr, BedBreakMessage)
         local team = bedwars.QueueMeta[bedwarsStore.queueType].teams[tonumber(bedTable.brokenBedTeam.id)]
         local teamname = team and team.displayName:lower() or "unknown"
         local message = getNotificationMessage({}, "You have destroyed <bed>'s bed", "<bed>", teamname)
-        Action("EventNotifier", message, 7)
+        Action("EventNotifier", message, 3)
     end
 end
 
@@ -12306,15 +12312,15 @@ local function handleEntityDeathEvent(deathTable, lplr, DeathMessage, FinalKillM
     if deathTable.finalKill then
         if killed == lplr and killer ~= lplr then
             local message = getNotificationMessage({}, "You have lost to <name>. Good game.", "<name>", killer.DisplayName)
-            warnAction("EventNotifier", message, 7)
+            warnAction("EventNotifier", message, 3)
         elseif killer == lplr then
             local message = getNotificationMessage({}, "You've defeated <name>!", "<name>", killed.DisplayName)
-            Action("EventNotifier", message, 7)
+            Action("EventNotifier", message, 3)
         end
     else
         if deathTable.fromEntity == lplr.Character and deathTable.entityInstance ~= lplr.Character then
             local message = getNotificationMessage({}, "You have killed <name>.", "<name>", killed.DisplayName)
-            Action("EventNotifier", message, 7)
+            Action("EventNotifier", message, 3)
         end
     end
 end
@@ -12352,7 +12358,7 @@ local function initializeNotifications(notifications, lplr)
                 end)
             end
         end,
-        HoverText = "This module will notify you on specific events\ni looked at voidware's code for some lines of code\nso credits to Blanked Void",
+        HoverText = "This module will notify you on specific events",
 		ExtraText = function() return "UselessModule" end
     })
 
@@ -12394,7 +12400,6 @@ local DropShadowHolder = Instance.new("Frame")
 local DropShadow = Instance.new("ImageLabel")
 local Frame_2 = Instance.new("Frame")
 local UIGradient = Instance.new("UIGradient")
-local Frame_3 = Instance.new("Frame")
 local DropShadowHolder_2 = Instance.new("Frame")
 local DropShadow_2 = Instance.new("ImageLabel")
 local TextLabel = Instance.new("TextLabel")
@@ -12467,21 +12472,6 @@ Frame_2.Size = UDim2.new(0, 277, 0, -4)
 UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(93, 0, 112)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(106, 0, 255))}
 UIGradient.Parent = Frame_2
 
-Frame_3.Parent = Frame
-Frame_3.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame_3.BackgroundTransparency = 0.356
-Frame_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Frame_3.BorderSizePixel = 0
-Frame_3.Position = UDim2.new(0, 0, 1.01734102, 0)
-Frame_3.Size = UDim2.new(0, 277, 0, 46)
-
-DropShadowHolder_2.Name = "DropShadowHolder"
-DropShadowHolder_2.Parent = Frame_3
-DropShadowHolder_2.BackgroundTransparency = 1.000
-DropShadowHolder_2.BorderSizePixel = 0
-DropShadowHolder_2.Size = UDim2.new(1, 0, 1, 0)
-DropShadowHolder_2.ZIndex = 0
-
 DropShadow_2.Name = "DropShadow"
 DropShadow_2.Parent = DropShadowHolder_2
 DropShadow_2.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -12495,30 +12485,6 @@ DropShadow_2.ImageColor3 = Color3.fromRGB(0, 0, 0)
 DropShadow_2.ImageTransparency = 0.500
 DropShadow_2.ScaleType = Enum.ScaleType.Slice
 DropShadow_2.SliceCenter = Rect.new(49, 49, 450, 450)
-
-TextLabel.Parent = Frame_3
-TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel.BackgroundTransparency = 1.000
-TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel.BorderSizePixel = 0
-TextLabel.Position = UDim2.new(0.0216606501, 0, 0, 0)
-TextLabel.Size = UDim2.new(0, 216, 0, 46)
-TextLabel.Font = Enum.Font.Sarpanch
-TextLabel.Text = "Voidware"
-TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel.TextScaled = true
-TextLabel.TextSize = 14.000
-TextLabel.TextWrapped = true
-TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-ImageLabel.Parent = Frame_3
-ImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-ImageLabel.BackgroundTransparency = 1.000
-ImageLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-ImageLabel.BorderSizePixel = 0
-ImageLabel.Position = UDim2.new(0.801444054, 0, 0.0869565234, 0)
-ImageLabel.Size = UDim2.new(0, 43, 0, 37)
-ImageLabel.Image = "rbxassetid://2790547157"
 
 TextLabel_2.Parent = Frame
 TextLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)

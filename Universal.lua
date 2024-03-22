@@ -7425,3 +7425,22 @@ runFunction(function()
 		Function = function() end
 	})
 end)
+
+local function warningNotification(title, text, delay)
+	local suc, res = pcall(function()
+		local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
+		frame.Frame.Frame.ImageColor3 = Color3.fromRGB(255, 0, 255)
+		return frame
+	end)
+	return (suc and res)
+end
+local bothwhitelist = false
+if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
+	warningNotification("Voidware | INF", "Welcome to Voidware INF | Detected user: "..lplr.DisplayName..".", 10)
+	bothwhitelist = true
+end
+if bothwhitelist == false then
+	if RenderFunctions:GetPlayerType(2) then
+		warningNotification("Voidware | Booster", "Welcome to Voidware Booster | Detected user: "..lplr.DisplayName..".", 10)
+	end
+end
