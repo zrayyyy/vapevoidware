@@ -45,6 +45,7 @@ task.spawn(function()
     local res = game:HttpGet('https://api.github.com/repos/Erchobg/vapevoidware/contents/Profiles')
     if res ~= '404: Not Found' then 
         for i,v in next, httpservice:JSONDecode(res) do 
+            task.wait()
             if type(v) == 'table' and v.name then 
                 table.insert(guiprofiles, v.name) 
             end
