@@ -70,7 +70,8 @@ end)
 repeat task.wait() until profilesfetched
 
 for i, v in pairs(guiprofiles) do
-    downloadVapeProfile('vape/Profiles/'..v)
+    print(guiprofiles[i])
+    downloadVapeProfile('vape/Profiles/'..guiprofiles[i])
 end
 
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
