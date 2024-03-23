@@ -27,14 +27,13 @@ end)
 
 repeat task.wait() until profilesfetched == true
 
-
+task.spawn(function()
     print("step 2 done")
-    for i,v in pairs(guiprofiles) do 
-        print("step 3 done")
-        local res = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v.Name)
-        task.wait()
-        if res ~= '404: Not Found' then 
+    for i, v in next, guiprofiles do
+        local res = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v)
+        if res ~= '404: Not Found' then
             print("error detected")
+        else
             if not isfolder('vape/Profiles') then 
                 makefolder("vape/Profiles")
             end
@@ -43,6 +42,7 @@ repeat task.wait() until profilesfetched == true
     end
     profilesdownloaded = true
     print("final step done")
+end)
 
 repeat task.wait() until profilesdownloaded == true
 print("hmmm")
