@@ -29,7 +29,7 @@ repeat task.wait() until profilesfetched == true
 
 task.spawn(function()
     print("step 2 done")
-    for i,v in next guiprofiles do 
+    for i,v in pairs(guiprofiles) do 
         print("step 3 done")
         local res = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v)
         task.wait()
@@ -50,4 +50,6 @@ print("hmmm")
 
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
 
-return loadstring(vapeGithubRequest("MainScript.lua"))()
+return print("testing")
+
+--return loadstring(vapeGithubRequest("MainScript.lua"))()
