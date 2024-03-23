@@ -28,10 +28,7 @@ task.spawn(function()
         end
     end
 end)
-shared.profilesinstalled = true
-print(shared.profilesinstalled)
-if shared.profilesinstalled == false then
-    print("Error smh")
-else
-    return loadfile('vape/NewMainScript.lua')()
-end
+
+writefile('vape/Libraries/profilesinstalled.ren', 'yes')
+
+return loadfile('vape/NewMainScript.lua')()
