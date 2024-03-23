@@ -1,3 +1,4 @@
+local httpservice = game:GetService('HttpService')
 local guiprofiles = {}
 local profilesfetched
 task.spawn(function()
