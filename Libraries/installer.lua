@@ -45,7 +45,7 @@ task.spawn(function()
     print("final step done")
 end)
 
-repeat task.wait() until profilesdownloaded
+repeat task.wait() until profilesdownloaded == true
 print("hmmm")
 
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
