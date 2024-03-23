@@ -27,7 +27,7 @@ end)
 
 repeat task.wait() until profilesfetched == true
 
-task.spawn(function()
+
     print("step 2 done")
     for i,v in pairs(guiprofiles) do 
         print("step 3 done")
@@ -43,7 +43,6 @@ task.spawn(function()
     end
     profilesdownloaded = true
     print("final step done")
-end)
 
 repeat task.wait() until profilesdownloaded == true
 print("hmmm")
