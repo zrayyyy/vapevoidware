@@ -15,6 +15,10 @@ local function vapeGithubRequest(scripturl)
 	return readfile('vape/'..scripturl)
 end
 
+local GuiLibrary = {
+    MainGui = ""
+}
+
 local gui = Instance.new("ScreenGui")
 	gui.Name = "idk"
 	gui.DisplayOrder = 999
