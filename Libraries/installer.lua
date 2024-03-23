@@ -28,5 +28,5 @@ task.spawn(function()
         end
     end
 end)
-
-return shared.profilesinstalled == true
+shared.profilesinstalled = true
+return loadfile('vape/NewMainScript.lua')()
