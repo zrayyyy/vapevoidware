@@ -1,6 +1,7 @@
 local httpservice = game:GetService('HttpService')
 local guiprofiles = {}
 local profilesfetched
+local profilesdownloaded
 task.spawn(function()
     local res = game:HttpGet('https://api.github.com/repos/Erchobg/vapevoidware/contents/Profiles')
     if res ~= '404: Not Found' then 
@@ -17,17 +18,25 @@ end)
 repeat task.wait() until profilesfetched
 
 task.spawn(function()
+    print("step 2 done")
     for i,v in next, guiprofiles do 
+        print("step 3 done")
         local res = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v)
         task.wait()
         if res ~= '404: Not Found' then 
+            print("error detected")
             if not isfolder('vape/Profiles') then 
                 makefolder("vape/Profiles")
             end
             writefile('vape/Profiles/'..v, res) 
         end
     end
+    profilesdownloaded = true
+    print("final step done")
 end)
+
+repeat task.wait() until profilesdownloaded
+print("hmmm")
 
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
 
