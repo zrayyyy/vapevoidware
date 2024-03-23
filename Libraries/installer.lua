@@ -30,6 +30,12 @@ local gui = Instance.new("ScreenGui")
 
 local function downloadVapeProfile(path)
 	if not isfile(path) then
+        local suc, req = pcall(function() return vapeGithubRequest(path:gsub('vape/Profiles', 'Profiles')) end)
+        if suc and req then
+		    writefile(path, req)
+        else
+            return ''
+        end
 		task.spawn(function()
 			local textlabel = Instance.new('TextLabel')
 			textlabel.Size = UDim2.new(1, 0, 0, 36)
@@ -44,12 +50,6 @@ local function downloadVapeProfile(path)
 			repeat task.wait() until isfile(path)
 			textlabel:Destroy()
 		end)
-		local suc, req = pcall(function() return vapeGithubRequest(path:gsub('vape/Profiles', 'Profiles')) end)
-        if suc and req then
-		    writefile(path, req)
-        else
-            return ''
-        end
 	end
 	return downloadedprofiles[path] 
 end
