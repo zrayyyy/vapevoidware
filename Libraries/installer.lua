@@ -21,7 +21,10 @@ task.spawn(function()
         local res = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v)
         task.wait()
         if res ~= '404: Not Found' then 
-            writevapefile('Profiles/'..v, res) 
+            if not isfolder('vape/Profiles') then 
+                makefolder("vape/Profiles")
+            end
+            writefile('vape/Profiles/'..v, res) 
         end
     end
 end)
