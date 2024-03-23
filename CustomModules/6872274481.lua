@@ -1,6 +1,8 @@
 local GuiLibrary = shared.GuiLibrary
 local VoidwareFunctions = {WhitelistLoaded = false, WhitelistRefreshEvent = Instance.new("BindableEvent"), WhitelistSucceeded = false, WhitelistLoadTime = tick()}
 local VoidwareLibraries = {}
+local startTime = tick()
+local timeTaken = tick() - startTime
 local function vapeGithubRequest(scripturl)
 	if not isfile("vape/"..scripturl) then
 		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
@@ -11583,7 +11585,7 @@ runFunction(function()
 		end
 		return (selectedBed)
 	end
-	deb = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	deb = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
 		Name = "AutoWin v2 [Duels recommended]",
 		HoverText = "Duels AutoWin",
 		Function = function(callback)
@@ -11701,7 +11703,7 @@ runFunction(function()
 		end
 	end
 	
-	TeleportBed = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	TeleportBed = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
 		Name = "BedTeleport v2",
 		HoverText = "Randomly teleports you to a bed",
 		Function = function(callback)
@@ -12140,152 +12142,6 @@ local KeyStrokesCustom = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["
             end
         end
     })
-
-	local hps_detected = {}
-local detected = {}
-local lplr = game.Players.LocalPlayer
-local setcallback = {}
-local hpsset = {}
-local InfiniteFlyDetector = {["Enabled"] = false}
-local WalkSpeedDetector = {["Enabled"] = false}
-local WalkSpeedThreshold = 23 
-local NoNameTagDetector = {["Enabled"] = false}
-local NoFallDetector = {["Enabled"] = false}
-local TPRedirectionDetector = {["Enabled"] = false}
-
-local function char(v)
-    repeat task.wait() until v.Character
-    v.Character:WaitForChild("Humanoid").Changed:Connect(function()
-    end)
-
-    local old
-    local my
-    my = v.Character.Humanoid.Died:Connect(function()
-    end)
-
-    local check
-    local telepearlon = false
-    v:GetAttributeChangedSignal("LastTeleported"):Connect(function()
-        if (workspace:GetServerTimeNow() - lplr:GetAttribute("LastTeleported")) < 3 then
-            telepearlon = true
-            task.wait(2)
-            telepearlon = false
-        end
-    end)
-
-    while task.wait(0.1) do
-        repeat task.wait() until v.Character
-        local root = v.Character:WaitForChild("HumanoidRootPart")
-        if old then
-            local pos = root.Position
-            local x, y, z = math.abs(pos.X), math.abs(pos.Y), math.abs(pos.Z)
-            local ox, oy, oz = math.abs(old.X), math.abs(old.Y), math.abs(old.Z)
-            local exploiter
-            if ox + (v.Character:WaitForChild("Humanoid").WalkSpeed * 0.8) < x or oz + (v.Character:WaitForChild("Humanoid").WalkSpeed * 0.8) < z then
-                exploiter = true
-            end
-            if exploiter and not detected[v.Name] and v ~= game.Players.LocalPlayer
-                and bedwarsStore.matchState ~= 0 and not bedwarsStore.secs and not telepearlon
-                and not hps_detected[v.Name] then
-                detected[v.Name] = true
-                task.wait(0.1)
-                if telepearlon or not (game.Players.LocalPlayer.Character and game.Players.LocalPlayer:FindFirstChild("HumanoidRootPart")) then
-                else
-                    warningNotification("Voidware Hacker Detector", "Exploiter Detected on " .. v.Name, 60)
-                    shared.clients.ClientUsers[v.Name] = "EXPLOITER"
-                    break
-                end
-            end
-            if InfiniteFlyDetector.Enabled and y > 2000 then
-                warningNotification("Voidware Hacker Detector", "Infinite Fly detected on " .. v.Name .. ".", 5)
-                shared.clients.ClientUsers[v.Name] = "EXPLOITER"
-                break
-            end
-            if WalkSpeedDetector.Enabled and v.Character:WaitForChild("Humanoid").WalkSpeed > WalkSpeedThreshold then
-                warningNotification("Voidware Hacker Detector", "WalkSpeed detected on " .. v.Name .. ".", 5)
-                shared.clients.ClientUsers[v.Name] = "EXPLOITER"
-                break
-            end
-if NoNameTagDetector.Enabled then
-    if v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health <= 0 then
-        if not v.Character:FindFirstChild("Head") or not v.Character.Head:FindFirstChild("Nametag") then
-            print("dead character")
-            shared.clients.ClientUsers[v.Name] = "ok"
-            break
-        end
-    elseif v.Character:FindFirstChild("Head") and not v.Character.Head:FindFirstChild("Nametag") then
-        warningNotification("Voidware Hacker Detector", "NoNameTag detected on " .. v.Name .. ".", 5)
-        shared.clients.ClientUsers[v.Name] = "EXPLOITER"
-        break
-    end
-end
-
-			if TPRedirectionDetector.Enabled then
-				local teleportEvent = v.Character.Humanoid.Touched:Connect(function(part)
-					if part:IsA("BasePart") and part.Name == "HumanoidRootPart" then
-						local root = v.Character:FindFirstChild("HumanoidRootPart")
-						local position = root.Position
-						
-						if (position - old).Magnitude > 10 then
-							warningNotification("Voidware Hacker Detector", "Teleport detected on " .. v.Name .. ".", 5)
-							shared.clients.ClientUsers[v.Name] = "EXPLOITER"
-							teleportEvent:Disconnect() 
-						end
-					end
-				end)
-			end
-			
-            if v == game.Players.LocalPlayer then
-                break
-            end
-        end
-        old = root.Position
-    end
-end
-
-
-local Detection
-Detection = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-    Name = "Exploiter Detector V1",
-    Function = function(enabled)
-        if enabled then
-			local plrs = game:GetService("Players"):GetChildren()
-            for i, v in pairs(plrs) do
-                task.spawn(function()
-                    char(v)
-                end)
-                task.spawn(function()
-                    v.CharacterAdded:Connect(function()
-                        task.wait(5)
-                        char(v)
-                    end)
-                end)
-            end
-            game.Players.PlayerAdded:Connect(function(v)
-                task.wait(5)
-                char(v)
-            end)
-        end
-    end,
-})
-
-InfiniteFlyDetector = Detection.CreateToggle({
-    Name = "InfiniteFly Detector",
-    Function = function()
-    end,
-})
-
-WalkSpeedDetector = Detection.CreateToggle({
-    Name = "WalkSpeed Detector",
-    Function = function()
-    end,
-})
-
-NoNameTagDetector = Detection.CreateToggle({
-    Name = "NoNameTag Detector",
-    Function = function()
-    end,
-})
 
 local function getNotificationMessage(messagesList, defaultMessage, replaceTag, replaceValue)
     local message = #messagesList > 0 and messagesList[math.random(1, #messagesList)] or defaultMessage
@@ -13218,9 +13074,240 @@ end
 end
 })
 
-print("[INFO] Script initialized.")
+runFunction(function()
+	local HackerDetector = {}
+	local HackerDetectorInfFly = {}
+	local HackerDetectorTeleport = {}
+	local HackerDetectorNuker = {}
+	local HackerDetectorFunny = {}
+	local HackerDetectorInvis = {}
+	local HackerDetectorName = {}
+	local HackerDetectorSpeed = {}
+	local HackerDetectorFileCache = {}
+	local pastesploit
+	local detectedusers = {
+		InfiniteFly = {},
+		Teleport = {},
+		Nuker = {},
+		AnticheatBypass = {},
+		Invisibility = {},
+		Speed = {},
+		Name = {},
+		Cache = {}
+	}
+	local distances = { -- more stuff will be added in future idk
+		windwalker = 80
+	}
+	local function cachedetection(player, detection)
+		if not HackerDetectorFileCache.Enabled then 
+			return 
+		end
+		local success, response = pcall(function()
+			return httpService:JSONDecode(readfile('vape/Render/exploiters.json')) 
+		end)
+		if type(response) ~= 'table' then 
+			response = {}
+		end
+		if response[player.Name] then 
+			if table.find(response[player.Name], detection) == nil then 
+				table.insert(response[player.Name].Detections, detection) 
+			end
+		else
+			response[player.Name] = {DisplayName = player.DisplayName, UserId = tostring(player.DisplayName), Detections = {detection}}
+		end
+		if isfolder('vape/Render') then 
+			writefile('vape/Render/exploiters.json', httpService:JSONEncode(response))
+		end
+	end
+	local detectionmethods = {
+		Teleport = function(plr)
+			if table.find(detectedusers.Teleport, plr) then 
+				return 
+			end
+			if bedwarsStore.queueType:find('bedwars') == nil or plr:GetAttribute('Spectator') then 
+				return 
+			end
+			local lastbwteleport = plr:GetAttribute('LastTeleported')
+			table.insert(HackerDetector.Connections, plr:GetAttributeChangedSignal('LastTeleported'):Connect(function() lastbwteleport = plr:GetAttribute('LastTeleported') end))
+			table.insert(HackerDetector.Connections, plr.CharacterAdded:Connect(function()
+				oldpos = Vector3.zero
+				if table.find(detectedusers.Teleport, plr) then 
+					return 
+				end
+				 repeat task.wait() until isAlive(plr, true)
+				 local oldpos2 = plr.Character.HumanoidRootPart.Position 
+				 task.delay(2, function()
+					if isAlive(plr, true) then 
+						local newdistance = (plr.Character.HumanoidRootPart.Position - oldpos2).Magnitude 
+						if newdistance >= 400 and (plr:GetAttribute('LastTeleported') - lastbwteleport) == 0 then 
+							InfoNotification('HackerDetector', plr.DisplayName..' is using Teleport Exploit!', 100) 
+							table.insert(detectedusers.Teleport, plr)
+							cachedetection(plr, 'Teleport')
+							if RenderFunctions.playerTags[plr] == nil then 
+								RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
+							end
+						end 
+					end
+				 end)
+			end))
+		end,
+		Speed = function(plr) 
+			repeat task.wait() until (bedwarsStore.matchState ~= 0 or not HackerDetector.Enabled or not HackerDetectorSpeed.Enabled)
+			if table.find(detectedusers.Speed, plr) then 
+				return 
+			end
+			local lastbwteleport = plr:GetAttribute('LastTeleported')
+			local oldpos = Vector3.zero 
+			table.insert(HackerDetector.Connections, plr:GetAttributeChangedSignal('LastTeleported'):Connect(function() lastbwteleport = plr:GetAttribute('LastTeleported') end)) 
+			table.insert(HackerDetector.Connections, plr.CharacterAdded:Connect(function() oldpos = Vector3.zero end))
+			repeat 
+				if isAlive(plr, true) then 
+					local magnitude = (plr.Character.HumanoidRootPart.Position - oldpos).Magnitude
+					if (plr:GetAttribute('LastTeleported') - lastbwteleport) ~= 0 and magnitude >= ((distances[plr:GetAttribute('PlayingAsKit') or ''] or 25) + (playerRaycasted(plr, Vector3.new(0, -15, 0)) and 0 or 40)) then 
+						InfoNotification('HackerDetector', plr.DisplayName..' is using speed!', 60)
+						if RenderFunctions.playerTags[plr] == nil then 
+							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
+						end
+					end
+					oldpos = plr.Character.HumanoidRootPart.Position
+					task.wait(2.5)
+					lastbwteleport = plr:GetAttribute('LastTeleported')
+				end
+			until not task.wait() or table.find(detectedusers.Speed, plr) or (not HackerDetector.Enabled or not HackerDetectorSpeed.Enabled)
+		end,
+		InfiniteFly = function(plr) 
+			repeat 
+				if isAlive(plr, true) then 
+					local magnitude = (RenderStore.LocalPosition - plr.Character.HumanoidRootPart.Position).Magnitude
+					if magnitude >= 10000 and playerRaycast(plr) == nil and playerRaycast({Character = {PrimaryPart = {Position = RenderStore.LocalPosition}}}) then 
+						InfoNotification('HackerDetector', plr.DisplayName..' is using InfiniteFly!', 60) 
+						cachedetection(plr, 'InfiniteFly')
+						table.insert(detectedusers.InfiniteFly, plr)
+						if RenderFunctions.playerTags[plr] == nil then 
+							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
+						end
+					end
+					task.wait(2.5)
+				end
+			until not task.wait() or table.find(detectedusers.InfiniteFly, plr) or (not HackerDetector.Enabled or not HackerDetectorInfFly.Enabled)
+		end,
+		Invisibility = function(plr) 
+			if table.find(detectedusers.Invisibility, plr) then 
+				return 
+			end
+			repeat 
+				for i,v in next, (isAlive(plr, true) and plr.Character.Humanoid:GetPlayingAnimationTracks() or {}) do 
+					if v.Animation.AnimationId == 'http://www.roblox.com/asset/?id=11335949902' or v.Animation.AnimationId == 'rbxassetid://11335949902' then 
+						InfoNotification('HackerDetector', plr.DisplayName..' is using Invisibility!', 60) 
+						table.insert(detectedusers.Invisibility, plr)
+						cachedetection(plr, 'Invisibility')
+						if RenderFunctions.playerTags[plr] == nil then 
+							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
+						end
+					end
+				end
+				task.wait(0.5)
+			until table.find(detectedusers.Invisibility, plr) or (not HackerDetector.Enabled or not HackerDetectorInvis.Enabled)
+		end,
+		Name = function(plr) 
+			repeat task.wait() until pastesploit 
+			local lines = pastesploit:split('\n') 
+			for i,v in next, lines do 
+				if v:find('local Owner = ') then 
+					local name = lines[i]:gsub('local Owner =', ''):gsub('"', ''):gsub("'", '') 
+					if plr.Name == name then 
+						InfoNotification('HackerDetector', plr.DisplayName..' is the owner of Godsploit! They\'re is most likely cheating.', 60) 
+						cachedetection(plr, 'Name')
+						if RenderFunctions.playerTags[plr] == nil then 
+							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
+						end 
+					end
+				end
+			end
+			for i,v in next, ({'godsploit', 'alsploit', 'renderintents'}) do 
+				local user = plr.Name:lower():find(v) 
+				local display = plr.DisplayName:lower():find(v)
+				if user or display then 
+					InfoNotification('HackerDetector', plr.DisplayName..' has "'..v..'" in their '..(user and 'username' or 'display name')..'! They might be cheating.', 20)
+					cachedetection(plr, 'Name') 
+					return 
+				end
+			end
+		end, 
+		Cache = function(plr)
+			local success, response = pcall(function()
+				return httpService:JSONDecode(readfile('vape/Render/exploiters.json')) 
+			end) 
+			if type(response) == 'table' and response[plr.Name] then 
+				InfoNotification('HackerDetector', plr.DisplayName..' is cached on the exploiter database!', 30)
+				table.insert(detectedusers.Cached, plr)
+				if RenderFunctions.playerTags[plr] == nil then 
+					RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
+				end
+			end
+		end
+	}
+	local function bootdetections(player)
+		local detectiontoggles = {InfiniteFly = HackerDetectorInfFly, Teleport = HackerDetectorTeleport, Nuker = HackerDetectorNuker, Invisibility = HackerDetectorInvis, Speed = HackerDetectorSpeed, Name = HackerDetectorName, Cache = HackerDetectorFileCache}
+		for i, detection in next, detectionmethods do 
+			if detectiontoggles[i].Enabled then
+			   task.spawn(detection, player)
+			end
+		end
+	end
+	HackerDetector = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'HackerDetector',
+		HoverText = 'Notify when someone is\nsuspected of using exploits.',
+		ExtraText = function() return 'Vanilla' end,
+		Function = function(calling) 
+			if calling then 
+				for i,v in next, playersService:GetPlayers() do 
+					if v ~= lplr then 
+						bootdetections(v) 
+					end 
+				end
+				table.insert(HackerDetector.Connections, playersService.PlayerAdded:Connect(bootdetections))
+			end
+		end
+	})
+	HackerDetectorTeleport = HackerDetector.CreateToggle({
+		Name = 'Teleport',
+		Default = true,
+		Function = function() end
+	})
+	HackerDetectorInfFly = HackerDetector.CreateToggle({
+		Name = 'InfiniteFly',
+		Default = true,
+		Function = function() end
+	})
+	HackerDetectorInvis = HackerDetector.CreateToggle({
+		Name = 'Invisibility',
+		Default = true,
+		Function = function() end
+	})
+	HackerDetectorNuker = HackerDetector.CreateToggle({
+		Name = 'Nuker',
+		Default = true,
+		Function = function() end
+	})
+	HackerDetectorSpeed = HackerDetector.CreateToggle({
+		Name = 'Speed',
+		Default = true,
+		Function = function() end
+	})
+	HackerDetectorName = HackerDetector.CreateToggle({
+		Name = 'Name',
+		Default = true,
+		Function = function() end
+	})
+	HackerDetectorFileCache = HackerDetector.CreateToggle({
+		Name = 'Cached detections',
+		HoverText = 'Writes (vape/Render/exploiters.json)\neverytime someone is detected.',
+		Default = true,
+		Function = function() end
+	})
+end)
 
-local startTime = tick()
-local timeTaken = tick() - startTime
+print("[INFO] Script initialized.")
 
 warningNotification("Load Information:", "No errors, config loaded in "..math.floor(timeTaken).." milliseconds", 5)
