@@ -1,17 +1,22 @@
 local httpservice = game:GetService('HttpService')
-local guiprofiles = {}
-local profilesfetched = false
-local profilesdownloaded = false
-local function vapeGithubRequest(scripturl)
-	if not isfile('vape/'..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
-		assert(suc, res)
-		assert(res ~= '404: Not Found', res)
-		if scripturl:find('.lua') then res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n'..res end
-		writefile('vape/'..scripturl, res)
-	end
-	return readfile('vape/'..scripturl)
+
+local stepcount = 0
+local steps = {}
+local titles = {}
+
+local function writevapefile(file, data)
+    writefile('vape/'..file, data)
 end
+
+local function registerStep(name, func)
+    table.insert(steps, func)
+    table.insert(titles, name)
+    stepcount = #steps
+end
+
+local guiprofiles = {}
+local profilesfetched
+
 task.spawn(function()
     local res = game:HttpGet('https://api.github.com/repos/Erchobg/vapevoidware/contents/Profiles')
     if res ~= '404: Not Found' then 
@@ -22,32 +27,26 @@ task.spawn(function()
         end
     end
     profilesfetched = true
-    print("step 1 done")
 end)
 
-repeat task.wait() until profilesfetched == true
+registerStep('Getting Profiles...', function()
+    repeat task.wait() until profilesfetched
+end)
 
-task.spawn(function()
-    print("step 2 done")
-    for i2, v2 in next, guiprofiles do
-        print("aaaaa")
-        local res2 = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v2)
-        if res ~= '404: Not Found' then
-            print("error detected")
-        else
-            if not isfolder('vape/Profiles') then 
-                makefolder("vape/Profiles")
-            end
-            writefile('vape/Profiles/'..v2, res2) 
+repeat task.wait() until profilesfetched
+
+for i,v in next, guiprofiles do 
+    registerStep('Downloading vape/Profiles/'..v, function()
+        --if not installprofile then  [Needs testing]
+        --    return 
+        --end
+        local res = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v)
+        task.wait()
+        if res ~= '404: Not Found' then 
+            writevapefile('Profiles/'..v, res) 
         end
-    end
-    profilesdownloaded = true
-    print("final step done")
-end)
-
-repeat task.wait() until profilesdownloaded == true
-print("hmmm")
-
+    end)
+end
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
 
 return print("testing")
