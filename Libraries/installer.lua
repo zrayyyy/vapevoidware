@@ -1,7 +1,7 @@
 local httpservice = game:GetService('HttpService')
 local guiprofiles = {}
-local profilesfetched
-local profilesdownloaded
+local profilesfetched = false
+local profilesdownloaded = false
 task.spawn(function()
     local res = game:HttpGet('https://api.github.com/repos/Erchobg/vapevoidware/contents/Profiles')
     if res ~= '404: Not Found' then 
