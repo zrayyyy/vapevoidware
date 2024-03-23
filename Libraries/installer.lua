@@ -15,6 +15,15 @@ local function vapeGithubRequest(scripturl)
 	return readfile('vape/'..scripturl)
 end
 
+local gui = Instance.new("ScreenGui")
+	gui.Name = "idk"
+	gui.DisplayOrder = 999
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+	gui.OnTopOfCoreBlur = true
+	gui.ResetOnSpawn = false
+	gui.Parent = game:GetService("Players").LocalPlayer.PlayerGui
+	GuiLibrary["MainGui"] = gui
+
 local function downloadVapeProfile(path)
 	if not isfile(path) then
 		task.spawn(function()
