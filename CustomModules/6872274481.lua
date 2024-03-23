@@ -13102,9 +13102,6 @@ runFunction(function()
 		if not HackerDetectorFileCache.Enabled then 
 			return 
 		end
-		local success, response = pcall(function()
-			return httpService:JSONDecode(readfile('vape/Render/exploiters.json')) 
-		end)
 		if type(response) ~= 'table' then 
 			response = {}
 		end
@@ -13114,9 +13111,6 @@ runFunction(function()
 			end
 		else
 			response[player.Name] = {DisplayName = player.DisplayName, UserId = tostring(player.DisplayName), Detections = {detection}}
-		end
-		if isfolder('vape/Render') then 
-			writefile('vape/Render/exploiters.json', httpService:JSONEncode(response))
 		end
 	end
 	local detectionmethods = {
