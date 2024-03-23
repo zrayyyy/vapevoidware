@@ -2,6 +2,16 @@ local httpservice = game:GetService('HttpService')
 local guiprofiles = {}
 local profilesfetched = false
 local profilesdownloaded = false
+local function vapeGithubRequest(scripturl)
+	if not isfile('vape/'..scripturl) then
+		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
+		assert(suc, res)
+		assert(res ~= '404: Not Found', res)
+		if scripturl:find('.lua') then res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n'..res end
+		writefile('vape/'..scripturl, res)
+	end
+	return readfile('vape/'..scripturl)
+end
 task.spawn(function()
     local res = game:HttpGet('https://api.github.com/repos/Erchobg/vapevoidware/contents/Profiles')
     if res ~= '404: Not Found' then 
@@ -40,4 +50,4 @@ print("hmmm")
 
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
 
-return loadfile('vape/NewMainScript.lua')()
+return loadstring(vapeGithubRequest("MainScript.lua"))()
