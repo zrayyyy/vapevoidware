@@ -29,7 +29,7 @@ repeat task.wait() until profilesfetched == true
 
 task.spawn(function()
     print("step 2 done")
-    for i,v in next, guiprofiles do 
+    for i,v in next guiprofiles do 
         print("step 3 done")
         local res = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v)
         task.wait()
