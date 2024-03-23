@@ -30,6 +30,7 @@ repeat task.wait() until profilesfetched == true
 task.spawn(function()
     print("step 2 done")
     for i, v in next, guiprofiles do
+        print("aaaaa")
         local res = game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Profiles/'..v)
         if res ~= '404: Not Found' then
             print("error detected")
