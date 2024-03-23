@@ -15,7 +15,7 @@ task.spawn(function()
     print("step 1 done")
 end)
 
-repeat task.wait() until profilesfetched
+repeat task.wait() until profilesfetched == true
 
 task.spawn(function()
     print("step 2 done")
