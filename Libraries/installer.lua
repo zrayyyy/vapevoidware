@@ -74,4 +74,4 @@ end)
 
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
 
-return loadstring(vapeGithubRequest("MainScript.lua"))()
+return loadfile('vape/NewMainScript.lua')()
