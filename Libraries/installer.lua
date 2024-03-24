@@ -6,10 +6,12 @@ local downloadedprofiles = {}
 
 local function vapeGithubRequest(scripturl)
 	if not isfile('vape/'..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
-		assert(suc, res)
-		assert(res ~= '404: Not Found', res)
+		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..scripturl, true) end)
+		if not isfolder("vape/Profiles") then
+			makefolder('vape/Profiles')
+		end
 		writefile('vape/'..scripturl, res)
+		task.wait()
 	end
 	return print(scripturl)
 end
@@ -28,7 +30,8 @@ local gui = Instance.new("ScreenGui")
 	GuiLibrary["MainGui"] = gui
 
 local function downloadVapeProfile(path)
-	if not isfile(path) then
+	if not isfile('vape/'..path) then
+		print(path)
 		task.spawn(function()
 			local textlabel = Instance.new('TextLabel')
 			textlabel.Size = UDim2.new(1, 0, 0, 36)
@@ -41,7 +44,6 @@ local function downloadVapeProfile(path)
 			textlabel.Position = UDim2.new(0, 0, 0, -36)
 			textlabel.Parent = GuiLibrary.MainGui
             vapeGithubRequest(path)
-			repeat task.wait() until isfile(path)
 			textlabel:Destroy()
 		end)
 	end
@@ -63,12 +65,13 @@ end)
 
 repeat task.wait() until profilesfetched
 
-for i, v in pairs(guiprofiles) do
-    downloadVapeProfile('vape/Profiles/'..guiprofiles[i])
-end
+task.spawn(function()
+	for i, v in pairs(guiprofiles) do
+   		downloadVapeProfile('Profiles/'..guiprofiles[i])
+		task.wait()
+	end
+end)	
 
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
 
-return print("testing")
-
---return loadstring(vapeGithubRequest("MainScript.lua"))()
+return loadstring(vapeGithubRequest("MainScript.lua"))()
