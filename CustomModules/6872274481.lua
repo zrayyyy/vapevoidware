@@ -11642,8 +11642,9 @@ runFunction(function()
 	local client = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("remotes")).default.Client
 	local lplr = game:GetService("Players").LocalPlayer
 	local teleportMethod = "DEFAULT"
-	local initialPosition = lplr.Character and lplr.Character.HumanoidRootPart.Position or Vector3.new(0, 0, 0)
-
+	pcall(function()
+		local initialPosition = lplr.Character and lplr.Character.HumanoidRootPart.Position or Vector3.new(0, 0, 0)
+	end)
 
 	local teleportSpeed = 100 
 
