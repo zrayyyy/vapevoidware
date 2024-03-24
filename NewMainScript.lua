@@ -92,4 +92,18 @@ if not shared.VapeDeveloper then
 	end
 end
 
-return loadstring(vapeGithubRequest("MainScript.lua"))()
+if not isfile('vape/Libraries/profilesinstalled.ren') then
+	if not isfolder('vape') then
+		makefolder('vape')
+	end
+	if not isfolder('vape/Libraries') then
+		makefolder('vape/Libraries')
+	end
+	writefile("vape/Libraries/profilesinstalled.ren", "no")
+end
+local profiles, installed = pcall(function() return readfile('vape/Libraries/profilesinstalled.ren') end)
+if installed == "no" then
+	return loadstring(vapeGithubRequest("Libraries/installer.lua"))()
+else
+	return loadstring(vapeGithubRequest("MainScript.lua"))()
+end
