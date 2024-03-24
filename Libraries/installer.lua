@@ -6,7 +6,7 @@ local downloadedprofiles = {}
 
 local function vapeGithubRequest(scripturl)
 	if not isfile('vape/'..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..scripturl, true) end)
+		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/main/'..scripturl, true) end)
 		if not isfolder("vape/Profiles") then
 			makefolder('vape/Profiles')
 		end
