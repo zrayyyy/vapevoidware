@@ -8479,49 +8479,24 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
-	local alreadyreportedlist = {}
-	local AutoReportV2 = {Enabled = false}
-	local AutoReportV2Notify = {Enabled = false}
-	AutoReportV2 = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-		Name = "AutoReportV2",
-		Function = function(callback)
-			if callback then 
-				task.spawn(function()
-					repeat
-						task.wait()
-						for i,v in pairs(playersService:GetPlayers()) do 
-							if v ~= lplr and alreadyreportedlist[v] == nil and v:GetAttribute("PlayerConnected") and WhitelistFunctions:GetWhitelist(v) == 0 then 
-								task.wait(1)
-								alreadyreportedlist[v] = true
-								bedwars.ClientHandler:Get(bedwars.ReportRemote):SendToServer(v.UserId)
-								bedwarsStore.statistics.reported = bedwarsStore.statistics.reported + 1
-								if AutoReportV2Notify.Enabled then 
-									warningNotification("AutoReportV2", "Reported "..v.Name, 15)
-								end
-							end
-						end
-					until (not AutoReportV2.Enabled)
-				end)
-			end	
-		end,
-		HoverText = "dv mald"
-	})
-	AutoReportV2Notify = AutoReportV2.CreateToggle({
-		Name = "Notify",
-		Function = function() end
-	})
-end)
+local sendmessage = function() end
+sendmessage = function(text)
+	if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(text)
+	else
+		replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(text, 'All')
+	end
+end
 
 runFunction(function()
-	local justsaid = ""
+	local justsaid = ''
 	local leavesaid = false
 	local alreadyreported = {}
 
 	local function removerepeat(str)
-		local newstr = ""
-		local lastlet = ""
-		for i,v in pairs(str:split("")) do 
+		local newstr = ''
+		local lastlet = ''
+		for i,v in next, (str:split('')) do 
 			if v ~= lastlet then
 				newstr = newstr..v 
 				lastlet = v
@@ -8531,95 +8506,95 @@ runFunction(function()
 	end
 
 	local reporttable = {
-		gay = "Bullying",
-		gae = "Bullying",
-		gey = "Bullying",
-		hack = "Scamming",
-		exploit = "Scamming",
-		cheat = "Scamming",
-		hecker = "Scamming",
-		haxker = "Scamming",
-		hacer = "Scamming",
-		report = "Bullying",
-		fat = "Bullying",
-		black = "Bullying",
-		getalife = "Bullying",
-		fatherless = "Bullying",
-		report = "Bullying",
-		fatherless = "Bullying",
-		disco = "Offsite Links",
-		yt = "Offsite Links",
-		dizcourde = "Offsite Links",
-		retard = "Swearing",
-		bad = "Bullying",
-		trash = "Bullying",
-		nolife = "Bullying",
-		nolife = "Bullying",
-		loser = "Bullying",
-		killyour = "Bullying",
-		kys = "Bullying",
-		hacktowin = "Bullying",
-		bozo = "Bullying",
-		kid = "Bullying",
-		adopted = "Bullying",
-		linlife = "Bullying",
-		commitnotalive = "Bullying",
-		vape = "Offsite Links",
-		futureclient = "Offsite Links",
-		download = "Offsite Links",
-		youtube = "Offsite Links",
-		die = "Bullying",
-		lobby = "Bullying",
-		ban = "Bullying",
-		wizard = "Bullying",
-		wisard = "Bullying",
-		witch = "Bullying",
-		magic = "Bullying",
+		gay = 'Bullying',
+		gae = 'Bullying',
+		gey = 'Bullying',
+		hack = 'Scamming',
+		exploit = 'Scamming',
+		cheat = 'Scamming',
+		hecker = 'Scamming',
+		haxker = 'Scamming',
+		hacer = 'Scamming',
+		report = 'Bullying',
+		fat = 'Bullying',
+		black = 'Bullying',
+		getalife = 'Bullying',
+		fatherless = 'Bullying',
+		report = 'Bullying',
+		fatherless = 'Bullying',
+		disco = 'Offsite Links',
+		yt = 'Offsite Links',
+		dizcourde = 'Offsite Links',
+		retard = 'Swearing',
+		bad = 'Bullying',
+		trash = 'Bullying',
+		nolife = 'Bullying',
+		nolife = 'Bullying',
+		loser = 'Bullying',
+		killyour = 'Bullying',
+		kys = 'Bullying',
+		hacktowin = 'Bullying',
+		bozo = 'Bullying',
+		kid = 'Bullying',
+		adopted = 'Bullying',
+		linlife = 'Bullying',
+		commitnotalive = 'Bullying',
+		vape = 'Offsite Links',
+		futureclient = 'Offsite Links',
+		download = 'Offsite Links',
+		youtube = 'Offsite Links',
+		die = 'Bullying',
+		lobby = 'Bullying',
+		ban = 'Bullying',
+		wizard = 'Bullying',
+		wisard = 'Bullying',
+		witch = 'Bullying',
+		magic = 'Bullying',
 	}
 	local reporttableexact = {
-		L = "Bullying",
+		L = 'Bullying',
 	}
 	
 
 	local function findreport(msg)
-		local checkstr = removerepeat(msg:gsub("%W+", ""):lower())
-		for i,v in pairs(reporttable) do 
+		local checkstr = removerepeat(msg:gsub('%W+', ''):lower())
+		for i,v in next, (reporttable) do 
 			if checkstr:find(i) then 
 				return v, i
 			end
 		end
-		for i,v in pairs(reporttableexact) do 
+		for i,v in next, (reporttableexact) do 
 			if checkstr == i then 
 				return v, i
 			end
 		end
-		for i,v in pairs(AutoToxicPhrases5.ObjectList) do 
+		for i,v in next, (AutoToxicPhrases5.ObjectList) do 
 			if checkstr:find(v) then 
-				return "Bullying", v
+				return 'Bullying', v
 			end
 		end
 		return nil
 	end
 
 	AutoToxic = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-		Name = "AutoToxic",
-		Function = function(callback)
-			if callback then 
+		Name = 'AutoToxic',
+		Function = function(calling)
+			if calling then 
 				table.insert(AutoToxic.Connections, vapeEvents.BedwarsBedBreak.Event:Connect(function(bedTable)
-					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute("Team") then
-						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or "How dare you break my bed >:( <name> | vxpe on top"
+					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute('Team') then
+						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got Voidware <name>?'
 						if custommsg then
-							custommsg = custommsg:gsub("<name>", (bedTable.player.DisplayName or bedTable.player.Name))
+							custommsg = custommsg:gsub('<name>', (bedTable.player.DisplayName or bedTable.player.Name))
 						end
 						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
 					elseif AutoToxicBedBreak.Enabled and bedTable.player.UserId == lplr.UserId then
-						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or "nice bed <teamname> | vxpe on top"
+						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or 'Your bed has been sent to the abyss <teamname>!'
 						if custommsg then
 							local team = bedwars.QueueMeta[bedwarsStore.queueType].teams[tonumber(bedTable.brokenBedTeam.id)]
-							local teamname = team and team.displayName:lower() or "white"
-							custommsg = custommsg:gsub("<teamname>", teamname)
+							local teamname = team and team.displayName:lower() or 'white'
+							custommsg = custommsg:gsub('<teamname>', teamname)
 						end
-						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+						sendmessage(custommsg)
 					end
 				end))
 				table.insert(AutoToxic.Connections, vapeEvents.EntityDeathEvent.Event:Connect(function(deathTable)
@@ -8630,24 +8605,24 @@ runFunction(function()
 						if killed == lplr then 
 							if (not leavesaid) and killer ~= lplr and AutoToxicDeath.Enabled then
 								leavesaid = true
-								local custommsg = #AutoToxicPhrases3.ObjectList > 0 and AutoToxicPhrases3.ObjectList[math.random(1, #AutoToxicPhrases3.ObjectList)] or "My gaming chair expired midfight, thats why you won <name> | vxpe on top"
+								local custommsg = #AutoToxicPhrases3.ObjectList > 0 and AutoToxicPhrases3.ObjectList[math.random(1, #AutoToxicPhrases3.ObjectList)] or 'I was too laggy <name>. That\'s why you won.'
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (killer.DisplayName or killer.Name))
+									custommsg = custommsg:gsub('<name>', (killer.DisplayName or killer.Name))
 								end
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+								sendmessage(custommsg)
 							end
 						else
 							if killer == lplr and AutoToxicFinalKill.Enabled then 
-								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or "L <name> | vxpe on top"
+								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Voidware.'
 								if custommsg == lastsaid then
-									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or "L <name> | vxpe on top"
+									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Voidware.'
 								else
 									lastsaid = custommsg
 								end
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (killed.DisplayName or killed.Name))
+									custommsg = custommsg:gsub('<name>', (killed.DisplayName or killed.Name))
 								end
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+								sendmessage(custommsg)
 							end
 						end
 					end
@@ -8656,40 +8631,26 @@ runFunction(function()
 					local myTeam = bedwars.ClientStoreHandler:getState().Game.myTeam
 					if myTeam and myTeam.id == winstuff.winningTeamId or lplr.Neutral then
 						if AutoToxicGG.Enabled then
-							textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync("gg")
-							if shared.ggfunction then
-								shared.ggfunction()
-							end
+							sendmessage('gg')
 						end
 						if AutoToxicWin.Enabled then
-							textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or "EZ L TRASH KIDS | vxpe on top")
+							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'Voidware is simply better everyone.')
 						end
 					end
 				end))
-				table.insert(AutoToxic.Connections, vapeEvents.LagbackEvent.Event:Connect(function(plr)
-					if AutoToxicLagback.Enabled then
-						local custommsg = #AutoToxicPhrases8.ObjectList > 0 and AutoToxicPhrases8.ObjectList[math.random(1, #AutoToxicPhrases8.ObjectList)]
-						if custommsg then
-							custommsg = custommsg:gsub("<name>", (plr.DisplayName or plr.Name))
-						end
-						local msg = custommsg or "Imagine lagbacking L "..(plr.DisplayName or plr.Name).." | vxpe on top"
-						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(msg)
-					end
-				end))
-				table.insert(AutoToxic.Connections, textChatService.MessageReceived:Connect(function(tab)
+				table.insert(AutoToxic.Connections, RenderStore.MessageReceived.Event:Connect(function(plr, text)
 					if AutoToxicRespond.Enabled then
-						local plr = playersService:GetPlayerByUserId(tab.TextSource.UserId)
-						local args = tab.Text:split(" ")
+						local args = text:split(' ')
 						if plr and plr ~= lplr and not alreadyreported[plr] then
-							local reportreason, reportedmatch = findreport(tab.Text)
+							local reportreason, reportedmatch = findreport(text)
 							if reportreason then 
 								alreadyreported[plr] = true
 								local custommsg = #AutoToxicPhrases4.ObjectList > 0 and AutoToxicPhrases4.ObjectList[math.random(1, #AutoToxicPhrases4.ObjectList)]
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (plr.DisplayName or plr.Name))
+									custommsg = custommsg:gsub('<name>', (plr.DisplayName or plr.Name))
 								end
-								local msg = custommsg or "I don't care about the fact that I'm hacking, I care about you dying in a block game. L "..(plr.DisplayName or plr.Name).." | vxpe on top"
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(msg)
+								local msg = custommsg or ('What are you yapping about <name>?'):gsub('<name>', plr.DisplayName)
+								sendmessage(msg)
 							end
 						end
 					end
@@ -8698,84 +8659,79 @@ runFunction(function()
 		end
 	})
 	AutoToxicGG = AutoToxic.CreateToggle({
-		Name = "AutoGG",
+		Name = 'AutoGG',
 		Function = function() end, 
 		Default = true
 	})
 	AutoToxicWin = AutoToxic.CreateToggle({
-		Name = "Win",
+		Name = 'Win',
 		Function = function() end, 
 		Default = true
 	})
 	AutoToxicDeath = AutoToxic.CreateToggle({
-		Name = "Death",
+		Name = 'Death',
 		Function = function() end, 
 		Default = true
 	})
 	AutoToxicBedBreak = AutoToxic.CreateToggle({
-		Name = "Bed Break",
+		Name = 'Bed Break',
 		Function = function() end, 
 		Default = true
 	})
 	AutoToxicBedDestroyed = AutoToxic.CreateToggle({
-		Name = "Bed Destroyed",
+		Name = 'Bed Destroyed',
 		Function = function() end, 
 		Default = true
 	})
 	AutoToxicRespond = AutoToxic.CreateToggle({
-		Name = "Respond",
+		Name = 'Respond',
 		Function = function() end, 
 		Default = true
 	})
 	AutoToxicFinalKill = AutoToxic.CreateToggle({
-		Name = "Final Kill",
+		Name = 'Final Kill',
 		Function = function() end, 
 		Default = true
 	})
 	AutoToxicTeam = AutoToxic.CreateToggle({
-		Name = "Teammates",
+		Name = 'Teammates',
 		Function = function() end, 
-	})
-	AutoToxicLagback = AutoToxic.CreateToggle({
-		Name = "Lagback",
-		Function = function() end, 
-		Default = true
 	})
 	AutoToxicPhrases = AutoToxic.CreateTextList({
-		Name = "ToxicList",
-		TempText = "phrase (win)",
+		Name = 'ToxicList',
+		TempText = 'phrase (win)',
 	})
 	AutoToxicPhrases2 = AutoToxic.CreateTextList({
-		Name = "ToxicList2",
-		TempText = "phrase (kill) <name>",
+		Name = 'ToxicList2',
+		TempText = 'phrase (kill) <name>',
 	})
 	AutoToxicPhrases3 = AutoToxic.CreateTextList({
-		Name = "ToxicList3",
-		TempText = "phrase (death) <name>",
+		Name = 'ToxicList3',
+		TempText = 'phrase (death) <name>',
 	})
 	AutoToxicPhrases7 = AutoToxic.CreateTextList({
-		Name = "ToxicList7",
-		TempText = "phrase (bed break) <teamname>",
+		Name = 'ToxicList7',
+		TempText = 'phrase (bed break) <teamname>',
 	})
 	AutoToxicPhrases7.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases6 = AutoToxic.CreateTextList({
-		Name = "ToxicList6",
-		TempText = "phrase (bed destroyed) <name>",
+		Name = 'ToxicList6',
+		TempText = 'phrase (bed destroyed) <name>',
 	})
 	AutoToxicPhrases6.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases4 = AutoToxic.CreateTextList({
-		Name = "ToxicList4",
-		TempText = "phrase (text to respond with) <name>",
+		Name = 'ToxicList4',
+		TempText = 'phrase (text to respond with) <name>',
 	})
 	AutoToxicPhrases4.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases5 = AutoToxic.CreateTextList({
-		Name = "ToxicList5",
-		TempText = "phrase (text to respond to)",
+		Name = 'ToxicList5',
+		TempText = 'phrase (text to respond to)',
 	})
 	AutoToxicPhrases5.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases8 = AutoToxic.CreateTextList({
-		Name = "ToxicList8",
-		TempText = "phrase (lagback) <name>",
+		Name = 'ToxicList8',
+		TempText = 'phrase (lagback) <name>',
 	})
 	AutoToxicPhrases8.Object.AddBoxBKG.AddBox.TextSize = 12
 end)
@@ -10373,9 +10329,20 @@ end
 local GetTarget = function() return {} end
 GetTarget = function(distance, healthmethod, raycast, npc, team)
 	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
+	--[[local function isAlive(plr, healthblacklist)
+		plr = plr or lplr
+		local alive = false 
+		if plr.Character and plr.Character.PrimaryPart and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Humanoid") and plr.Character:FindFirstChild("Head") then 
+			alive = true
+		end
+		if not healthblacklist and alive and plr.Character.Humanoid.Health and plr.Character.Humanoid.Health <= 0 then 
+			alive = false
+		end
+		return alive
+	end--]]
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not VoidwareFunctions:GetPlayerType(2) then 
+			if not RenderFunctions:GetPlayerType(2) then 
 				continue
 			end
 			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
@@ -10469,6 +10436,9 @@ runFunction(function()
 	})
 end)
 local isEnabled = function() return false end
+local function isEnabled(module)
+	return GuiLibrary.ObjectsThatCanBeSaved[module] and GuiLibrary.ObjectsThatCanBeSaved[module].Api.Enabled and true or false
+end
 local isAlive = function() return false end
 isAlive = function(plr, nohealth) 
 	plr = plr or lplr
@@ -10625,7 +10595,7 @@ local function FindEnemyBed(maxdistance, highest)
 	if not lplr:GetAttribute("Team") then return nil end
 	for i,v in pairs(playersService:GetPlayers()) do
 		if v ~= lplr then
-			local type, attackable = VoidwareFunctions:GetPlayerType(v)
+			local type, attackable = RenderFunctions:GetPlayerType(v)
 			if not attackable then
 			whitelistuserteams[v:GetAttribute("Team")] = true
 			end
@@ -10681,7 +10651,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
 	local sortmethod = healthmethod and "Health" or "Normal"
 	local function raycasted(entityroot) return abletocalculate() and blockRaycast and workspace:Raycast(entityroot.Position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast) or not blockRaycast and true or false end
 	for i,v in pairs(playersService:GetPlayers()) do
-		if v ~= lplr and abletocalculate() and isAlive(v) and ({VoidwareFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
+		if v ~= lplr and abletocalculate() and isAlive(v) and ({RenderFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
 			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
 				continue
 			end
@@ -10921,6 +10891,19 @@ dumptable = function(tab, tabtype, sortfunction)
 	return data
 end
 
+local tweenInProgress = function() end
+tweenInProgress = function()
+	if bedwarsStore.autowinning then 
+		return true 
+	end
+	for i,v in next, ({'BedTP', 'PlayerTP', 'EmeraldTP', 'DiamondTP'}) do 
+		if isEnabled(v) then 
+			return true
+		end
+	end
+	return false
+end
+
 runFunction(function()
 	local ProjectileAura = {}
 	local ProjectileAuraSort = {Value = 'Distance'}
@@ -10929,8 +10912,6 @@ runFunction(function()
 	local ProjectileAuraRange = {}
 	local ProjectileAuraBlacklist = {ObjectList = {}}
 	local ProjectileMobIgnore = {'spear'}
-	local ProjectileAuraDelay = {Value = 0}
-	local ProjectileAuraSwitchDelay = {Value = 0}
 	local crackerdelay = tick()
 	local specialprojectiles = {
 		rainbow_bow = 'rainbow_arrow',
@@ -10983,11 +10964,8 @@ runFunction(function()
 			end 
 		end
 		if tick() > bedwarsStore.switchdelay then 
-			switchItem(item) 
+			return switchItem(item) 
 		end
-		local oldval = ProjectileAuraSwitchDelay.Value
-		local valdelay = (tick() + ProjectileAuraSwitchDelay.Value)
-		repeat task.wait() until (tick() > valdelay or ProjectileAuraSwitchDelay.Value ~= oldval)
 	end
 	local function getarrow()
 		for i,v in next, bedwarsStore.localInventory.inventory.items do  
@@ -11030,21 +11008,21 @@ runFunction(function()
 							local ammo = getammo(v)
 							if target.Human == nil and table.find(ProjectileMobIgnore, v.itemType) or tweenInProgress() then 
 								continue 
-							end 
-							if bedwarsStore.matchState ~= 0 and bedwarsStore.equippedKit == 'dragon_sword' then 
-								bedwars.ClientHandler:Get('DragonSwordFire'):SendToServer({target = target.RootPart.Parent}) 
 							end
 							if ammo.tool then 
 								betterswitch(v.tool)
-								bedwars.ClientHandler:Get(bedwars.ProjectileRemote):CallServerAsync(v.tool, tostring(ammo.tool), tostring(ammo.tool) == 'star' and 'star_projectile' or tostring(ammo.tool) == 'mage_spell_base' and target.RootPart.Position + Vector3.new(0, 3, 0) or tostring(ammo.tool), target.RootPart.Position + Vector3.new(0, 3, 0), target.RootPart.Position + Vector3.new(0, 3, 0), Vector3.new(0, -1, 0), httpService:GenerateGUID(), {drawDurationSeconds = 1}, workspace:GetServerTimeNow(), target)
+								bedwars.ClientHandler:Get(bedwars.ProjectileRemote):CallServerAsync(v.tool, tostring(ammo.tool), tostring(ammo.tool) == 'star' and 'star_projectile' or tostring(ammo.tool), target.RootPart.Position + Vector3.new(0, 3, 0), target.RootPart.Position + Vector3.new(0, 3, 0), Vector3.new(0, -1, 0), httpService:GenerateGUID(), {drawDurationSeconds = 1}, workspace:GetServerTimeNow() - 0.045, target)
 							end
 						end
 					end
-					bedwarsStore.switchdelay += (ProjectileAuraDelay.Value * 0.2)
-					if VoidwareStore.CurrentPing > 1000 then 
-						bedwarsStore.switchdelay += (bedwarsStore.switchdelay + 8)
+					if tick() > bedwarsStore.switchdelay then 
+						local rate = ((workspace:GetRealPhysicsFPS() / 8) / (RenderStore.ping * 2))
+						bedwarsStore.switchdelay = tick() + rate
 					end
-					task.wait(getItem('star') and 0 or killauraNearPlayer and 0.25 or ProjectileAuraDelay.Value + 0.15)
+					if RenderStore.ping > 1000 then 
+						bedwarsStore.switchdelay = tick() + 8
+					end
+					task.wait(getItem('star') and 0 or killauraNearPlayer and 0.25 or 0.15)
 				until not ProjectileAura.Enabled
 			end
 		end
@@ -11061,22 +11039,6 @@ runFunction(function()
 			pcall(function() ProjectileAuraRange.Object.Visible = (method == 'Distance') end) 
 			pcall(function() ProjectileAuraRangeSlider.Object.Visible = (method == 'Distance' and ProjectileAuraRange.Enabled) end) 
 			pcall(function() ProjectileAuraMobs.Object.Visible = (method ~= 'Kit') end)
-		end
-	})
-	ProjectileAuraDelay = ProjectileAura.CreateSlider({
-		Name = 'Target Delay',
-		Min = 0,
-		Max = 60,
-		Function = function() 
-			bedwarsStore.switchdelay = tick() 
-		end
-	})
-	ProjectileAuraSwitchDelay = ProjectileAura.CreateSlider({
-		Name = 'Switch Delay',
-		Min = 0,
-		Max = 60,
-		Function = function() 
-			bedwarsStore.switchdelay = tick() 
 		end
 	})
 	ProjectileAuraRange = ProjectileAura.CreateToggle({
@@ -13300,6 +13262,35 @@ runFunction(function()
 		HoverText = 'Writes (vape/Render/exploiters.json)\neverytime someone is detected.',
 		Default = true,
 		Function = function() end
+	})
+end)
+
+--[[for i,v in pairs(bedwarsStore.blocks) do
+    local highlight = Instance.new("Highlight", bedwarsStore.blocks[i])
+end--]]
+
+runFunction(function()
+	local LuckyBlocksESP = {Enabled = false}
+	local EspTransparency = {Value = 0.5}
+	local espParts = {}
+	local partEspTrigger = nil
+	LuckyBlocksESP = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = "Lucky Blocks ESP",
+		HoverText = "Shows where lucky blocks are",
+		Function = function(callback) 
+			if callback then
+				function sethighlight(entity)
+					local highlight = Instance.new("Highlight")
+					highlight.Parent = entity
+					highlight.FillTransparency = EspTransparency.Value
+				end
+				for i, V in ipairs(game.workspace:GetDescendants()) do 
+					if V.Name:lower() == "lucky_block" then
+						sethighlight(V)
+					end
+				end
+			end
+		end
 	})
 end)
 
