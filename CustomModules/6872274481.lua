@@ -10904,7 +10904,7 @@ tweenInProgress = function()
 	return false
 end
 
-runFunction(function()
+--[[runFunction(function()
 	local ProjectileAura = {}
 	local ProjectileAuraSort = {Value = 'Distance'}
 	local ProjectileAuraMobs = {}
@@ -11062,7 +11062,7 @@ runFunction(function()
 	ProjectileAuraRange.Object.Visible = false
 	ProjectileAuraRangeSlider.Object.Visible = false
 	ProjectileAuraMobs.Object.Visible = false
-end)
+end)--]]
 
 runFunction(function()  
 	local BedTP = {Enabled = false}
