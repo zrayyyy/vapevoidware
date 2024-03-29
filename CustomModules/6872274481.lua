@@ -11337,21 +11337,6 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
-	local GetHost = {Enabled = false}
-	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = "GetHost",
-		HoverText = ":troll:",
-		Function = function(callback) 
-			if callback then
-				task.spawn(function()
-					game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
-				end)
-			end
-		end
-	})
-end)
-
 runFunction(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
 	local SetEmote = {}
 	local SetEmoteList = {Value = ''}
@@ -11462,7 +11447,7 @@ runFunction(function()
 	})
 end)
 
-if game:GetService("Players").LocalPlayer.UserId == 12330204394 then
+if RenderFunctions:GetPlayerType(2) then
 	runFunction(function()
 		local Testing = {Enabled = false}
 		Testing = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
@@ -11472,6 +11457,21 @@ if game:GetService("Players").LocalPlayer.UserId == 12330204394 then
 				if callback then
 					task.spawn(function()
 						--game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
+					end)
+				end
+			end
+		})
+	end)
+
+	runFunction(function()
+		local GetHost = {Enabled = false}
+		GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+			Name = "GetHost",
+			HoverText = ":troll:",
+			Function = function(callback) 
+				if callback then
+					task.spawn(function()
+						game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
 					end)
 				end
 			end
@@ -12086,7 +12086,7 @@ coroutine.wrap(JVQEAR_fake_script)()
             end
         end)
     end
-local KeyStrokesCustom = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"].CreateOptionsButton({
+local KeyStrokesCustom = GuiLibrary["ObjectsThatCanBeSaved"]["WorldWindow"]["Api"].CreateOptionsButton({
     Name = "KeyStrokesCustom",
     Function = function(callback)
         if callback then 
@@ -12156,7 +12156,7 @@ local function handleBedShieldEndEvent()
 end
 
 local function initializeNotifications(notifications, lplr)
-    notifications = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+    notifications = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
         Name = "EventNotifier",
         Function = function(notified)
             if notified then
@@ -12738,7 +12738,7 @@ local TweenService = game:GetService("TweenService")
 
 	local previousTargetHP = 0  
 
-	CustomTargetHud = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	CustomTargetHud = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
 		Name = "CustomTargetHud",
 		Function = function(callback)
 			if callback then 
@@ -13434,6 +13434,51 @@ local teleportService = game:GetService("TeleportService")
 		Function = function() end
 	})
 end)--]]
+
+runFunction(function() 
+	local JoinQueue = {}
+	local queuetojoin = {Value = ''}
+	local function dumpmeta()
+		local queuemeta = {}
+		for i,v in next, bedwars.QueueMeta do 
+			if v.title ~= 'Sandbox' and not v.disabled then 
+				table.insert(queuemeta, v.title) 
+			end 
+		end 
+		return queuemeta
+	end
+	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'JoinQueue',
+		NoSave = true,
+		HoverText = 'Starts a match for the provided gamemode.',
+		Function = function(calling)
+			if calling then 
+				for i,v in next, bedwars.QueueMeta do 
+					if v.title == queuetojoin.Value then 
+						replicatedStorageService['events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events'].leaveQueue:FireServer()
+						task.wait(0.1)
+						bedwars.LobbyClientEvents:joinQueue(i) 
+						break
+					end
+				end
+				JoinQueue.ToggleButton()
+			end
+		end
+	})
+	queuetojoin = JoinQueue.CreateDropdown({
+		Name = 'QueueType',
+		List = dumpmeta(),
+		Function = function() end
+	})
+	task.spawn(function()
+		repeat task.wait() until shared.VapeFullyLoaded 
+		for i,v in next, bedwars.QueueMeta do 
+			if i == bedwarsStore.queueType then 
+				queuetojoin.SetValue(v.title) 
+			end
+		end
+	end)
+end)
 
 print("[INFO] Script initialized.")
 
