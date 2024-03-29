@@ -13274,8 +13274,8 @@ runFunction(function()
 	local EspTransparency = {Value = 0.5}
 	local espParts = {}
 	local partEspTrigger = nil
-	LuckyBlocksESP = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = "Lucky Blocks ESP",
+	LuckyBlocksESP = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = "ESP Lucky Blocks",
 		HoverText = "Shows where lucky blocks are",
 		Function = function(callback) 
 			if callback then
@@ -13293,6 +13293,147 @@ runFunction(function()
 		end
 	})
 end)
+
+local teleportService = game:GetService("TeleportService")
+--[[runFunction(function()
+	local StaffDetector = {}
+	local StaffDetectorMode = {Value = 'Lobby'}
+	local legitgamers = {}
+	local staffconfig = {legitmessages = {}, staffaccounts = {}, legitmodules = {}}
+	local cachedfriends = {}
+	local cachedroles = {}
+	local knownstaff = {}
+	local staffactions = {
+		Uninject = GuiLibrary.SelfDestruct,
+		Lobby = function()
+			teleportService:Teleport(6872265039)
+		end,
+		LegitLobby = function()
+			GuiLibrary.SelfDestruct()
+			local messages = getrandomvalue(staffconfig.legitmessages)
+			if messages ~= '' then 
+				for i,v in next, messages do 
+					sendchatmessage(v)
+					if i < #messages then 
+						task.wait(math.random(0.5, 1.2)) 
+					end
+				end
+			end
+			teleportService:Teleport(6872265039)
+		end,
+		Config = function()
+			for i,v in next, GuiLibrary.ObjectsThatCanBeSaved do 
+				if v.Type == 'OptionsButton' and table.find(staffconfig.legitmodules, i:gsub('OptionsButton', '')) == nil then 
+					GuiLibrary.SaveSettings = function() end
+					if v.Api.Enabled then
+						v.Api.ToggleButton()
+					end
+					pcall(GuiLibrary.RemoveObject, i)
+				end
+			end
+		end
+	}
+	local function savestaffConfig(plr, detection)
+		local success, json = pcall(function() 
+			return httpService:JSONDecode(readfile('vape/Libraries/staffdata.json'))
+		end)
+		if not success then 
+			json = {}
+		end
+		table.insert(json, {Username = plr.Name, DisplayName = plr.DisplayName, Detection = detection, Tick = tick()})
+		if isfolder('vape/Libraries') then 
+			writefile('vape/Libraries/staffdata.json', httpService:JSONEncode(json))
+		end
+	end
+	local function GetRobloxFriends(plr)
+		local friends = {}
+		local success, page = pcall(function() return playersService:GetFriendsAsync(plr.UserId) end)
+		if success then
+		   repeat
+			   for i,v in next, page:GetCurrentPage() do
+				   table.insert(friends, v.UserId)
+			   end
+			   if not page.IsFinished then 
+				   page:AdvanceToNextPageAsync()
+			   end
+		   until page.IsFinished
+		end
+		return friends
+	end
+	local function friendActive(friendtab)
+		for i,v in next, friendtab do 
+			local friend = playersService:GetPlayerByUserId(v)
+			if friend then 
+				return friend 
+			end
+		end
+	end
+	local function staffDetectorFunction(player)
+		repeat 
+			local friends = (cachedfriends[player] or GetRobloxFriends(player))
+			cachedfriends[player] = friends
+			if player:GetAttribute('Spectator') and table.find(legitgamers, player) == nil and friendActive(friends) == nil and bedwars.ClientStoreHandler:getState().Game.customMatch == nil then 
+				savestaffConfig(player, 'illegal_join')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' is overwatching you.', 60)
+				return staffactions[StaffDetectorMode.Value]()
+			end
+			if table.find(legitgamers, player) == nil and tostring(player.Team) ~= 'Neutral' and not player:GetAttribute('Spectator') then 
+				table.insert(legitgamers, player)
+			end
+			if table.find(staffconfig.staffaccounts, player.UserId) or table.find(knownstaff, player.UserId) then 
+				savestaffConfig(player, 'blacklisted_users')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' is cached on staff json.', 60)
+				return staffactions[StaffDetectorMode.Value]()
+			end
+			local success, response = true, cachedroles[player]
+			if response == nil then 
+				success, response = pcall(player.GetRoleInGroup, lplr, 5774246)
+			end
+			cachedroles[player] = response 
+			if tonumber(response) and tonumber(response) >= 100 then 
+				savestaffConfig(player, 'group_rank')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' has a high role in the Easy.gg group (GetRoleInGroup() >= 100).', 60)
+				return staffactions[StaffDetectorMode.Value]()
+			end
+			task.wait()
+		until (not StaffDetector.Enabled)
+	end
+	StaffDetector = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = 'AStaffDetector',
+		HoverText = 'Detects when bedwars staff are in the server (75% accuracy).',
+		Function = function(calling)
+			if calling then 
+				pcall(function() staffconfig = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/staffconfig.json')) end)
+				pcall(function() knownstaff = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/knownstaff.json')) end)
+				pcall(function() 
+					for i,v in next, httpService:JSONDecode(readfile('vape/Libraries/staffdata.json')) do 
+						if table.find(knownstaff, v) == nil then 
+							table.insert(knownstaff, v)
+						end
+					end
+				end)
+				repeat task.wait() until (shared.VapeFullyLoaded or not StaffDetector.Enabled)
+				if not StaffDetector.Enabled then 
+					return 
+				end
+				for i,v in next, playersService:GetPlayers() do 
+					if v ~= lplr then
+						task.spawn(staffDetectorFunction, v)
+					end
+				end
+				table.insert(vapeConnections, playersService.PlayerAdded:Connect(staffDetectorFunction))
+			end
+		end
+	})
+	StaffDetectorMode = StaffDetector.CreateDropdown({
+		Name = 'Action',
+		List = dumptable(staffactions, 1),
+		Function = function() end
+	})
+end)--]]
 
 print("[INFO] Script initialized.")
 
