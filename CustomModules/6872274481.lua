@@ -11446,8 +11446,14 @@ runFunction(function()
 		end
 	})
 end)
+local Allowed = false
+if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
+	Allowed = true
+else
+	print("no")
+end
 
-if RenderFunctions:GetPlayerType(2) then
+if Allowed == true then
 	runFunction(function()
 		local Testing = {Enabled = false}
 		Testing = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
@@ -11462,7 +11468,9 @@ if RenderFunctions:GetPlayerType(2) then
 			end
 		})
 	end)
+end
 
+if Allowed == true then
 	runFunction(function()
 		local GetHost = {Enabled = false}
 		GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
@@ -11477,12 +11485,7 @@ if RenderFunctions:GetPlayerType(2) then
 			end
 		})
 	end)
-	else
-		print("no")
-	end
-
-
-
+end
 
 
 
