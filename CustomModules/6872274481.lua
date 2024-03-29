@@ -10666,7 +10666,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
 	local sortmethod = healthmethod and "Health" or "Normal"
 	local function raycasted(entityroot) return abletocalculate() and blockRaycast and workspace:Raycast(entityroot.Position, Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast) or not blockRaycast and true or false end
 	for i,v in pairs(playersService:GetPlayers()) do
-		if v ~= lplr and abletocalculate() and isAlive(v) and ({RenderFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
+		if v ~= lplr and abletocalculate() and isAlive(v) and ({VoidwareFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
 			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
 				continue
 			end
@@ -10784,16 +10784,16 @@ runFunction(function()
 						end)
 						if AutowinNotification.Enabled then
 							local bedname = VoidwareStore.bedtable[bed] or "unknown"
-							InfoNotification("Autowin", "Destroying "..bedname:lower().." team's bed", 5)
+							task.spawn(InfoNotification, "Autowin", "Destroying "..bedname:lower().." team's bed", 5)
 						end
 						if not isEnabled("Nuker") then
-							--InfoNotification("Autowin", "Please turn on nuker", 5)
+							--GuiLibrary.ObjectsThatCanBeSaved.NukerOptionsButton.Api.ToggleButton(false)
 						end
 						repeat task.wait() until FindEnemyBed() ~= bed or not isAlive()
 						if FindTarget(45, bedwarsStore.blockRaycast).RootPart and isAlive() then
 							if AutowinNotification.Enabled then
 								local team = VoidwareStore.bedtable[bed] or "unknown"
-								InfoNotification("Autowin", "Killing "..team:lower().." team's teamates", 5)
+								task.spawn(InfoNotification, "Autowin", "Killing "..team:lower().." team's teamates", 5)
 							end
 							repeat
 							local target = FindTarget(45, bedwarsStore.blockRaycast)
@@ -10813,7 +10813,7 @@ runFunction(function()
 							playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, target.RootPart) / 23.4 / 35, Enum.EasingStyle.Linear), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
 							playertween:Play()
 							if AutowinNotification.Enabled then
-								InfoNotification("Autowin", "Killing "..target.Player.DisplayName.." ("..(target.Player.Team and target.Player.Team.Name or "neutral").." Team)", 5)
+								task.spawn(InfoNotification, "Autowin", "Killing "..target.Player.DisplayName.." ("..(target.Player.Team and target.Player.Team.Name or "neutral").." Team)", 5)
 							end
 							playertween.Completed:Wait()
 							if not Autowin.Enabled then return end
@@ -11545,7 +11545,7 @@ local function WinW(title, text, delay)
 	return (suc and res)
 end
 
-runFunction(function()
+--[[runFunction(function()
 	local deb
 	local con
 	local client = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("remotes")).default.Client
@@ -11612,7 +11612,7 @@ runFunction(function()
 			end
 		end
 	})
-end)
+end)--]]
 
 runFunction(function() 
 	local TeleportBed
