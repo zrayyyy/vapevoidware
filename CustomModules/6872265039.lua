@@ -147,7 +147,7 @@ do
 	end
 end
 
-local function runcode(func)
+local function runFunction(func)
 	func()
 end
 
@@ -215,7 +215,7 @@ local function createwarning(title, text, delay)
 	return (suc and res)
 end
 
-runcode(function()
+runFunction(function()
     local flaggedremotes = {"SelfReport"}
 
     getfunctions = function()
@@ -399,7 +399,7 @@ Sprint = GuiLibrary["ObjectsThatCanBeSaved"]["CombatWindow"]["Api"].CreateOption
 
 GuiLibrary["RemoveObject"]("FlyOptionsButton")
 local flymissile
-runcode(function()
+runFunction(function()
 	local OldNoFallFunction
 	local flyspeed = {["Value"] = 40}
 	local flyverticalspeed = {["Value"] = 40}
@@ -562,7 +562,7 @@ JoinQueueDelay = JoinQueue.CreateSlider({
 	["Default"] = 1
 })
 
-runcode(function()
+runFunction(function()
 	local AutoKitTextList = {["ObjectList"] = {}, ["RefreshValues"] = function() end}
 
 	local function betterfindkit()
@@ -643,7 +643,7 @@ runcode(function()
 	})
 end)
 
-runcode(function()
+runFunction(function()
 	local CameraFix = {["Enabled"] = false}
 	CameraFix = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptionsButton({
 		["Name"] = "CameraFix",
@@ -667,7 +667,7 @@ local Scaffold = {["Enabled"] = false}
 local longjump = {["Enabled"] = false}
 local flyvelo
 GuiLibrary["RemoveObject"]("SpeedOptionsButton")
-runcode(function()
+runFunction(function()
 	local speedmode = {["Value"] = "Normal"}
 	local speedval = {["Value"] = 1}
 	local speedjump = {["Enabled"] = false}
@@ -810,7 +810,7 @@ runcode(function()
 	speedjumpalways["Object"].Visible = speedjump["Enabled"]
 end)
 
-runcode(function()
+runFunction(function()
 	local AnticheatBypassTransparent = {["Enabled"] = false}
 	local AnticheatBypassAlternate = {["Enabled"] = false}
 	local AnticheatBypassNotification = {["Enabled"] = false}
@@ -1307,7 +1307,7 @@ runcode(function()
 	end
 end)
 
-runcode(function()
+runFunction(function()
 	local transformed = false
 	local OldBedwars = {["Enabled"] = false}
 	local themeselected = {["Value"] = "OldBedwars"}
@@ -1793,7 +1793,7 @@ runcode(function()
 	})
 end)
 
-runcode(function()
+runFunction(function()
 	local tpstring = shared.vapeoverlay or nil
 	local origtpstring = tpstring
 	local Overlay = GuiLibrary.CreateCustomWindow({
