@@ -2096,6 +2096,97 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 	})
 end)
 
+runFunction(function()
+	local Gamble = function()
+		replicatedStorageService["rbxts_include"]["node_modules"]["@rbxts"]["net"]["out"]["_NetManaged"]["RewardCrate/SpawnRewardCrate"]:FireServer({
+			["crateType"] = "level_up_create",
+			["altarId"] = 0
+		})
+		replicatedStorageService["rbxts_include"]["node_modules"]["@rbxts"]["net"]["out"]["_NetManaged"]["RewardCrate/SpawnRewardCrate"]:FireServer({
+			["crateType"] = "level_up_create",
+			["altarId"] = 1
+		})
+	end
+	local AutoGamble = {Enabled = false}
+	AutoGamble = GuiLibrary['ObjectsThatCanBeSaved']['VoidwareWindow']['Api'].CreateOptionsButton({
+		Name = 'AutoGamble',
+		Function = function(calling)
+			if calling then
+				task.spawn(function()
+					repeat task.wait(4)
+						Gamble()
+						print("AutoGamble: Start Gambling!")
+					until (not AutoGamble.Enabled)
+				end)
+			end
+		end, 
+		HoverText = 'Auto Open Lucky Crate'
+	})
+end)
+
+--[[runFunction(function()
+	local Trolling = {}
+	AutoGamble = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'AutoGamble',
+		HoverText = ':troll:',
+		Function = function(calling)
+			if calling then
+				local Altar1Children = game.Workspace.CrateAltar_1:GetChildren()
+				local Altar0Children = game.Workspace.CrateAltar_0:GetChildren()
+				local function getbothenabled()
+					local args = {
+						[1] = {
+							["crateType"] = "level_up_crate",
+							["altarId"] = 1
+						}
+					}
+					
+					game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RewardCrate/SpawnRewardCrate"):FireServer(unpack(args))
+					
+					
+					local args = {
+						[1] = {
+							["crateType"] = "level_up_crate",
+							["altarId"] = 0
+						}
+					}
+					
+					game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RewardCrate/SpawnRewardCrate"):FireServer(unpack(args))					
+				end
+				local function openboth()
+					local thing1 = game.Workspace.CrateAltar_0:GetDescendants()
+					local thing2 = game.Workspace.CrateAltar_0:GetDescendants()
+					
+					local RewardCrate1 = thing1[1]:GetAttribute("crateId")
+					local RewardCrate2 = thing2[1]:GetAttribute("crateId")
+
+					local args = {
+						[1] = {
+							["crateId"] = RewardCrate1
+						}
+					}
+					
+					game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RewardCrate/OpenRewardCrate"):FireServer(unpack(args))
+					
+					local args = {
+						[1] = {
+							["crateId"] = RewardCrate2
+						}
+					}
+					
+					game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RewardCrate/OpenRewardCrate"):FireServer(unpack(args))
+				end
+
+				task.spawn(function()
+					getbothenabled()
+					task.wait(1)
+					openboth()
+				end)
+			end
+		end
+	})
+end)--]]
+
 runFunction(function() 
 	local JoinQueue = {}
 	local queuetojoin = {Value = ''}
