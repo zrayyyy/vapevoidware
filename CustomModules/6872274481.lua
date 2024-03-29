@@ -11470,22 +11470,20 @@ if Allowed == true then
 	end)
 end
 
-if Allowed == true then
-	runFunction(function()
-		local GetHost = {Enabled = false}
-		GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-			Name = "GetHost",
-			HoverText = ":troll:",
-			Function = function(callback) 
-				if callback then
-					task.spawn(function()
-						game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
-					end)
-				end
+runFunction(function()
+	local GetHost = {Enabled = false}
+	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = "GetHost",
+		HoverText = ":troll:",
+		Function = function(callback) 
+			if callback then
+				task.spawn(function()
+					game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
+				end)
 			end
-		})
-	end)
-end
+		end
+	})
+end)
 
 
 
