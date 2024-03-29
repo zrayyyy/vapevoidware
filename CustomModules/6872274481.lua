@@ -147,6 +147,18 @@ local function GetBedTeam(bedtomark)
     end
 end
 
+local function isAlive(plr, healthblacklist)
+	plr = plr or lplr
+	local alive = false 
+	if plr.Character and plr.Character.PrimaryPart and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Humanoid") and plr.Character:FindFirstChild("Head") then 
+		alive = true
+	end
+	if not healthblacklist and alive and plr.Character.Humanoid.Health and plr.Character.Humanoid.Health <= 0 then 
+		alive = false
+	end
+	return alive
+end
+
 local gethighestblock = function() return nil end
 
 gethighestblock = function(position, smart, raycast, customvector)
@@ -10596,9 +10608,12 @@ local function FindEnemyBed(maxdistance, highest)
 	for i,v in pairs(playersService:GetPlayers()) do
 		if v ~= lplr then
 			local type, attackable = RenderFunctions:GetPlayerType(v)
-			if not attackable then
-			whitelistuserteams[v:GetAttribute("Team")] = true
-			end
+			--[[if not attackable then
+				for i, v in pairs(whitelistuserteams) do
+					print(whitelistuserteams[i])
+				end
+				whitelistuserteams[v:GetAttribute("Team")] = true
+			end--]]
 		end
 	end
 	for i,v in pairs(collectionService:GetTagged("bed")) do
