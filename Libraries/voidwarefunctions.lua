@@ -84,7 +84,7 @@ function RenderFunctions:GithubHash(repo, owner)
     return (repo == 'vapevoidware' and 'source' or 'main')
 end
 
---[[function RenderFunctions:CreateLocalDirectory(directory)
+function RenderFunctions:CreateLocalDirectory(directory)
     local splits = tostring(directory:gsub('vape/Libraries/', '')):split('/')
     local last = ''
     for i,v in next, splits do 
@@ -97,7 +97,7 @@ end
         end
     end 
     return directory
-end--]]
+end
 
 function RenderFunctions:RefreshLocalEnv()
     local signal = Instance.new('BindableEvent')
