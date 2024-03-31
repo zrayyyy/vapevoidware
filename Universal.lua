@@ -7342,7 +7342,7 @@ runFunction(function()
 	local DoorsScript = {Enabled = false}
 	local ScriptChoice = {Value = "None"}
 	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
-		Name = "DoorsScript",
+		Name = "DoorsScripts",
         HoverText = "Roblox doors scripts",
 		Function = function(callback)
 			if callback then
