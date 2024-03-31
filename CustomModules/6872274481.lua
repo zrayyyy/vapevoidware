@@ -614,13 +614,17 @@ local function getOpenApps()
 	return count
 end
 
+local function getServerHand()
+	return lplr.Character and lplr.Character:FindFirstChild('HandInvItem') and lplr.Character.HandInvItem.Value
+end
+
 local function switchItem(tool)
-	if lplr.Character.HandInvItem.Value ~= tool then
+	if getServerHand() ~= tool then 
 		bedwars.ClientHandler:Get(bedwars.EquipItemRemote):CallServerAsync({
 			hand = tool
 		})
 		local started = tick()
-		repeat task.wait() until (tick() - started) > 0.3 or lplr.Character.HandInvItem.Value == tool
+		repeat task.wait() until (tick() - started) > 0.3 or getServerHand() == tool
 	end
 end
 
@@ -8978,96 +8982,6 @@ runFunction(function()
 end)
 
 runFunction(function()
-	local BowExploit = {Enabled = false}
-	local BowExploitTarget = {Value = "Mouse"}
-	local BowExploitAutoShootFOV = {Value = 1000}
-	local oldrealremote
-	local noveloproj = {
-		"fireball",
-		"telepearl"
-	}
-
-	BowExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-		Name = "ProjectileExploit",
-		Function = function(callback)
-			if callback then 
-				oldrealremote = bedwars.ClientConstructor.Function.new
-				bedwars.ClientConstructor.Function.new = function(self, ind, ...)
-					local res = oldrealremote(self, ind, ...)
-					local oldRemote = res.instance
-					if oldRemote and oldRemote.Name == bedwars.ProjectileRemote then 
-						res.instance = {InvokeServer = function(self, shooting, proj, proj2, launchpos1, launchpos2, launchvelo, tag, tab1, ...) 
-							local plr
-							if BowExploitTarget.Value == "Mouse" then 
-								plr = EntityNearMouse(10000)
-							else
-								plr = EntityNearPosition(BowExploitAutoShootFOV.Value, true)
-							end
-							if plr then	
-								if not ({WhitelistFunctions:GetWhitelist(plr.Player)})[2] then 
-									return oldRemote:InvokeServer(shooting, proj, proj2, launchpos1, launchpos2, launchvelo, tag, tab1, ...)
-								end
-		
-								tab1.drawDurationSeconds = 1
-								repeat
-									task.wait(0.03)
-									local offsetStartPos = plr.RootPart.CFrame.p - plr.RootPart.CFrame.lookVector
-									local pos = plr.RootPart.Position
-									local playergrav = workspace.Gravity
-									local balloons = plr.Character:GetAttribute("InflatedBalloons")
-									if balloons and balloons > 0 then 
-										playergrav = (workspace.Gravity * (1 - ((balloons >= 4 and 1.2 or balloons >= 3 and 1 or 0.975))))
-									end
-									if plr.Character.PrimaryPart:FindFirstChild("rbxassetid://8200754399") then 
-										playergrav = (workspace.Gravity * 0.3)
-									end
-									local newLaunchVelo = bedwars.ProjectileMeta[proj2].launchVelocity
-									local shootpos, shootvelo = predictGravity(pos, plr.RootPart.Velocity, (pos - offsetStartPos).Magnitude / newLaunchVelo, plr, playergrav)
-									if proj2 == "telepearl" then
-										shootpos = pos
-										shootvelo = Vector3.zero
-									end
-									local newlook = CFrame.new(offsetStartPos, shootpos) * CFrame.new(Vector3.new(-bedwars.BowConstantsTable.RelX, -bedwars.BowConstantsTable.RelY, -bedwars.BowConstantsTable.RelZ))
-									shootpos = newlook.p + (newlook.lookVector * (offsetStartPos - shootpos).magnitude)
-									local calculated = LaunchDirection(offsetStartPos, shootpos, newLaunchVelo, workspace.Gravity, false)
-									if calculated then 
-										launchvelo = calculated
-										launchpos1 = offsetStartPos
-										launchpos2 = offsetStartPos
-										tab1.drawDurationSeconds = 1
-									else
-										break
-									end
-									if oldRemote:InvokeServer(shooting, proj, proj2, launchpos1, launchpos2, launchvelo, tag, tab1, workspace:GetServerTimeNow() - 0.045) then break end
-								until false
-							else
-								return oldRemote:InvokeServer(shooting, proj, proj2, launchpos1, launchpos2, launchvelo, tag, tab1, ...)
-							end
-						end}
-					end
-					return res
-				end
-			else
-				bedwars.ClientConstructor.Function.new = oldrealremote
-				oldrealremote = nil
-			end
-		end
-	})
-	BowExploitTarget = BowExploit.CreateDropdown({
-		Name = "Mode",
-		List = {"Mouse", "Range"},
-		Function = function() end
-	})
-	BowExploitAutoShootFOV = BowExploit.CreateSlider({
-		Name = "FOV",
-		Function = function() end,
-		Min = 1,
-		Max = 1000,
-		Default = 1000
-	})
-end)
-
-runFunction(function()
 	local RavenTP = {Enabled = false}
 	RavenTP = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = "RavenTP",
@@ -10476,6 +10390,7 @@ runFunction(function()
 		HoverText = 'Makes your invisible.',
 		Function = function(calling)
 			if calling then 
+				task.spawn(function()
 				repeat task.wait() until ((isAlive(lplr, true) or not Invisibility.Enabled) and (isEnabled('Lobby Check', 'Toggle') == false or bedwars.matchState ~= 0))
 				if not Invisibility.Enabled then 
 					return 
@@ -10512,6 +10427,7 @@ runFunction(function()
 					end	
 					task.wait()
 				until not Invisibility.Enabled
+			end)
 			else
 				for i,v in next, collideparts do 
 					pcall(function() v.CanCollide = true end) 
@@ -10565,6 +10481,7 @@ local vapeAssert = function(argument, title, text, duration, hault, moduledisabl
     end)
     if hault then while true do task.wait() end end
 end
+
 end
 local function GetMagnitudeOf2Objects(part, part2, bypass)
 	local magnitude, partcount = 0, 0
@@ -10918,166 +10835,6 @@ tweenInProgress = function()
 	end
 	return false
 end
-
---[[runFunction(function()
-	local ProjectileAura = {}
-	local ProjectileAuraSort = {Value = 'Distance'}
-	local ProjectileAuraMobs = {}
-	local ProjectileAuraRangeSlider = {Value = 50}
-	local ProjectileAuraRange = {}
-	local ProjectileAuraBlacklist = {ObjectList = {}}
-	local ProjectileMobIgnore = {'spear'}
-	local crackerdelay = tick()
-	local specialprojectiles = {
-		rainbow_bow = 'rainbow_arrow',
-		orions_belt_bow = 'star',
-		fireball = 'fireball',
-		frosted_snowball = 'frosted_snowball',
-		snowball = 'snowball',
-		spear = 'spear',
-		carrot_cannon = 'carrot_rocket',
-		light_sword = 'sword_wave1',
-		firecrackers = 'firecrackers'
-	}
-	local biggestTargets = {
-		spirit_assassin = 1,
-		hannah = 2,
-		melody = 3,
-		kaliyah = 4
-	}
-	local sortfunctions = {
-		Distance = function()
-			return GetTarget(ProjectileAuraRange.Enabled and ProjectileAuraRangeSlider.Value, nil, true, ProjectileAuraMobs.Enabled)
-		end,
-		Health = function()
-			return GetTarget(nil, true, true, ProjectileAuraMobs.Enabled)
-		end,
-		Mouse = function()
-			return GetTarget(nil, nil, true, ProjectileAuraMobs.Enabled, true, true)
-		end, 
-		Kit = function() 
-			local target, prio = {}, -1
-			for i,v in next, GetAllTargets() do
-				local kit = (v.Player:GetAttribute('PlayingAsKit') or 'none')
-				local kitprio = (biggestTargets[kit] or 0)
-				if kitprio > prio then 
-					target = v
-				end
-			end
-			if prio < 1 then 
-				return GetTarget(nil, nil, true)
-			end
-			return target
-		end
-	}
-	local function betterswitch(item)
-		if tostring(item) == 'firecrackers' then 
-			if crackerdelay > tick() then 
-				return 
-			else 
-				crackerdelay = tick() + 3.5 
-			end 
-		end
-		if tick() > bedwarsStore.switchdelay then 
-			return switchItem(item) 
-		end
-	end
-	local function getarrow()
-		for i,v in next, bedwarsStore.localInventory.inventory.items do  
-			if v.itemType:find('arrow') then 
-				return v 
-			end
-		end
-	end
-	local function getammo(item)
-		if (item.itemType:find('bow') or item.itemType:find('headhunter')) and specialprojectiles[item.itemType] == nil then 
-			return getarrow() or {} 
-		end
-		if item.itemType:find('ninja_chakram') then 
-			return getItem(item.itemType) 
-		end
-		if item.itemType == 'light_sword' then 
-			return {tool = 'sword_wave1'} 
-		end
-		local special = specialprojectiles[item.itemType]
-		for i,v in next, ProjectileAuraBlacklist.ObjectList do 
-			if item.itemType:find(v:lower()) then 
-				return {} 
-			end 
-		end 
-		if special then 
-			return getItem(special) or {} 
-		end
-		return {}
-	end
-	ProjectileAura = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-		Name = 'ProjectileAura',
-		HoverText = 'Automatically shoots hostile projectiles\nwithout aiming.',
-		Function = function(calling)
-			if calling then 
-				repeat 
-					local range = (ProjectileAuraRange.Enabled and ProjectileAuraRangeSlider.Value or 9e9)
-					local target = sortfunctions[ProjectileAuraSort.Value]()
-					if target.RootPart and target.RootPart.Parent:FindFirstChildWhichIsA('ForceField') == nil then 
-						for i,v in next, bedwarsStore.localInventory.inventory.items do 
-							local ammo = getammo(v)
-							if target.Human == nil and table.find(ProjectileMobIgnore, v.itemType) or tweenInProgress() then 
-								continue 
-							end
-							if ammo.tool then 
-								betterswitch(v.tool)
-								bedwars.ClientHandler:Get(bedwars.ProjectileRemote):CallServerAsync(v.tool, tostring(ammo.tool), tostring(ammo.tool) == 'star' and 'star_projectile' or tostring(ammo.tool), target.RootPart.Position + Vector3.new(0, 3, 0), target.RootPart.Position + Vector3.new(0, 3, 0), Vector3.new(0, -1, 0), httpService:GenerateGUID(), {drawDurationSeconds = 1}, workspace:GetServerTimeNow() - 0.045, target)
-							end
-						end
-					end
-					if tick() > bedwarsStore.switchdelay then 
-						local rate = ((workspace:GetRealPhysicsFPS() / 8) / (RenderStore.ping * 2))
-						bedwarsStore.switchdelay = tick() + rate
-					end
-					if RenderStore.ping > 1000 then 
-						bedwarsStore.switchdelay = tick() + 8
-					end
-					task.wait(getItem('star') and 0 or killauraNearPlayer and 0.25 or 0.15)
-				until not ProjectileAura.Enabled
-			end
-		end
-	})
-	ProjectileAuraBlacklist = ProjectileAura.CreateTextList({
-		Name = 'Blacklisted Projectiles',
-		TempText = 'blacklisted items',
-		AddFunction = function() end
-	})
-	ProjectileAuraSort = ProjectileAura.CreateDropdown({
-		Name = 'Sort',
-		List = dumptable(sortfunctions, 1),
-		Function = function(method)
-			pcall(function() ProjectileAuraRange.Object.Visible = (method == 'Distance') end) 
-			pcall(function() ProjectileAuraRangeSlider.Object.Visible = (method == 'Distance' and ProjectileAuraRange.Enabled) end) 
-			pcall(function() ProjectileAuraMobs.Object.Visible = (method ~= 'Kit') end)
-		end
-	})
-	ProjectileAuraRange = ProjectileAura.CreateToggle({
-		Name = 'Range Check',
-		Function = function(calling) 
-			pcall(function() ProjectileAuraRangeSlider.Object.Visible = calling end)
-		end 
-	}) 
-	ProjectileAuraRangeSlider = ProjectileAura.CreateSlider({
-		Name = 'Range',
-		Min = 5,
-		Max = 80,
-		Default = 75,
-		Function = function() end
-	})
-	ProjectileAuraMobs = ProjectileAura.CreateToggle({
-		Name = 'NPC',
-		HoverText = 'Targets NPCs too.',
-		Function = function() end 
-	})
-	ProjectileAuraRange.Object.Visible = false
-	ProjectileAuraRangeSlider.Object.Visible = false
-	ProjectileAuraMobs.Object.Visible = false
-end)--]]
 
 runFunction(function()  
 	local BedTP = {Enabled = false}
@@ -13494,6 +13251,442 @@ runFunction(function()
 			end
 		end
 	end)
+end)
+
+local playerRaycasted = function() return true end
+
+playerRaycasted = function(plr, customvector)
+	plr = plr or lplr
+	return workspace:Raycast(plr.Character.PrimaryPart.Position, customvector or Vector3.new(0, -2000, 0), bedwarsStore.blockRaycast)
+end
+
+local GetTarget = function() return {} end
+
+GetTarget = function(distance, healthmethod, raycast, npc, mouse, bypass)
+	local magnitude, target = distance or math.huge, {}
+	if healthmethod or mouse then 
+		magnitude = math.huge 
+	end
+	local mousepos = inputService:GetMouseLocation()
+	local entcalculate = function(v, name)
+		if v.PrimaryPart and v:FindFirstChildWhichIsA('Humanoid') then 
+			local localpos = (isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position or RenderStore.LocalPosition or Vector3.zero)
+			local vec, screen = worldtoscreenpoint(v.PrimaryPart.Position)
+			local distance = (healthmethod and v.Humanoid.Health or mouse and (mousepos - Vector2.new(vec.X, vec.Y)).Magnitude or (localpos - v.PrimaryPart.Position).Magnitude)
+			local raycast = (playerRaycasted({Character = v}) or not raycast)
+			if mouse and not screen and not bypass then 
+				return 
+			end
+			if distance < magnitude and raycast then 
+				magnitude = distance
+				target.Human = false
+				target.Player = {Name = name, DisplayName = name, UserId = 1, Character = v}
+				target.RootPart = v.PrimaryPart
+				target.Humanoid = v.Humanoid
+				target.Player = v
+			end
+		end
+	end
+	if not isAlive(lplr, true) and not RenderStore.LocalPosition then 
+		return target 
+	end
+	for i,v in next, playersService:GetPlayers() do 
+		local localpos = (isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position or RenderStore.LocalPosition or Vector3.zero)
+		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
+			if not RenderFunctions:GetPlayerType(2, v) then 
+				continue
+			end
+			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then
+				continue
+			end
+			if not entityLibrary.isPlayerTargetable(v) then 
+				continue
+			end
+			if not playerRaycasted(v) and raycast then 
+				continue
+			end
+			if healthmethod and v.Character:GetAttribute('Health') < magnitude then 
+				magnitude = v.Character:GetAttribute('Health')
+				target.Human = true
+				target.RootPart = v.Character.HumanoidRootPart
+				target.Humanoid = v.Character.Humanoid
+				target.Player = v
+				continue
+			end 
+			if mouse then 
+				local vec, screen = worldtoscreenpoint(v.Character.HumanoidRootPart.Position)
+				local mousedistance = (mousepos - Vector2.new(vec.X, vec.Y)).Magnitude
+				if mousedistance < magnitude and (screen or bypass) then 
+					magnitude = mousedistance
+					target.Human = true
+					target.RootPart = v.Character.HumanoidRootPart
+					target.Humanoid = v.Character.Humanoid
+					target.Player = v
+				end
+				continue
+			end
+			local playerdistance = (localpos - v.Character.HumanoidRootPart.Position).Magnitude
+			if playerdistance < magnitude then 
+				magnitude = playerdistance
+				target.Human = true
+				target.RootPart = v.Character.HumanoidRootPart
+				target.Humanoid = v.Character.Humanoid
+				target.Player = v
+			end
+		end
+	end
+	if npc and isAlive(lplr, true) then 
+		local entities = {
+			Monster = collectionService:GetTagged('Monster'),
+			DiamondGuardian = collectionService:GetTagged('DiamondGuardian'),
+			Titan = collectionService:GetTagged('GolemBoss'),
+			Drone = collectionService:GetTagged('Drone'),
+			Monarch = collectionService:GetTagged('GooseBoss'),
+			Dummy = collectionService:GetTagged('trainingRoomDummy')
+		}
+		for i,v in entities do 
+			for i2, ent in next, v do 
+				entcalculate(ent, i)
+			end
+		end
+	end
+	return target
+end
+
+local GetAllTargets = function() return {} end
+
+GetAllTargets = function(distance, mobs, raycast, sort)
+	local targets = {}
+	local entities = {
+		Monster = collectionService:GetTagged('Monster'),
+		DiamondGuardian = collectionService:GetTagged('DiamondGuardian'),
+		Titan = collectionService:GetTagged('GolemBoss'),
+		Drone = collectionService:GetTagged('Drone'),
+		Monarch = collectionService:GetTagged('GooseBoss'),
+		Dummy = collectionService:GetTagged('trainingRoomDummy')
+	}
+	for i,v in next, playersService:GetPlayers() do 
+		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
+			if not VoidwareFunctions:GetPlayerType(2, v) then 
+				continue
+			end
+			if not entityLibrary.isPlayerTargetable(v) then 
+				continue
+			end
+			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+			if playerdistance <= (distance or math.huge) then 
+				table.insert(targets, {Human = true, RootPart = v.Character.PrimaryPart, Humanoid = v.Character.Humanoid, Player = v, JumpTick = tick()})
+			end
+		end
+	end
+	if mobs then 
+		for i, entdata in next, entities do 
+			for i2, v in next, entdata do 
+				if isAlive(lplr, true) then 
+					if type(v) == 'userdata' and v:IsA('Model') and v.PrimaryPart then 
+						local entdistance = (lplr.Character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude
+						if entdistance <= (distance or math.huge) then 
+							table.insert(targets, {Human = false, RootPart = v.PrimaryPart, Humanoid = v:FindFirstChildWhichIsA('Humanoid'), Player = {Character = v, Name = i, DisplayName = i, UserId = 1, JumpTick = tick()}})
+						end
+					end
+				end
+			end
+		end
+	end
+	if sort then 
+		table.sort(targets, sort)
+	end
+	return targets
+end
+
+runFunction(function()
+	local BowExploit = {}
+	local BowExploitMobs = {}
+	local BowExploitTarget = {Value = 'Mouse'}
+	local BowExploitAutoShootFOV = {Value = 1000}
+	local oldrealremote
+	local noveloproj = {
+		'fireball',
+		'telepearl'
+	}
+
+	BowExploit = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'ProjectileExploit',
+		Function = function(calling)
+			if calling then 
+				oldrealremote = bedwars.ClientConstructor.Function.new
+				bedwars.ClientConstructor.Function.new = function(self, ind, ...)
+					local res = oldrealremote(self, ind, ...)
+					local oldRemote = res.instance
+					if oldRemote and oldRemote.Name == bedwars.ProjectileRemote then 
+						res.instance = {InvokeServer = function(self, shooting, proj, proj2, launchpos1, launchpos2, launchvelo, tag, tab1, ...) 
+							local extra = ({...})
+							local plr
+							if BowExploitTarget.Value == 'Mouse' then 
+								plr = GetTarget(nil, nil, nil, BowExploitMobs.Enabled, true)
+							else
+								plr = GetTarget(nil, nil, nil, BowExploitMobs.Enabled)
+							end
+							if extra[2] == 'fireball' then 
+								plr = {}
+							end
+							if type(extra[2]) == 'table' then 
+								plr = extra[2] 
+							end
+							if plr.RootPart then
+								bedwarsStore.switchdelay = tick() + 1.2
+								task.wait()
+								for i = 1, 5 do 
+									switchItem(shooting) 
+								end
+								tab1.drawDurationSeconds = 1
+								repeat
+									task.wait(0.03)
+									local offsetStartPos = plr.RootPart.CFrame.p - plr.RootPart.CFrame.lookVector
+									local pos = plr.RootPart.Position
+									local playergrav = workspace.Gravity
+									local balloons = (plr.Human and plr.Player.Character:GetAttribute('InflatedBalloons'))
+									if plr.Human and balloons and balloons > 0 then 
+										playergrav = (workspace.Gravity * (1 - ((balloons >= 4 and 1.2 or balloons >= 3 and 1 or 0.975))))
+									end
+									if plr.Human and plr.Player.Character.PrimaryPart:FindFirstChild('rbxassetid://8200754399') then 
+										playergrav = (workspace.Gravity * 0.3)
+									end
+									plr.JumpTick = tick()
+									local newLaunchVelo = bedwars.ProjectileMeta[proj2].launchVelocity
+									local shootpos, shootvelo = predictGravity(pos, plr.RootPart.Velocity, (pos - offsetStartPos).Magnitude / newLaunchVelo, plr, playergrav)
+									if proj2 == 'telepearl' then
+										shootpos = pos
+										shootvelo = Vector3.zero
+									end
+									local newlook = CFrame.new(offsetStartPos, shootpos) * CFrame.new(Vector3.new(-bedwars.BowConstantsTable.RelX, -bedwars.BowConstantsTable.RelY, -bedwars.BowConstantsTable.RelZ))
+									shootpos = newlook.p + (newlook.lookVector * (offsetStartPos - shootpos).magnitude)
+									local calculated = LaunchDirection(offsetStartPos, shootpos, newLaunchVelo, workspace.Gravity, false)
+									if calculated then 
+										launchvelo = calculated
+										launchpos1 = offsetStartPos
+										launchpos2 = offsetStartPos
+										tab1.drawDurationSeconds = 1
+									else
+										break
+									end
+									if oldRemote:InvokeServer(shooting, proj, proj2, launchpos1, launchpos2, launchvelo, tag, tab1, workspace:GetServerTimeNow() - 0.045) then break end
+								until false
+							else
+								return oldRemote:InvokeServer(shooting, proj, proj2, launchpos1, launchpos2, launchvelo, tag, tab1, ...)
+							end
+						end}
+					end
+					return res
+				end
+			else
+				bedwars.ClientConstructor.Function.new = oldrealremote
+				oldrealremote = nil
+			end
+		end
+	})
+	BowExploitTarget = BowExploit.CreateDropdown({
+		Name = 'Mode',
+		List = {'Mouse', 'Range'},
+		Function = function() end
+	})
+	BowExploitAutoShootFOV = BowExploit.CreateSlider({
+		Name = 'FOV',
+		Function = function() end,
+		Min = 1,
+		Max = 1000,
+		Default = 1000
+	})
+	BowExploitMobs = BowExploit.CreateToggle({
+		Name = 'NPC',
+		HoverText = 'Targets NPCs too.',
+		Function = function() end
+	})
+end)
+
+local httpService = game:GetService("HttpService")
+
+runFunction(function()
+	local ProjectileAura = {}
+	local ProjectileAuraSort = {Value = 'Distance'}
+	local ProjectileAuraMobs = {}
+	local ProjectileAuraRangeSlider = {Value = 50}
+	local ProjectileAuraRange = {}
+	local ProjectileAuraBlacklist = {ObjectList = {}}
+	local ProjectileMobIgnore = {'spear'}
+	local ProjectileAuraDelay = {Value = 0}
+	local ProjectileAuraSwitchDelay = {Value = 0}
+	local crackerdelay = tick()
+	local specialprojectiles = {
+		rainbow_bow = 'rainbow_arrow',
+		orions_belt_bow = 'star',
+		fireball = 'fireball',
+		frosted_snowball = 'frosted_snowball',
+		snowball = 'snowball',
+		spear = 'spear',
+		carrot_cannon = 'carrot_rocket',
+		light_sword = 'sword_wave1',
+		firecrackers = 'firecrackers'
+	}
+	local biggestTargets = {
+		spirit_assassin = 1,
+		hannah = 2,
+		melody = 3,
+		kaliyah = 4
+	}
+	local sortfunctions = {
+		Distance = function()
+			return GetTarget(ProjectileAuraRange.Enabled and ProjectileAuraRangeSlider.Value, nil, true, ProjectileAuraMobs.Enabled)
+		end,
+		Health = function()
+			return GetTarget(nil, true, true, ProjectileAuraMobs.Enabled)
+		end,
+		Mouse = function()
+			return GetTarget(nil, nil, true, ProjectileAuraMobs.Enabled, true, true)
+		end, 
+		Kit = function() 
+			local target, prio = {}, -1
+			for i,v in next, GetAllTargets() do
+				local kit = (v.Player:GetAttribute('PlayingAsKit') or 'none')
+				local kitprio = (biggestTargets[kit] or 0)
+				if kitprio > prio then 
+					target = v
+				end
+			end
+			if prio < 1 then 
+				return GetTarget(nil, nil, true)
+			end
+			return target
+		end
+	}
+	local function betterswitch(item)
+		if tostring(item) == 'firecrackers' then 
+			if crackerdelay > tick() then 
+				return 
+			else 
+				crackerdelay = tick() + 3.5 
+			end 
+		end
+		if tick() > bedwarsStore.switchdelay then 
+			switchItem(item) 
+		end
+		local oldval = ProjectileAuraSwitchDelay.Value
+		local valdelay = (tick() + ProjectileAuraSwitchDelay.Value)
+		repeat task.wait() until (tick() > valdelay or ProjectileAuraSwitchDelay.Value ~= oldval)
+	end
+	local function getarrow()
+		for i,v in next, bedwarsStore.localInventory.inventory.items do  
+			if v.itemType:find('arrow') then 
+				return v 
+			end
+		end
+	end
+	local function getammo(item)
+		if (item.itemType:find('bow') or item.itemType:find('headhunter')) and specialprojectiles[item.itemType] == nil then 
+			return getarrow() or {} 
+		end
+		if item.itemType:find('ninja_chakram') then 
+			return getItem(item.itemType) 
+		end
+		if item.itemType == 'light_sword' then 
+			return {tool = 'sword_wave1'} 
+		end
+		local special = specialprojectiles[item.itemType]
+		for i,v in next, ProjectileAuraBlacklist.ObjectList do 
+			if item.itemType:find(v:lower()) then 
+				return {} 
+			end 
+		end 
+		if special then 
+			return getItem(special) or {} 
+		end
+		return {}
+	end
+	ProjectileAura = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = 'ProjectileAura',
+		HoverText = 'Automatically shoots hostile projectiles\nwithout aiming.',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+				repeat 
+					local range = (ProjectileAuraRange.Enabled and ProjectileAuraRangeSlider.Value or 9e9)
+					local target = sortfunctions[ProjectileAuraSort.Value]()
+					if target.RootPart and target.RootPart.Parent:FindFirstChildWhichIsA('ForceField') == nil then 
+						for i,v in next, bedwarsStore.localInventory.inventory.items do 
+							local ammo = getammo(v)
+							if target.Human == nil and table.find(ProjectileMobIgnore, v.itemType) or tweenInProgress() then 
+								continue 
+							end 
+							if bedwarsStore.matchState ~= 0 and bedwarsStore.equippedKit == 'dragon_sword' then 
+								bedwars.ClientHandler:Get('DragonSwordFire'):SendToServer({target = target.RootPart.Parent}) 
+							end
+							if ammo.tool then 
+								betterswitch(v.tool)
+								bedwars.ClientHandler:Get(bedwars.ProjectileRemote):CallServerAsync(v.tool, tostring(ammo.tool), tostring(ammo.tool) == 'star' and 'star_projectile' or tostring(ammo.tool) == 'mage_spell_base' and target.RootPart.Position + Vector3.new(0, 3, 0) or tostring(ammo.tool), target.RootPart.Position + Vector3.new(0, 3, 0), target.RootPart.Position + Vector3.new(0, 3, 0), Vector3.new(0, -1, 0), httpService:GenerateGUID(), {drawDurationSeconds = 1}, workspace:GetServerTimeNow(), target)
+							end
+						end
+					end
+					bedwarsStore.switchdelay += (ProjectileAuraDelay.Value * 0.2)
+					if RenderStore.ping > 1000 then 
+						bedwarsStore.switchdelay += (bedwarsStore.switchdelay + 8)
+					end
+					task.wait(getItem('star') and 0 or killauraNearPlayer and 0.25 or ProjectileAuraDelay.Value + 0.15)
+				until not ProjectileAura.Enabled
+				end)
+			end
+		end
+	})
+	ProjectileAuraBlacklist = ProjectileAura.CreateTextList({
+		Name = 'Blacklisted Projectiles',
+		TempText = 'blacklisted items',
+		AddFunction = function() end
+	})
+	ProjectileAuraSort = ProjectileAura.CreateDropdown({
+		Name = 'Sort',
+		List = dumptable(sortfunctions, 1),
+		Function = function(method)
+			pcall(function() ProjectileAuraRange.Object.Visible = (method == 'Distance') end) 
+			pcall(function() ProjectileAuraRangeSlider.Object.Visible = (method == 'Distance' and ProjectileAuraRange.Enabled) end) 
+			pcall(function() ProjectileAuraMobs.Object.Visible = (method ~= 'Kit') end)
+		end
+	})
+	ProjectileAuraDelay = ProjectileAura.CreateSlider({
+		Name = 'Target Delay',
+		Min = 0,
+		Max = 60,
+		Function = function() 
+			bedwarsStore.switchdelay = tick() 
+		end
+	})
+	ProjectileAuraSwitchDelay = ProjectileAura.CreateSlider({
+		Name = 'Switch Delay',
+		Min = 0,
+		Max = 60,
+		Function = function() 
+			bedwarsStore.switchdelay = tick() 
+		end
+	})
+	ProjectileAuraRange = ProjectileAura.CreateToggle({
+		Name = 'Range Check',
+		Function = function(calling) 
+			pcall(function() ProjectileAuraRangeSlider.Object.Visible = calling end)
+		end 
+	}) 
+	ProjectileAuraRangeSlider = ProjectileAura.CreateSlider({
+		Name = 'Range',
+		Min = 5,
+		Max = 80,
+		Default = 75,
+		Function = function() end
+	})
+	ProjectileAuraMobs = ProjectileAura.CreateToggle({
+		Name = 'NPC',
+		HoverText = 'Targets NPCs too.',
+		Function = function() end 
+	})
+	ProjectileAuraRange.Object.Visible = false
+	ProjectileAuraRangeSlider.Object.Visible = false
+	ProjectileAuraMobs.Object.Visible = false
 end)
 
 print("[INFO] Script initialized.")
