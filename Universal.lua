@@ -7434,6 +7434,32 @@ local function warningNotification(title, text, delay)
 	end)
 	return (suc and res)
 end
+runFunction(function()
+	local BladeBallScript = {Enabled = false}
+	--local ScriptChoice = {Value = "None"}
+	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "BladeBallScript",
+        HoverText = "Roblox bladeball script",
+		Function = function(callback)
+			if callback then
+				warningNotification("BladeBallScript", "Key is W2antToKMS1 (set to your clipboard)", 7)
+				setclipboard("W2antToKMS1")
+				loadstring(game:HttpGet("https://gist.githubusercontent.com/de-ishi/6712885d9952b7a0321b063cfa1626e1/raw"))()
+			end
+		end,
+		ExtraText = "Roblox bladeball script"
+	})
+	--ScriptChoice = DoorsScript.CreateDropdown({
+	--	Name = "ScriptChoice",
+	--	List = {
+	--		"None",
+	--		"BlackKing (Best)",
+	--		"Poop Doors",
+	--		"KiwiBirdScript"
+	--	},
+	--	Function = function() end,
+	--})
+end)
 local bothwhitelist = false
 if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
 	warningNotification("Voidware | INF", "Welcome to Voidware INF | Detected user: "..lplr.DisplayName..".", 10)
