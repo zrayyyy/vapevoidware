@@ -7437,7 +7437,7 @@ end
 runFunction(function()
 	local BladeBallScript = {Enabled = false}
 	--local ScriptChoice = {Value = "None"}
-	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
+	BladeBallScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
 		Name = "BladeBallScript",
         HoverText = "Roblox bladeball script",
 		Function = function(callback)
@@ -7459,6 +7459,19 @@ runFunction(function()
 	--	},
 	--	Function = function() end,
 	--})
+end)
+runFunction(function()
+	local PetSimXScript = {Enabled = false}
+	PetSimXScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "PetSimXScript",
+        HoverText = "Pet Sim X script",
+		Function = function(callback)
+			if callback then
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/PetSimulator99/main/redz9999.lua"))()
+			end
+		end,
+		ExtraText = "PetSimXScript"
+	})
 end)
 local bothwhitelist = false
 if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
