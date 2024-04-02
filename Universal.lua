@@ -7473,7 +7473,8 @@ runFunction(function()
 		ExtraText = "PetSimXScript"
 	})
 end)
-local bothwhitelist = false
+
+--[[local bothwhitelist = false
 if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
 	warningNotification("Voidware | INF", "Welcome to Voidware INF | Detected user: "..lplr.DisplayName..".", 10)
 	bothwhitelist = true
@@ -7482,4 +7483,4 @@ if bothwhitelist == false then
 	if RenderFunctions:GetPlayerType(2) then
 		warningNotification("Voidware | Booster", "Welcome to Voidware Booster | Detected user: "..lplr.DisplayName..".", 10)
 	end
-end
+end--]]
