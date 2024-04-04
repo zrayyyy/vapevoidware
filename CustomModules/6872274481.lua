@@ -11188,7 +11188,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+--[[runFunction(function()
 	local ScytheDisabler = {}
 	ScytheDisabler = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = 'ScytheDisabler',
@@ -11217,7 +11217,7 @@ runFunction(function()
 			end
 		end
 	})
-end)
+end)--]]
 local Allowed = false
 if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
 	Allowed = true
