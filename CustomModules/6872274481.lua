@@ -12966,7 +12966,7 @@ runFunction(function()
 		end, 
 		Cache = function(plr)
 			local success, response = pcall(function()
-				return httpService:JSONDecode(readfile('vape/Render/exploiters.json')) 
+				return httpService:JSONDecode(readfile('vape/Libraries/exploiters.json')) 
 			end) 
 			if type(response) == 'table' and response[plr.Name] then 
 				InfoNotification('HackerDetector', plr.DisplayName..' is cached on the exploiter database!', 30)
@@ -13032,7 +13032,7 @@ runFunction(function()
 	})
 	HackerDetectorFileCache = HackerDetector.CreateToggle({
 		Name = 'Cached detections',
-		HoverText = 'Writes (vape/Render/exploiters.json)\neverytime someone is detected.',
+		HoverText = 'Writes (vape/Libraries/exploiters.json)\neverytime someone is detected.',
 		Default = true,
 		Function = function() end
 	})
