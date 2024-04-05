@@ -13042,7 +13042,7 @@ end)
     local highlight = Instance.new("Highlight", bedwarsStore.blocks[i])
 end--]]
 
-runFunction(function()
+--[[runFunction(function()
 	local LuckyBlocksESP = {Enabled = false}
 	local EspTransparency = {Value = 0.5}
 	local espParts = {}
@@ -13065,7 +13065,7 @@ runFunction(function()
 			end
 		end
 	})
-end)
+end)--]]
 
 local teleportService = game:GetService("TeleportService")
 --[[runFunction(function()
