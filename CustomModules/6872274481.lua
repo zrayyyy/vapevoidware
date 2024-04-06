@@ -13748,7 +13748,7 @@ runFunction(function()
 	SetMechanic = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'SetMechanic',
 		Function = function(callback)
-			if callback and store.matchState == 0 then
+			if callback and bedwarsStore.matchState == 0 then
 				bedwars.ClientHandler:GetNamespace('CustomMatches'):Get('SetMatchMechanic'):CallServerAsync(SetMechanicList.Value)
 			end
 		end,
