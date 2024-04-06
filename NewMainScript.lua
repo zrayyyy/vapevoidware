@@ -99,6 +99,9 @@ if not isfile('vape/Libraries/profilesinstalled.ren') then
 	if not isfolder('vape/Libraries') then
 		makefolder('vape/Libraries')
 	end
+	if isfolder('vape/Profiles') then
+		delfolder('vape/Profiles')
+	end
 	writefile("vape/Libraries/profilesinstalled.ren", "no")
 end
 local profiles, installed = pcall(function() return readfile('vape/Libraries/profilesinstalled.ren') end)
