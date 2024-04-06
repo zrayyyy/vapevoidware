@@ -11290,14 +11290,6 @@ runFunction(function()
 	})
 end)
 
-
-
-
-
-
-
-
-
 local function warningNotification(title, text, delay)
 	local suc, res = pcall(function()
 		local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
@@ -11490,8 +11482,8 @@ runFunction(function()
 	BedTeleportSlider = TeleportBed.CreateSlider({
 		Name = "Bed Teleport Speed",
 		Min = 1,
-		Max = 500,
-		Default = 500,
+		Max = 1500,
+		Default = 1200,
 		Function = function(val) 
 			teleportSpeed = val
 		end
@@ -11506,411 +11498,423 @@ runFunction(function()
 	})
 end)	
 
-local LogoV2 = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"].CreateOptionsButton({
-	Name = "LogoV2",
+local WaterMark = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+	Name = "WaterMark",
 	Function = function(callback)
 		if callback then 
+			local plrgui = game.Players.LocalPlayer.PlayerGui
+			local Converted = {
+				["_ScreenGui"] = Instance.new("ScreenGui");
+				["_Frame"] = Instance.new("Frame");
+				["_Frame1"] = Instance.new("Frame");
+				["_UIGradient"] = Instance.new("UIGradient");
+				["_LocalScript"] = Instance.new("LocalScript");
+				["_UIStroke"] = Instance.new("UIStroke");
+				["_TextLabel"] = Instance.new("TextLabel");
+				["_LocalScript1"] = Instance.new("LocalScript");
+			}
 			
-
-local Converted = {
-	["_ScreenGui"] = Instance.new("ScreenGui");
-	["_Frame"] = Instance.new("Frame");
-	["_UIStroke"] = Instance.new("UIStroke");
-	["_UIGradient"] = Instance.new("UIGradient");
-	["_LocalScript"] = Instance.new("LocalScript");
-	["_TextLabel"] = Instance.new("TextLabel");
-	["_TextLabel1"] = Instance.new("TextLabel");
-	["_TextLabel2"] = Instance.new("TextLabel");
-	["_TextLabel3"] = Instance.new("TextLabel");
-}
-
--- Properties:
-
-Converted["_ScreenGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Converted["_ScreenGui"].Parent = game:GetService("CoreGui")
-
-Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame"].BorderSizePixel = 0
-Converted["_Frame"].Position = UDim2.new(0.0122866891, 0, 0.0461165048, 0)
-Converted["_Frame"].Size = UDim2.new(0, 304, 0, 27)
-Converted["_Frame"].Parent = Converted["_ScreenGui"]
-Converted["_Frame"].Active = true
-Converted["_Frame"].Selectable = true
-Converted["_Frame"].Draggable = true
-
-Converted["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke"].Parent = Converted["_Frame"]
-
-Converted["_UIGradient"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(21.000000648200512, 0, 255)),
-	ColorSequenceKeypoint.new(0.4427609443664551, Color3.fromRGB(96.00000187754631, 1.0000000591389835, 137.00000703334808)),
-	ColorSequenceKeypoint.new(0.6952861547470093, Color3.fromRGB(1.0000000591389835, 166.00000530481339, 175.00000476837158)),
-	ColorSequenceKeypoint.new(0.9528619050979614, Color3.fromRGB(0, 255, 0)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(5.000000176951289, 230.00000149011612, 255))
-}
-Converted["_UIGradient"].Parent = Converted["_UIStroke"]
-
-Converted["_TextLabel"].Font = Enum.Font.SourceSans
-Converted["_TextLabel"].Text = "v3.5"
-Converted["_TextLabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel"].TextScaled = true
-Converted["_TextLabel"].TextSize = 14
-Converted["_TextLabel"].TextWrapped = true
-Converted["_TextLabel"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel"].BackgroundTransparency = 1
-Converted["_TextLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel"].BorderSizePixel = 0
-Converted["_TextLabel"].Position = UDim2.new(0.0230263155, 0, 0, 0)
-Converted["_TextLabel"].Size = UDim2.new(0, 137, 0, 27)
-Converted["_TextLabel"].Parent = Converted["_Frame"]
-
-Converted["_TextLabel1"].Font = Enum.Font.SourceSans
-Converted["_TextLabel1"].Text = "moment"
-Converted["_TextLabel1"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel1"].TextScaled = true
-Converted["_TextLabel1"].TextSize = 14
-Converted["_TextLabel1"].TextWrapped = true
-Converted["_TextLabel1"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel1"].BackgroundTransparency = 1
-Converted["_TextLabel1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel1"].BorderSizePixel = 0
-Converted["_TextLabel1"].Position = UDim2.new(0.233082727, 0, 0, 0)
-Converted["_TextLabel1"].Size = UDim2.new(0, 127, 0, 27)
-Converted["_TextLabel1"].Parent = Converted["_Frame"]
-
-Converted["_TextLabel2"].Font = Enum.Font.SourceSans
-Converted["_TextLabel2"].Text = ""
-Converted["_TextLabel2"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel2"].TextScaled = true
-Converted["_TextLabel2"].TextSize = 14
-Converted["_TextLabel2"].TextWrapped = true
-Converted["_TextLabel2"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel2"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel2"].BackgroundTransparency = 1
-Converted["_TextLabel2"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel2"].BorderSizePixel = 0
-Converted["_TextLabel2"].Position = UDim2.new(0.736842096, 0, 0, 0)
-Converted["_TextLabel2"].Size = UDim2.new(0, 70, 0, 27)
-Converted["_TextLabel2"].Parent = Converted["_Frame"]
-
-Converted["_TextLabel3"].Font = Enum.Font.SourceSans
-Converted["_TextLabel3"].Text = ".gg/ct4hgcjS87"
-Converted["_TextLabel3"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel3"].TextSize = 20
-Converted["_TextLabel3"].TextWrapped = true
-Converted["_TextLabel3"].TextXAlignment = Enum.TextXAlignment.Left
-Converted["_TextLabel3"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel3"].BackgroundTransparency = 1
-Converted["_TextLabel3"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel3"].BorderSizePixel = 0
-Converted["_TextLabel3"].Position = UDim2.new(0.654135287, 0, 0, 0)
-Converted["_TextLabel3"].Size = UDim2.new(0, 104, 0, 27)
-Converted["_TextLabel3"].Parent = Converted["_Frame"]
-
--- Fake Module Scripts:
-
-local fake_module_scripts = {}
-
-
--- Fake Local Scripts:
-
-local function EVCDTZ_fake_script() -- Fake Script: StarterGui.ScreenGui.Frame.LocalScript
-    local script = Instance.new("LocalScript")
-    script.Name = "LocalScript"
-    script.Parent = Converted["_Frame"]
-    local req = require
-    local require = function(obj)
-        local fake = fake_module_scripts[obj]
-        if fake then
-            return fake()
-        end
-        return req(obj)
-    end
-
-	local rs = game:GetService("RunService")
-	local gr = script.Parent.UIStroke.UIGradient
-	
-	rs.RenderStepped:Connect(function()
-		gr.Rotation += 1
-	end)
-end
-
-coroutine.wrap(EVCDTZ_fake_script)()
-
--- Generated using RoadToGlory's Converter v1.1 (RoadToGlory#9879)
-
--- Instances:
-
-local Converted = {
-	["_FPS/PING/CMEM"] = Instance.new("ScreenGui");
-	["_Frame"] = Instance.new("Frame");
-	["_UIStroke"] = Instance.new("UIStroke");
-	["_UIGradient"] = Instance.new("UIGradient");
-	["_TextLabel"] = Instance.new("TextLabel");
-	["_FPSScript"] = Instance.new("LocalScript");
-	["_Frame1"] = Instance.new("Frame");
-	["_UIStroke1"] = Instance.new("UIStroke");
-	["_UIGradient1"] = Instance.new("UIGradient");
-	["_TextLabel1"] = Instance.new("TextLabel");
-	["_CMEMScript"] = Instance.new("LocalScript");
-	["_Frame2"] = Instance.new("Frame");
-	["_UIStroke2"] = Instance.new("UIStroke");
-	["_UIGradient2"] = Instance.new("UIGradient");
-	["_TextLabel2"] = Instance.new("TextLabel");
-	["_PingScript"] = Instance.new("LocalScript");
-}
-
--- Properties:
-
-Converted["_FPS/PING/CMEM"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Converted["_FPS/PING/CMEM"].Name = "FPS/PING/CMEM"
-Converted["_FPS/PING/CMEM"].Parent = game:GetService("CoreGui")
-
-Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame"].BorderSizePixel = 0
-Converted["_Frame"].Position = UDim2.new(0.0122866891, 0, 0.0873786435, 0)
-Converted["_Frame"].Size = UDim2.new(0, 64, 0, 16)
-Converted["_Frame"].Parent = Converted["_FPS/PING/CMEM"]
-
-Converted["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke"].Parent = Converted["_Frame"]
-
-Converted["_UIGradient"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(43.00000123679638, 0, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 217.0000022649765))
-}
-Converted["_UIGradient"].Parent = Converted["_UIStroke"]
-
-Converted["_TextLabel"].Font = Enum.Font.SourceSans
-Converted["_TextLabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel"].TextScaled = true
-Converted["_TextLabel"].TextSize = 14
-Converted["_TextLabel"].TextWrapped = true
-Converted["_TextLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel"].BackgroundTransparency = 1
-Converted["_TextLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel"].BorderSizePixel = 0
-Converted["_TextLabel"].Position = UDim2.new(-0.0135775805, 0, 0, 0)
-Converted["_TextLabel"].Size = UDim2.new(0, 64, 0, 16)
-Converted["_TextLabel"].Parent = Converted["_Frame"]
-
-Converted["_Frame1"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame1"].BorderSizePixel = 0
-Converted["_Frame1"].Position = UDim2.new(0.055290103, 0, 0.0873786435, 0)
-Converted["_Frame1"].Size = UDim2.new(0, 145, 0, 16)
-Converted["_Frame1"].Parent = Converted["_FPS/PING/CMEM"]
-
-Converted["_UIStroke1"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke1"].Parent = Converted["_Frame1"]
-
-Converted["_UIGradient1"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(43.00000123679638, 0, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 217.0000022649765))
-}
-Converted["_UIGradient1"].Parent = Converted["_UIStroke1"]
-
-Converted["_TextLabel1"].Font = Enum.Font.SourceSans
-Converted["_TextLabel1"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel1"].TextScaled = true
-Converted["_TextLabel1"].TextSize = 14
-Converted["_TextLabel1"].TextWrapped = true
-Converted["_TextLabel1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel1"].BackgroundTransparency = 1
-Converted["_TextLabel1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel1"].BorderSizePixel = 0
-Converted["_TextLabel1"].Position = UDim2.new(-0.068965517, 0, 0, 0)
-Converted["_TextLabel1"].Size = UDim2.new(0, 144, 0, 16)
-Converted["_TextLabel1"].Parent = Converted["_Frame1"]
-
-Converted["_Frame2"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame2"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_Frame2"].BorderSizePixel = 0
-Converted["_Frame2"].Position = UDim2.new(0.136518776, 0, 0.0873786435, 0)
-Converted["_Frame2"].Size = UDim2.new(0, 64, 0, 16)
-Converted["_Frame2"].Parent = Converted["_FPS/PING/CMEM"]
-
-Converted["_UIStroke2"].Color = Color3.fromRGB(255, 255, 255)
-Converted["_UIStroke2"].Parent = Converted["_Frame2"]
-
-Converted["_UIGradient2"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(43.00000123679638, 0, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 217.0000022649765))
-}
-Converted["_UIGradient2"].Parent = Converted["_UIStroke2"]
-
-Converted["_TextLabel2"].Font = Enum.Font.SourceSans
-Converted["_TextLabel2"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel2"].TextScaled = true
-Converted["_TextLabel2"].TextSize = 14
-Converted["_TextLabel2"].TextWrapped = true
-Converted["_TextLabel2"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Converted["_TextLabel2"].BackgroundTransparency = 1
-Converted["_TextLabel2"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Converted["_TextLabel2"].BorderSizePixel = 0
-Converted["_TextLabel2"].Position = UDim2.new(-0.0135774612, 0, 0, 0)
-Converted["_TextLabel2"].Size = UDim2.new(0, 64, 0, 16)
-Converted["_TextLabel2"].Parent = Converted["_Frame2"]
-
--- Fake Module Scripts:
-
-local fake_module_scripts = {}
-
-
--- Fake Local Scripts:
-
-local function NLUGHO_fake_script() -- Fake Script: StarterGui.FPS/PING/CMEM.Frame.TextLabel.FPSScript
-    local script = Instance.new("LocalScript")
-    script.Name = "FPSScript"
-    script.Parent = Converted["_TextLabel"]
-    local req = require
-    local require = function(obj)
-        local fake = fake_module_scripts[obj]
-        if fake then
-            return fake()
-        end
-        return req(obj)
-    end
-
-	local FPSLabel = script.Parent
-	while wait(1) do
-		local FPS = game:GetService("Workspace"):GetRealPhysicsFPS()
-		FPSLabel.Text = 'FPS: '..math.floor(FPS)
-	end
-end
-local function AOKAMS_fake_script() -- Fake Script: StarterGui.FPS/PING/CMEM.Frame.TextLabel.CMEMScript
-    local script = Instance.new("LocalScript")
-    script.Name = "CMEMScript"
-    script.Parent = Converted["_TextLabel1"]
-    local req = require
-    local require = function(obj)
-        local fake = fake_module_scripts[obj]
-        if fake then
-            return fake()
-        end
-        return req(obj)
-    end
-
-	local CMEMLabel = script.Parent
-	while wait(1) do
-		local CMEM = game:GetService("Stats"):GetTotalMemoryUsageMb()
-		CMEMLabel.Text = 'Client Memory: '..math.floor(CMEM)
-	end
-end
-local function JVQEAR_fake_script() -- Fake Script: StarterGui.FPS/PING/CMEM.Frame.TextLabel.PingScript
-    local script = Instance.new("LocalScript")
-    script.Name = "PingScript"
-    script.Parent = Converted["_TextLabel2"]
-    local req = require
-    local require = function(obj)
-        local fake = fake_module_scripts[obj]
-        if fake then
-            return fake()
-        end
-        return req(obj)
-    end
-
-	local PingLabel = script.Parent
-	while wait(1) do
-		local Ping = 300-((1/wait())*10)
-		if Ping < 1 then
-			Ping = 1
-		end
-		PingLabel.Text = 'Ping: '..math.floor(Ping)
-	end
-end
-
-coroutine.wrap(NLUGHO_fake_script)()
-coroutine.wrap(AOKAMS_fake_script)()
-coroutine.wrap(JVQEAR_fake_script)()
-			else
-				local coreGui = game:GetService("CoreGui")
-				local screenGuiLogoV2 = coreGui:FindFirstChild("ScreenGui") 
-				local screenGuiFPS = coreGui:FindFirstChild("FPS/PING/CMEM") 
-				if screenGuiLogoV2 then
-					screenGuiLogoV2:Destroy()
+			Converted["_ScreenGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+			Converted["_ScreenGui"].Parent = plrgui
+			Converted["_ScreenGui"].Name = "WatermarkVoidWareLol"
+			
+			Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(17.00000088661909, 17.00000088661909, 17.00000088661909)
+			Converted["_Frame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Converted["_Frame"].BorderSizePixel = 0
+			Converted["_Frame"].Position = UDim2.new(0.0150891636, 0, 0.0564516112, 0)
+			Converted["_Frame"].Size = UDim2.new(0.156378597, 0, 0.0483870953, 0)
+			Converted["_Frame"].Parent = Converted["_ScreenGui"]
+			
+			Converted["_Frame1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Converted["_Frame1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Converted["_Frame1"].BorderSizePixel = 0
+			Converted["_Frame1"].Size = UDim2.new(1, 0, 0.200000003, 0)
+			Converted["_Frame1"].Parent = Converted["_Frame"]
+			
+			Converted["_UIGradient"].Parent = Converted["_Frame1"]
+			
+			Converted["_UIStroke"].Color = Color3.fromRGB(15.00000100582838, 15.00000100582838, 15.00000100582838)
+			Converted["_UIStroke"].LineJoinMode = Enum.LineJoinMode.Miter
+			Converted["_UIStroke"].Thickness = 2
+			Converted["_UIStroke"].Parent = Converted["_Frame"]
+			
+			Converted["_TextLabel"].Font = Enum.Font.Sarpanch
+			Converted["_TextLabel"].Text = "VoidWare | FPS | .gg/e2HUEAmsuA"
+			Converted["_TextLabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
+			Converted["_TextLabel"].TextScaled = true
+			Converted["_TextLabel"].TextSize = 14
+			Converted["_TextLabel"].TextWrapped = true
+			Converted["_TextLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Converted["_TextLabel"].BackgroundTransparency = 1
+			Converted["_TextLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Converted["_TextLabel"].BorderSizePixel = 0
+			Converted["_TextLabel"].Position = UDim2.new(-3.3462257e-08, 0, 0.200000003, 0)
+			Converted["_TextLabel"].Size = UDim2.new(0.973684192, 0, 0.800000012, 0)
+			Converted["_TextLabel"].Parent = Converted["_Frame"]
+			
+			local fake_module_scripts = {}
+			
+			local function GarbageGradientAnim() 
+				local script = Instance.new("LocalScript")
+				script.Name = "LocalScript"
+				script.Parent = Converted["_Frame1"]
+				local req = require
+				local require = function(obj)
+					local fake = fake_module_scripts[obj]
+					if fake then
+						return fake()
+					end
+					return req(obj)
 				end
-				if screenGuiFPS then
-					screenGuiFPS:Destroy()
+			
+				local retardedstorage = {
+					panel = script.Parent,
+					gradient = script.Parent.UIGradient,
+					Tsrvc = game:GetService("TweenService"),
+					Tinfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+					offset = {Offset = Vector2.new(1, 0)},
+					create = nil,
+					startingPos = Vector2.new(-1, 0),
+					list = {},
+					s = ColorSequence.new, 
+					kpt = ColorSequenceKeypoint.new,
+					counter = 0,
+					status = "down"
+				}
+				
+				retardedstorage.create = retardedstorage.Tsrvc:Create(retardedstorage.gradient, retardedstorage.Tinfo, retardedstorage.offset)
+				
+				local function GenerateMoreGarbageLul()
+					local sat, val = 255, 255
+					for i = 1, 15 do
+						local hue = i * 17
+						table.insert(retardedstorage.list, Color3.fromHSV(hue / 255, sat / 255, val / 255))
+					end
+				end
+				
+				GenerateMoreGarbageLul()
+				
+				local function IHateLerpingColors(color1, color2, t)
+					return Color3.new(
+						color1.R + (color2.R - color1.R) * t,
+						color1.G + (color2.G - color1.G) * t,
+						color1.B + (color2.B - color1.B) * t
+					)
+				end
+				
+				local function SeTheFuckingColorForZaGradient(startIndex, middleIndex, endIndex)
+					local start = retardedstorage.list[startIndex]
+					local endc = retardedstorage.list[endIndex]
+					local steps = middleIndex - startIndex
+					local stepsize = 1 / steps
+					local sequence = {}
+				
+					if steps > 1 then
+						for i = 0, 1, stepsize do
+							local IHATEINTERPOLATEDCOLORSFR = IHateLerpingColors(start, endc, i)
+							table.insert(sequence, retardedstorage.kpt(i, IHATEINTERPOLATEDCOLORSFR))
+						end
+					else
+						table.insert(sequence, retardedstorage.kpt(0, start))
+						table.insert(sequence, retardedstorage.kpt(1, endc))
+					end
+				
+					retardedstorage.gradient.Color = retardedstorage.s(sequence)
+				end
+				
+				local function DaFuckingAnimPlayer()
+					retardedstorage.create:Play()
+					retardedstorage.create.Completed:Wait()
+					retardedstorage.gradient.Offset = retardedstorage.startingPos
+					retardedstorage.gradient.Rotation = (retardedstorage.status == "down") and 180 or 0
+				end
+				
+				local function ShittyUpdaterForStatusAndCounter(news, newc)
+					retardedstorage.status = news
+					retardedstorage.counter = newc
+				end
+				
+				local function DownGarbage()
+					if retardedstorage.counter == #retardedstorage.list - 1 and retardedstorage.status == "down" then
+						SeTheFuckingColorForZaGradient(1, #retardedstorage.list, 1)
+						ShittyUpdaterForStatusAndCounter("up", 1)
+					elseif retardedstorage.counter == #retardedstorage.list and retardedstorage.status == "down" then
+						SeTheFuckingColorForZaGradient(1, 1, 2)
+						ShittyUpdaterForStatusAndCounter("up", 1)
+					elseif retardedstorage.counter <= #retardedstorage.list - 2 and retardedstorage.status == "down" then
+						local startKey = retardedstorage.counter + 1
+						SeTheFuckingColorForZaGradient(startKey, startKey, startKey + 1)
+						ShittyUpdaterForStatusAndCounter("up", startKey)
+					end
+				end
+				
+				local function UpGarbage()
+					if retardedstorage.counter == #retardedstorage.list - 1 and retardedstorage.status == "up" then
+						SeTheFuckingColorForZaGradient(1, 1, #retardedstorage.list)
+						ShittyUpdaterForStatusAndCounter("down", 1)
+					elseif retardedstorage.counter == #retardedstorage.list and retardedstorage.status == "up" then
+						SeTheFuckingColorForZaGradient(1, 2, 1)
+						ShittyUpdaterForStatusAndCounter("down", 1)
+					elseif retardedstorage.counter <= #retardedstorage.list - 2 and retardedstorage.status == "up" then
+						local startKey = retardedstorage.counter + 2
+						SeTheFuckingColorForZaGradient(startKey, startKey, startKey - 1)
+						ShittyUpdaterForStatusAndCounter("down", startKey)
+					end
+				end
+				
+				local function GradientStupidAnimation()
+					DaFuckingAnimPlayer()
+					if retardedstorage.status == "down" then
+						DownGarbage()
+					elseif retardedstorage.status == "up" then
+						UpGarbage()
+					end
+					GradientStupidAnimation()
+				end
+				
+				GradientStupidAnimation()
+				
+			end
+			local function TextUpdateOmegaLul() 
+				local script = Instance.new("LocalScript")
+				script.Name = "LocalScript"
+				script.Parent = Converted["_TextLabel"]
+				local req = require
+				local require = function(obj)
+					local fake = fake_module_scripts[obj]
+					if fake then
+						return fake()
+					end
+					return req(obj)
+				end
+			
+				local RS = game:GetService("RunService")
+				local parent = script.Parent
+				local lastupdate = tick()
+				local framecounter = 0
+				
+				RS.Stepped:Connect(function()
+					framecounter = framecounter + 1
+					local current = tick()
+					if current - lastupdate >= 1 then
+						local fps = math.floor(framecounter / (current - lastupdate))
+						parent.Text = "VoidWare | " .. fps .. " FPS | .gg/e2HUEAmsuA"
+						lastupdate = current
+						framecounter = 0
+					end
+				end)
+				
+			end
+			
+			coroutine.wrap(GarbageGradientAnim)()
+			coroutine.wrap(TextUpdateOmegaLul)()
+		else 
+			local plrgui = game.Players.LocalPlayer.PlayerGui
+			if plrgui:FindFirstChild("WatermarkVoidWareLol") then 
+				local watermark = plrgui:FindFirstChild("WatermarkVoidWareLol") 
+				watermark:Destroy()
+			else
+				warningNotification("WaterMark Error", "Couldn't find the watermark in playergui, please dm salad about this", 60)
+			end
+		end
+	end
+})
+
+
+	local KeyStrokes = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = "KeyStrokes",
+		Function = function(callback)
+			if callback then 
+				local Converted = {
+					["_KeyStrokes"] = Instance.new("ScreenGui");
+					["_KeysContainer"] = Instance.new("Folder");
+					["_AKey"] = Instance.new("Frame");
+					["_ALabel"] = Instance.new("TextLabel");
+					["_DKey"] = Instance.new("Frame");
+					["_DLabel"] = Instance.new("TextLabel");
+					["_SKey"] = Instance.new("Frame");
+					["_SLabel"] = Instance.new("TextLabel");
+					["_SpaceBarKey"] = Instance.new("Frame");
+					["_SpaceBarInside"] = Instance.new("Frame");
+					["_WKey"] = Instance.new("Frame");
+					["_WLabel"] = Instance.new("TextLabel");
+					["_LocalScript"] = Instance.new("LocalScript");
+				}
+				
+				
+				Converted["_KeyStrokes"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+				Converted["_KeyStrokes"].Name = "KeyStrokes"
+				Converted["_KeyStrokes"].Parent = game.Players.LocalPlayer.PlayerGui
+				
+				Converted["_KeysContainer"].Name = "KeysContainer"
+				Converted["_KeysContainer"].Parent = Converted["_KeyStrokes"]
+				
+				Converted["_AKey"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_AKey"].BackgroundTransparency = 0.6000000238418579
+				Converted["_AKey"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_AKey"].BorderSizePixel = 0
+				Converted["_AKey"].Position = UDim2.new(0.00960219465, 0, 0.820967734, 0)
+				Converted["_AKey"].Size = UDim2.new(0.0432098769, 0, 0.101612903, 0)
+				Converted["_AKey"].Name = "AKey"
+				Converted["_AKey"].Parent = Converted["_KeysContainer"]
+				
+				Converted["_ALabel"].Font = Enum.Font.Sarpanch
+				Converted["_ALabel"].Text = "A"
+				Converted["_ALabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_ALabel"].TextScaled = true
+				Converted["_ALabel"].TextSize = 14
+				Converted["_ALabel"].TextWrapped = true
+				Converted["_ALabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_ALabel"].BackgroundTransparency = 1
+				Converted["_ALabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_ALabel"].BorderSizePixel = 0
+				Converted["_ALabel"].Size = UDim2.new(1, 0, 1, 0)
+				Converted["_ALabel"].Name = "ALabel"
+				Converted["_ALabel"].Parent = Converted["_AKey"]
+				
+				Converted["_DKey"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_DKey"].BackgroundTransparency = 0.6000000238418579
+				Converted["_DKey"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_DKey"].BorderSizePixel = 0
+				Converted["_DKey"].Position = UDim2.new(0.106995888, 0, 0.820967734, 0)
+				Converted["_DKey"].Size = UDim2.new(0.0432098769, 0, 0.101612903, 0)
+				Converted["_DKey"].Name = "DKey"
+				Converted["_DKey"].Parent = Converted["_KeysContainer"]
+				
+				Converted["_DLabel"].Font = Enum.Font.Sarpanch
+				Converted["_DLabel"].Text = "D"
+				Converted["_DLabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_DLabel"].TextScaled = true
+				Converted["_DLabel"].TextSize = 14
+				Converted["_DLabel"].TextWrapped = true
+				Converted["_DLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_DLabel"].BackgroundTransparency = 1
+				Converted["_DLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_DLabel"].BorderSizePixel = 0
+				Converted["_DLabel"].Size = UDim2.new(1, 0, 1, 0)
+				Converted["_DLabel"].Name = "DLabel"
+				Converted["_DLabel"].Parent = Converted["_DKey"]
+				
+				Converted["_SKey"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_SKey"].BackgroundTransparency = 0.6000000238418579
+				Converted["_SKey"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_SKey"].BorderSizePixel = 0
+				Converted["_SKey"].Position = UDim2.new(0.0582990386, 0, 0.820967734, 0)
+				Converted["_SKey"].Size = UDim2.new(0.0432098769, 0, 0.101612903, 0)
+				Converted["_SKey"].Name = "SKey"
+				Converted["_SKey"].Parent = Converted["_KeysContainer"]
+				
+				Converted["_SLabel"].Font = Enum.Font.Sarpanch
+				Converted["_SLabel"].Text = "S"
+				Converted["_SLabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_SLabel"].TextScaled = true
+				Converted["_SLabel"].TextSize = 14
+				Converted["_SLabel"].TextWrapped = true
+				Converted["_SLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_SLabel"].BackgroundTransparency = 1
+				Converted["_SLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_SLabel"].BorderSizePixel = 0
+				Converted["_SLabel"].Size = UDim2.new(1, 0, 1, 0)
+				Converted["_SLabel"].Name = "SLabel"
+				Converted["_SLabel"].Parent = Converted["_SKey"]
+				
+				Converted["_SpaceBarKey"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_SpaceBarKey"].BackgroundTransparency = 0.6000000238418579
+				Converted["_SpaceBarKey"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_SpaceBarKey"].BorderSizePixel = 0
+				Converted["_SpaceBarKey"].Position = UDim2.new(0.00960219465, 0, 0.935483873, 0)
+				Converted["_SpaceBarKey"].Size = UDim2.new(0.140603572, 0, 0.0483870953, 0)
+				Converted["_SpaceBarKey"].Name = "SpaceBarKey"
+				Converted["_SpaceBarKey"].Parent = Converted["_KeysContainer"]
+				
+				Converted["_SpaceBarInside"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_SpaceBarInside"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_SpaceBarInside"].BorderSizePixel = 0
+				Converted["_SpaceBarInside"].Position = UDim2.new(0.0439024381, 0, 0.333333343, 0)
+				Converted["_SpaceBarInside"].Size = UDim2.new(0.907317102, 0, 0.300000012, 0)
+				Converted["_SpaceBarInside"].Name = "SpaceBarInside"
+				Converted["_SpaceBarInside"].Parent = Converted["_SpaceBarKey"]
+				
+				Converted["_WKey"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_WKey"].BackgroundTransparency = 0.6000000238418579
+				Converted["_WKey"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_WKey"].BorderSizePixel = 0
+				Converted["_WKey"].Position = UDim2.new(0.0582990386, 0, 0.709677398, 0)
+				Converted["_WKey"].Size = UDim2.new(0.0432098769, 0, 0.101612903, 0)
+				Converted["_WKey"].Name = "WKey"
+				Converted["_WKey"].Parent = Converted["_KeysContainer"]
+				
+				Converted["_WLabel"].Font = Enum.Font.Sarpanch
+				Converted["_WLabel"].Text = "W"
+				Converted["_WLabel"].TextColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_WLabel"].TextScaled = true
+				Converted["_WLabel"].TextSize = 14
+				Converted["_WLabel"].TextWrapped = true
+				Converted["_WLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Converted["_WLabel"].BackgroundTransparency = 1
+				Converted["_WLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Converted["_WLabel"].BorderSizePixel = 0
+				Converted["_WLabel"].Size = UDim2.new(1, 0, 1, 0)
+				Converted["_WLabel"].Name = "WLabel"
+				Converted["_WLabel"].Parent = Converted["_WKey"]
+				
+				local StupidTable = {
+					parent = Converted["_KeyStrokes"],
+					dafuckingkeys = {
+						[Enum.KeyCode.A] = "AKey",
+						[Enum.KeyCode.D] = "DKey",
+						[Enum.KeyCode.S] = "SKey",
+						[Enum.KeyCode.W] = "WKey",
+						[Enum.KeyCode.Space] = "SpaceBarKey"
+					}
+				}
+				
+				StupidTable.folder = StupidTable.parent:WaitForChild("KeysContainer")
+				
+				for key, value in pairs(StupidTable.dafuckingkeys) do
+					StupidTable[value] = StupidTable.folder:WaitForChild(value, 2)
+				end
+				
+				local UIS = game:GetService("UserInputService")
+				
+				local function colorupdateshit(input, color)
+					local stupidkey = StupidTable.dafuckingkeys[input.KeyCode]
+					if stupidkey then
+						local key = StupidTable[stupidkey]
+						if key then
+							key.BackgroundColor3 = color
+							--print(stupidkey .. " color updated to " .. tostring(color))
+						else
+							--warn("Key not found: " .. stupidkey)
+						end
+					else
+						--warn("KeyCode not found: " .. tostring(input.KeyCode))
+					end
+				end
+				
+				UIS.InputBegan:Connect(function(input, chatting)
+					if not chatting then
+						colorupdateshit(input, Color3.fromRGB(34, 0, 86))
+						--print("Input Began: " .. tostring(input.KeyCode))
+					end
+				end)
+				
+				UIS.InputEnded:Connect(function(input)
+					colorupdateshit(input, Color3.fromRGB(0, 0, 0))
+					--print("Input Ended: " .. tostring(input.KeyCode))
+				end)			
+			else
+				local plrgui = game.Players.LocalPlayer.PlayerGui 
+				if plrgui:FindFirstChild("KeyStrokes") then 
+					KeyStrokes = plrgui:FindFirstChild("KeyStrokes")
+					KeyStrokes:Destroy()	
+				else
+					warningNotification("KeyStrokes Error", "Couldn't find KeyStrokes in playergui, please dm Salad about this\nOr if you know what you're doing, you can enable the debugs in the code and try fix them.", 60)
 				end
 			end
 		end
 	})
-
-
-
-
-
-
-    local function fuckkeystrokes()
-        lplr.PlayerGui.KeyStrokesGui:Destroy()
-    end
-
-    local function createFrame(key, keyName, parent, position, size, textSize)
-        local keyFrame = Instance.new("Frame")
-        local textLabel = Instance.new("TextLabel")
-        local UICorner = Instance.new("UICorner")
-
-        keyFrame.Name = keyName .. "KEY"
-        keyFrame.Parent = parent
-        keyFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        keyFrame.BackgroundTransparency = 0.700
-        keyFrame.BorderColor3 = Color3.fromRGB(96, 8, 99)
-        keyFrame.BorderSizePixel = 5
-        keyFrame.Position = position
-        keyFrame.Size = size
-
-        UICorner.Parent = keyFrame
-
-        textLabel.Parent = keyFrame
-        textLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        textLabel.BackgroundTransparency = 1.000
-        textLabel.BorderSizePixel = 0
-        textLabel.Position = UDim2.new(-0.0142860413, 0, -0.00999987125, 0)
-        textLabel.Size = UDim2.new(0, 71, 0, 80)
-        textLabel.Font = Enum.Font.FredokaOne
-        textLabel.Text = keyName
-        textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        textLabel.TextSize = textSize
-        textLabel.TextWrapped = true
-
-        local userInputService = game:GetService("UserInputService")
-        
-        userInputService.InputBegan:Connect(function(input, chatting)
-            if input.KeyCode == key and not chatting then
-                keyFrame.BackgroundColor3 = Color3.fromRGB(102, 0, 255)
-            end
-        end)
-
-        userInputService.InputEnded:Connect(function(input)
-            if input.KeyCode == key then
-                keyFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            end
-        end)
-    end
-local KeyStrokesCustom = GuiLibrary["ObjectsThatCanBeSaved"]["WorldWindow"]["Api"].CreateOptionsButton({
-    Name = "KeyStrokesCustom",
-    Function = function(callback)
-        if callback then 
-            local KeyStrokesGui = Instance.new("ScreenGui")
-            KeyStrokesGui.Name = "KeyStrokesGui"
-            KeyStrokesGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-            KeyStrokesGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-            createFrame(Enum.KeyCode.A, "A", KeyStrokesGui, UDim2.new(0.0366582051, 0, 0.804783225, 0), UDim2.new(0, 70, 0, 76), 50)
-            createFrame(Enum.KeyCode.D, "D", KeyStrokesGui, UDim2.new(0.132484764, 0, 0.804949045, 0), UDim2.new(0, 70, 0, 76), 50)
-            createFrame(Enum.KeyCode.S, "S", KeyStrokesGui, UDim2.new(0.084651351, 0, 0.803536415, 0), UDim2.new(0, 70, 0, 76), 50)
-            createFrame(Enum.KeyCode.W, "W", KeyStrokesGui, UDim2.new(0.0832713395, 0, 0.711591899, 0), UDim2.new(0, 70, 0, 76), 50)
-            createFrame(Enum.KeyCode.Space, "", KeyStrokesGui, UDim2.new(0.03530965, 0, 0.896328092, 0), UDim2.new(0, 254, 0, 34), 50)
-            else
-                fuckkeystrokes()
-            end
-        end
-    })
+	
 
 local function getNotificationMessage(messagesList, defaultMessage, replaceTag, replaceValue)
     local message = #messagesList > 0 and messagesList[math.random(1, #messagesList)] or defaultMessage
@@ -12480,58 +12484,7 @@ UIS.InputChanged:Connect(endDrag)
 
 
 runFunction(function()
- function getScytheDash()
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local rbxts_include = ReplicatedStorage:WaitForChild("rbxts_include")
-    local node_modules = rbxts_include:WaitForChild("node_modules")
-    return node_modules["@rbxts"].net.out._NetManaged.ScytheDash
-end
-
-function fireScytheDash()
-	local status, response = pcall(function()
-		local Players = game:GetService("Players")
-		local localPlayer = Players.LocalPlayer
-		if not localPlayer then return end
-
-		local character = localPlayer.Character
-		if not character then return end
-
-		local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-		if not humanoidRootPart then return end
-
-		local direction = humanoidRootPart.CFrame.LookVector * 10000
-		getScytheDash():FireServer({ direction = direction })
-	end)
-
-	if not status then
-		print("Error while firing ScytheDash: ", response)
-	end
-end
-
- function checkHeartbeatTime(lastTick)
-    local currentTick = tick()
-    local elapsed = currentTick - lastTick
-    if elapsed > 999 then
-        return currentTick
-    end
-    return lastTick
-end
-
-function initiateAntiCheatBypass(callback)
-    if not callback then return end
-
-    local RunService = game:GetService("RunService")
-    local heartbeatLastTick = tick()
-
-    RunService.RenderStepped:Connect(fireScytheDash)
-    RunService.Heartbeat:Connect(function()
-        heartbeatLastTick = checkHeartbeatTime(heartbeatLastTick)
-    end)
-end
-end)
-
-local TweenService = game:GetService("TweenService")
-
+	local TweenService = game:GetService("TweenService")
 	local function TweenObject(target, properties, time, easingStyle, direction, callback)
 		local info = TweenInfo.new(time, easingStyle, direction)
 		local tween = TweenService:Create(target, info, properties)
@@ -12541,307 +12494,309 @@ local TweenService = game:GetService("TweenService")
 			tween.Completed:Connect(callback)
 		end
 	end
-
 	local previousTargetHP = 0  
-
-	CustomTargetHud = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
-		Name = "CustomTargetHud",
-		Function = function(callback)
-			if callback then 
-local Table = {
-	["_MainGui"] = Instance.new("ScreenGui");
-	["_MainFrame"] = Instance.new("Frame");
-	["_UIStroke"] = Instance.new("UIStroke");
-	["_UIGradient"] = Instance.new("UIGradient");
-	["_LocalScript"] = Instance.new("LocalScript");
-	["_UICorner"] = Instance.new("UICorner");
-	["_DropShadowHolder"] = Instance.new("Frame");
-	["_DropShadow"] = Instance.new("ImageLabel");
-	["_ImageLabel"] = Instance.new("ImageLabel");
-	["_Corner"] = Instance.new("UICorner");
-	["_Stroke"] = Instance.new("UIStroke");
-	["_HealthFrame"] = Instance.new("Frame");
-	["_UICorner1"] = Instance.new("UICorner");
-	["_HP"] = Instance.new("TextLabel");
-	["_User"] = Instance.new("TextLabel");
-	["_Win/Lose"] = Instance.new("TextLabel");
-}
-
-Table["_MainGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Table["_MainGui"].Name = "MainGui"
-Table["_MainGui"].Parent = game:GetService("CoreGui")
-
-Table["_MainFrame"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Table["_MainFrame"].BackgroundTransparency = 0.20000000298023224
-Table["_MainFrame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Table["_MainFrame"].BorderSizePixel = 0
-Table["_MainFrame"].Position = UDim2.new(0.476450503, 0, 0.631067932, 0)
-Table["_MainFrame"].Size = UDim2.new(0, 304, 0, 100)
-Table["_MainFrame"].Name = "MainFrame"
-Table["_MainFrame"].Parent = Table["_MainGui"]
-
-Table["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
-Table["_UIStroke"].Thickness = 2
-Table["_UIStroke"].Parent = Table["_MainFrame"]
-
-Table["_UIGradient"].Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 251.00000023841858)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 238.00000101327896))
-}
-Table["_UIGradient"].Parent = Table["_UIStroke"]
-
-Table["_UICorner"].Parent = Table["_MainFrame"]
-
-Table["_DropShadowHolder"].BackgroundTransparency = 1
-Table["_DropShadowHolder"].BorderSizePixel = 0
-Table["_DropShadowHolder"].Size = UDim2.new(1, 0, 1, 0)
-Table["_DropShadowHolder"].ZIndex = 0
-Table["_DropShadowHolder"].Name = "DropShadowHolder"
-Table["_DropShadowHolder"].Parent = Table["_MainFrame"]
-
-Table["_DropShadow"].Image = "rbxassetid://6014261993"
-Table["_DropShadow"].ImageColor3 = Color3.fromRGB(0, 0, 0)
-Table["_DropShadow"].ImageTransparency = 0.5
-Table["_DropShadow"].ScaleType = Enum.ScaleType.Slice
-Table["_DropShadow"].SliceCenter = Rect.new(49, 49, 450, 450)
-Table["_DropShadow"].AnchorPoint = Vector2.new(0.5, 0.5)
-Table["_DropShadow"].BackgroundTransparency = 1
-Table["_DropShadow"].BorderSizePixel = 0
-Table["_DropShadow"].Position = UDim2.new(0.5, 0, 0.5, 0)
-Table["_DropShadow"].Size = UDim2.new(1, 47, 1, 47)
-Table["_DropShadow"].ZIndex = 0
-Table["_DropShadow"].Name = "DropShadow"
-Table["_DropShadow"].Parent = Table["_DropShadowHolder"]
-
-Table["_ImageLabel"].Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-Table["_ImageLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Table["_ImageLabel"].BackgroundTransparency = 1
-Table["_ImageLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Table["_ImageLabel"].BorderSizePixel = 0
-Table["_ImageLabel"].Position = UDim2.new(0.0361842103, 0, 0.119999997, 0)
-Table["_ImageLabel"].Size = UDim2.new(0, 80, 0, 75)
-Table["_ImageLabel"].Parent = Table["_MainFrame"]
-
-Table["_Corner"].Name = "Corner"
-Table["_Corner"].Parent = Table["_ImageLabel"]
-
-Table["_Stroke"].Color = Color3.fromRGB(255, 255, 255)
-Table["_Stroke"].Thickness = 2
-Table["_Stroke"].Name = "Stroke"
-Table["_Stroke"].Parent = Table["_ImageLabel"]
-
-Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(0, 157.0000058412552, 58.00000414252281)
-Table["_HealthFrame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Table["_HealthFrame"].BorderSizePixel = 0
-Table["_HealthFrame"].Position = UDim2.new(0.335526317, 0, 0.699999988, 0)
-Table["_HealthFrame"].Size = UDim2.new(0, 187, 0, 17)
-Table["_HealthFrame"].Name = "HealthFrame"
-Table["_HealthFrame"].Parent = Table["_MainFrame"]
-
-Table["_UICorner1"].CornerRadius = UDim.new(0, 4)
-Table["_UICorner1"].Parent = Table["_HealthFrame"]
-
-Table["_HP"].Font = Enum.Font.SourceSans
-Table["_HP"].Text = "100 HP"
-Table["_HP"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Table["_HP"].TextScaled = true
-Table["_HP"].TextSize = 14
-Table["_HP"].TextWrapped = true
-Table["_HP"].TextXAlignment = Enum.TextXAlignment.Left
-Table["_HP"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Table["_HP"].BackgroundTransparency = 1
-Table["_HP"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Table["_HP"].BorderSizePixel = 0
-Table["_HP"].Position = UDim2.new(0.335526317, 0, 0.379999995, 0)
-Table["_HP"].Size = UDim2.new(0, 84, 0, 24)
-Table["_HP"].Name = "HP"
-Table["_HP"].Parent = Table["_MainFrame"]
-
-Table["_User"].Font = Enum.Font.SourceSans
-Table["_User"].Text = "UserName"
-Table["_User"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Table["_User"].TextScaled = true
-Table["_User"].TextSize = 14
-Table["_User"].TextWrapped = true
-Table["_User"].TextXAlignment = Enum.TextXAlignment.Left
-Table["_User"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Table["_User"].BackgroundTransparency = 1
-Table["_User"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Table["_User"].BorderSizePixel = 0
-Table["_User"].Position = UDim2.new(0.335526317, 0, 0.119999997, 0)
-Table["_User"].Size = UDim2.new(0, 195, 0, 24)
-Table["_User"].Name = "User"
-Table["_User"].Parent = Table["_MainFrame"]
-
-Table["_Win/Lose"].Font = Enum.Font.SourceSans
-Table["_Win/Lose"].Text = "Winning"
-Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 255, 255)
-Table["_Win/Lose"].TextScaled = true
-Table["_Win/Lose"].TextSize = 14
-Table["_Win/Lose"].TextWrapped = true
-Table["_Win/Lose"].TextXAlignment = Enum.TextXAlignment.Left
-Table["_Win/Lose"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Table["_Win/Lose"].BackgroundTransparency = 1
-Table["_Win/Lose"].BorderColor3 = Color3.fromRGB(0, 0, 0)
-Table["_Win/Lose"].BorderSizePixel = 0
-Table["_Win/Lose"].Position = UDim2.new(0.611842096, 0, 0.360000014, 0)
-Table["_Win/Lose"].Size = UDim2.new(0, 103, 0, 26)
-Table["_Win/Lose"].Name = "Win/Lose"
-Table["_Win/Lose"].Parent = Table["_MainFrame"]
-
-local fake_module_scripts = {}
-
-local function MYASSISA_fake_script() 
-    local script = Instance.new("LocalScript")
-    script.Name = "LocalScript"
-	script.Parent = Table["_UIStroke"]
-    local req = require
-    local require = function(obj)
-        local fake = fake_module_scripts[obj]
-        if fake then
-            return fake()
-        end
-        return req(obj)
-    end
-
-	local r = game:GetService("RunService")
-	local g = script.Parent.UIGradient
-	
-	r.RenderStepped:Connect(function()
-		g.Rotation += 2
-	end)
-end
-
-coroutine.wrap(MYASSISA_fake_script)()
-local lplr = game.Players.LocalPlayer
-local character = lplr.Character or lplr.CharacterAdded:Wait()
-local rootPart = character:WaitForChild("HumanoidRootPart")
-local target = nil
-
-
-local function updateGUI(target)
-    if not target or not target.Character or not target.Character:FindFirstChild("Humanoid") or not character or not character:FindFirstChild("Humanoid") then
-        return
-    end
-
-    Table["_User"].Text = target.Name
-    local userId = target.UserId
-    Table["_ImageLabel"].Image = "rbxthumb://type=AvatarHeadShot&w=420&h=420&id=" .. userId
-
-    local lplrHP = character.Humanoid.Health
-    local targetHP = target.Character.Humanoid.Health
-    local targetMaxHP = target.Character.Humanoid.MaxHealth
-    local targetHPPercentage = targetHP / targetMaxHP
-    Table["_HP"].Text = tostring(math.floor(targetHP)) .. " HP"
-
-    local targetHPPercentageChange = targetHPPercentage - (previousTargetHP / targetMaxHP)
-    local tweenTime = math.abs(targetHPPercentageChange) * 1.5
-    tweenTime = math.max(tweenTime, 0.2)  
-
-    TweenObject(Table["_HealthFrame"], {Size = UDim2.new(0, 187 * targetHPPercentage, 0, 17)}, tweenTime, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-
-
-    if targetHP < 20 then
-        Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(255, 0, 0) 
-    elseif targetHP < 50 then
-        Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(255, 165, 0)
-    else
-        Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(0, 157, 58) 
-    end
-
-    if lplrHP > targetHP then
-        Table["_Win/Lose"].Text = "Winning"
-        Table["_Win/Lose"].TextColor3 = Color3.fromRGB(0, 255, 0)
-    elseif lplrHP == targetHP then
-        Table["_Win/Lose"].Text = "Same HPS"
-        Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 255, 0)
-    else
-        Table["_Win/Lose"].Text = "Losing"
-        Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 0, 0)
-    end
-
-    previousTargetHP = targetHP
-end
-
-
-
-local function updateCharacterReferences()
-    character = lplr.Character or lplr.CharacterAdded:Wait()
-    rootPart = character:WaitForChild("HumanoidRootPart")
-    Table["_MainGui"].Enabled = false  
-end
-
-local debounce = false
-local function checkPlayersWithinReach()
-    if debounce then return end
-    debounce = true
-
-	local nearestPlayer = nil
-	local shortestDistance = 18 
-
-	for _, player in pairs(game.Players:GetPlayers()) do
-		if player ~= lplr and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-			local distance = (rootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-			if distance < shortestDistance then
-				shortestDistance = distance
-				nearestPlayer = player
+	local CustomTargetHud = {Enabled = false}
+	CustomTargetHud = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+	Name = "CustomTargetHud",
+	Function = function(callback)
+		if callback then 
+			CustomTargetHud.Enabled = false 
+			CustomTargetHud.Enabled = true --prevents breaking/not loading lol (yup, laziest way ever to do this.)
+			local Table = {
+				["_MainGui"] = Instance.new("ScreenGui");
+				["_MainFrame"] = Instance.new("Frame");
+				["_UIStroke"] = Instance.new("UIStroke");
+				["_UIGradient"] = Instance.new("UIGradient");
+				["_LocalScript"] = Instance.new("LocalScript");
+				["_UICorner"] = Instance.new("UICorner");
+				["_DropShadowHolder"] = Instance.new("Frame");
+				["_DropShadow"] = Instance.new("ImageLabel");
+				["_ImageLabel"] = Instance.new("ImageLabel");
+				["_Corner"] = Instance.new("UICorner");
+				["_Stroke"] = Instance.new("UIStroke");
+				["_HealthFrame"] = Instance.new("Frame");
+				["_UICorner1"] = Instance.new("UICorner");
+				["_HP"] = Instance.new("TextLabel");
+				["_User"] = Instance.new("TextLabel");
+				["_Win/Lose"] = Instance.new("TextLabel");
+				}
+				
+				Table["_MainGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+				Table["_MainGui"].Name = "MainGui"
+				Table["_MainGui"].Parent = game:GetService("CoreGui")
+				
+				Table["_MainFrame"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+				Table["_MainFrame"].BackgroundTransparency = 0.20000000298023224
+				Table["_MainFrame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Table["_MainFrame"].BorderSizePixel = 0
+				Table["_MainFrame"].Position = UDim2.new(0.476450503, 0, 0.631067932, 0)
+				Table["_MainFrame"].Size = UDim2.new(0, 304, 0, 100)
+				Table["_MainFrame"].Name = "MainFrame"
+				Table["_MainFrame"].Parent = Table["_MainGui"]
+				
+				Table["_UIStroke"].Color = Color3.fromRGB(255, 255, 255)
+				Table["_UIStroke"].Thickness = 2
+				Table["_UIStroke"].Parent = Table["_MainFrame"]
+				
+				Table["_UIGradient"].Color = ColorSequence.new{
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 251.00000023841858)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 238.00000101327896))
+				}
+				Table["_UIGradient"].Parent = Table["_UIStroke"]
+				
+				Table["_UICorner"].Parent = Table["_MainFrame"]
+				
+				Table["_DropShadowHolder"].BackgroundTransparency = 1
+				Table["_DropShadowHolder"].BorderSizePixel = 0
+				Table["_DropShadowHolder"].Size = UDim2.new(1, 0, 1, 0)
+				Table["_DropShadowHolder"].ZIndex = 0
+				Table["_DropShadowHolder"].Name = "DropShadowHolder"
+				Table["_DropShadowHolder"].Parent = Table["_MainFrame"]
+				
+				Table["_DropShadow"].Image = "rbxassetid://6014261993"
+				Table["_DropShadow"].ImageColor3 = Color3.fromRGB(0, 0, 0)
+				Table["_DropShadow"].ImageTransparency = 0.5
+				Table["_DropShadow"].ScaleType = Enum.ScaleType.Slice
+				Table["_DropShadow"].SliceCenter = Rect.new(49, 49, 450, 450)
+				Table["_DropShadow"].AnchorPoint = Vector2.new(0.5, 0.5)
+				Table["_DropShadow"].BackgroundTransparency = 1
+				Table["_DropShadow"].BorderSizePixel = 0
+				Table["_DropShadow"].Position = UDim2.new(0.5, 0, 0.5, 0)
+				Table["_DropShadow"].Size = UDim2.new(1, 47, 1, 47)
+				Table["_DropShadow"].ZIndex = 0
+				Table["_DropShadow"].Name = "DropShadow"
+				Table["_DropShadow"].Parent = Table["_DropShadowHolder"]
+				
+				Table["_ImageLabel"].Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+				Table["_ImageLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Table["_ImageLabel"].BackgroundTransparency = 1
+				Table["_ImageLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Table["_ImageLabel"].BorderSizePixel = 0
+				Table["_ImageLabel"].Position = UDim2.new(0.0361842103, 0, 0.119999997, 0)
+				Table["_ImageLabel"].Size = UDim2.new(0, 80, 0, 75)
+				Table["_ImageLabel"].Parent = Table["_MainFrame"]
+				
+				Table["_Corner"].Name = "Corner"
+				Table["_Corner"].Parent = Table["_ImageLabel"]
+				
+				Table["_Stroke"].Color = Color3.fromRGB(255, 255, 255)
+				Table["_Stroke"].Thickness = 2
+				Table["_Stroke"].Name = "Stroke"
+				Table["_Stroke"].Parent = Table["_ImageLabel"]
+				
+				Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(0, 157.0000058412552, 58.00000414252281)
+				Table["_HealthFrame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Table["_HealthFrame"].BorderSizePixel = 0
+				Table["_HealthFrame"].Position = UDim2.new(0.335526317, 0, 0.699999988, 0)
+				Table["_HealthFrame"].Size = UDim2.new(0, 187, 0, 17)
+				Table["_HealthFrame"].Name = "HealthFrame"
+				Table["_HealthFrame"].Parent = Table["_MainFrame"]
+				
+				Table["_UICorner1"].CornerRadius = UDim.new(0, 4)
+				Table["_UICorner1"].Parent = Table["_HealthFrame"]
+				
+				Table["_HP"].Font = Enum.Font.SourceSans
+				Table["_HP"].Text = "100 HP"
+				Table["_HP"].TextColor3 = Color3.fromRGB(255, 255, 255)
+				Table["_HP"].TextScaled = true
+				Table["_HP"].TextSize = 14
+				Table["_HP"].TextWrapped = true
+				Table["_HP"].TextXAlignment = Enum.TextXAlignment.Left
+				Table["_HP"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Table["_HP"].BackgroundTransparency = 1
+				Table["_HP"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Table["_HP"].BorderSizePixel = 0
+				Table["_HP"].Position = UDim2.new(0.335526317, 0, 0.379999995, 0)
+				Table["_HP"].Size = UDim2.new(0, 84, 0, 24)
+				Table["_HP"].Name = "HP"
+				Table["_HP"].Parent = Table["_MainFrame"]
+				
+				Table["_User"].Font = Enum.Font.SourceSans
+				Table["_User"].Text = "UserName"
+				Table["_User"].TextColor3 = Color3.fromRGB(255, 255, 255)
+				Table["_User"].TextScaled = true
+				Table["_User"].TextSize = 14
+				Table["_User"].TextWrapped = true
+				Table["_User"].TextXAlignment = Enum.TextXAlignment.Left
+				Table["_User"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Table["_User"].BackgroundTransparency = 1
+				Table["_User"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Table["_User"].BorderSizePixel = 0
+				Table["_User"].Position = UDim2.new(0.335526317, 0, 0.119999997, 0)
+				Table["_User"].Size = UDim2.new(0, 195, 0, 24)
+				Table["_User"].Name = "User"
+				Table["_User"].Parent = Table["_MainFrame"]
+				
+				Table["_Win/Lose"].Font = Enum.Font.SourceSans
+				Table["_Win/Lose"].Text = "Winning"
+				Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 255, 255)
+				Table["_Win/Lose"].TextScaled = true
+				Table["_Win/Lose"].TextSize = 14
+				Table["_Win/Lose"].TextWrapped = true
+				Table["_Win/Lose"].TextXAlignment = Enum.TextXAlignment.Left
+				Table["_Win/Lose"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Table["_Win/Lose"].BackgroundTransparency = 1
+				Table["_Win/Lose"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Table["_Win/Lose"].BorderSizePixel = 0
+				Table["_Win/Lose"].Position = UDim2.new(0.611842096, 0, 0.360000014, 0)
+				Table["_Win/Lose"].Size = UDim2.new(0, 103, 0, 26)
+				Table["_Win/Lose"].Name = "Win/Lose"
+				Table["_Win/Lose"].Parent = Table["_MainFrame"]
+				
+				local fake_module_scripts = {}
+				
+				local function MYASSISA_fake_script() 
+				local script = Instance.new("LocalScript")
+				script.Name = "LocalScript"
+				script.Parent = Table["_UIStroke"]
+				local req = require
+				local require = function(obj)
+					local fake = fake_module_scripts[obj]
+					if fake then
+						return fake()
+					end
+					return req(obj)
+				end
+				
+				local r = game:GetService("RunService")
+				local g = script.Parent.UIGradient
+				
+				r.RenderStepped:Connect(function()
+					g.Rotation += 2
+				end)
+				end
+				
+				coroutine.wrap(MYASSISA_fake_script)()
+				local lplr = game.Players.LocalPlayer
+				local character = lplr.Character or lplr.CharacterAdded:Wait()
+				local rootPart = character:WaitForChild("HumanoidRootPart")
+				local target = nil
+				
+				
+				local function updateGUI(target)
+				if not target or not target.Character or not target.Character:FindFirstChild("Humanoid") or not character or not character:FindFirstChild("Humanoid") then
+					return
+				end
+				
+				Table["_User"].Text = target.Name
+				local userId = target.UserId
+				Table["_ImageLabel"].Image = "rbxthumb://type=AvatarHeadShot&w=420&h=420&id=" .. userId
+				
+				local lplrHP = character.Humanoid.Health
+				local targetHP = target.Character.Humanoid.Health
+				local targetMaxHP = target.Character.Humanoid.MaxHealth
+				local targetHPPercentage = targetHP / targetMaxHP
+				Table["_HP"].Text = tostring(math.floor(targetHP)) .. " HP"
+				
+				local targetHPPercentageChange = targetHPPercentage - (previousTargetHP / targetMaxHP)
+				local tweenTime = math.abs(targetHPPercentageChange) * 1.5
+				tweenTime = math.max(tweenTime, 0.2)  
+				
+				TweenObject(Table["_HealthFrame"], {Size = UDim2.new(0, 187 * targetHPPercentage, 0, 17)}, tweenTime, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+				
+				
+				if targetHP < 20 then
+					Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(255, 0, 0) 
+				elseif targetHP < 50 then
+					Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+				else
+					Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(0, 157, 58) 
+				end
+				
+				if lplrHP > targetHP then
+					Table["_Win/Lose"].Text = "Winning"
+					Table["_Win/Lose"].TextColor3 = Color3.fromRGB(0, 255, 0)
+				elseif lplrHP == targetHP then
+					Table["_Win/Lose"].Text = "Same HPS"
+					Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 255, 0)
+				else
+					Table["_Win/Lose"].Text = "Losing"
+					Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 0, 0)
+				end
+				
+				previousTargetHP = targetHP
+				end
+				
+				
+				
+				local function updateCharacterReferences()
+				character = lplr.Character or lplr.CharacterAdded:Wait()
+				rootPart = character:WaitForChild("HumanoidRootPart")
+				Table["_MainGui"].Enabled = false  
+				end
+				
+				local debounce = false
+				local function checkPlayersWithinReach()
+				if debounce then return end
+				debounce = true
+				
+				local nearestPlayer = nil
+				local shortestDistance = 18 
+				
+				for _, player in pairs(game.Players:GetPlayers()) do
+					if player ~= lplr and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+						local distance = (rootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+						if distance < shortestDistance then
+							shortestDistance = distance
+							nearestPlayer = player
+						end
+					end
+				end
+				
+				if nearestPlayer then
+					target = nearestPlayer
+					updateGUI(nearestPlayer) 
+					Table["_MainGui"].Enabled = true  
+				else 
+					target = nil
+					Table["_MainGui"].Enabled = false  
+				end
+				
+				debounce = false
+				end
+				
+				local heartbeatConnection
+				
+				local function startCheckingPlayers()
+				if heartbeatConnection then
+					heartbeatConnection:Disconnect()
+				end
+				heartbeatConnection = game:GetService("RunService").Heartbeat:Connect(checkPlayersWithinReach)
+				end
+				
+				local function stopCheckingPlayers()
+				if heartbeatConnection then
+					heartbeatConnection:Disconnect()
+					heartbeatConnection = nil
+				end
+				end
+				
+				game.Players.PlayerRemoving:Connect(function(removedPlayer)
+				if removedPlayer == target then
+					target = nil
+					Table["_MainGui"].Enabled = false 
+				end
+				end)
+				
+				lplr.CharacterAdded:Connect(function()
+				stopCheckingPlayers()
+				character = lplr.Character
+				rootPart = character:WaitForChild("HumanoidRootPart")
+				startCheckingPlayers()
+				end)
+				
+				startCheckingPlayers()
+				
+				
+				else
+				local MainGui = game:GetService("CoreGui"):FindFirstChild("MainGui")
+				if MainGui then 
+					MainGui:Destroy()
+				end	
 			end
 		end
-	end
-
-	if nearestPlayer then
-		target = nearestPlayer
-		updateGUI(nearestPlayer) 
-		Table["_MainGui"].Enabled = true  
-	else 
-		target = nil
-		Table["_MainGui"].Enabled = false  
-	end
-
-    debounce = false
-end
-
-local heartbeatConnection
-
-local function startCheckingPlayers()
-    if heartbeatConnection then
-        heartbeatConnection:Disconnect()
-    end
-    heartbeatConnection = game:GetService("RunService").Heartbeat:Connect(checkPlayersWithinReach)
-end
-
-local function stopCheckingPlayers()
-    if heartbeatConnection then
-        heartbeatConnection:Disconnect()
-        heartbeatConnection = nil
-    end
-end
-
-game.Players.PlayerRemoving:Connect(function(removedPlayer)
-	if removedPlayer == target then
-		target = nil
-		Table["_MainGui"].Enabled = false 
-	end
+	})
 end)
-
-lplr.CharacterAdded:Connect(function()
-    stopCheckingPlayers()
-    character = lplr.Character
-    rootPart = character:WaitForChild("HumanoidRootPart")
-    startCheckingPlayers()
-end)
-
-startCheckingPlayers()
-
-
-else
-	local MainGui = game:GetService("CoreGui"):FindFirstChild("MainGui")
-	if MainGui then 
-		MainGui:Destroy()
-	end	
-end
-end
-})
 
 runFunction(function()
 	local HackerDetector = {}
@@ -13767,7 +13722,5 @@ runFunction(function()
 		end
 	})
 end)
-
-print("[INFO] Script initialized.")
 
 warningNotification("Load Information:", "No errors, config loaded in "..math.floor(timeTaken).." milliseconds", 5)
