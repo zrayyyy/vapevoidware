@@ -4085,7 +4085,7 @@ runFunction(function()
 				end
 			end
 		else
-			text = 'I\'m using a Vaipe V4 mod known as Render. | renderintents.xyz'
+			text = 'I\'m using a Vaipe V4 mod known as Voidware.'
 		end
 		sendmessage(text)
 	end)
