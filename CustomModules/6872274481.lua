@@ -140,7 +140,7 @@ bedwarsStore.blockRaycast.FilterType = Enum.RaycastFilterType.Include
 local AutoLeave = {Enabled = false}
 local function GetBedTeam(bedtomark)
     for i,v in pairs(game.Teams:GetChildren()) do
-        if bedtomark.Covers.BrickColor == v.TeamColor then
+        if bedtomark.Blanket.BrickColor == v.TeamColor then
 	        VoidwareStore.bedtable[bedtomark] = v.Name
 	       break
       end
@@ -5296,7 +5296,7 @@ runFunction(function()
 						local boxhandle = Instance.new("BoxHandleAdornment")
 						boxhandle.Size = bedesppart.Size + Vector3.new(.01, .01, .01)
 						boxhandle.AlwaysOnTop = true
-						boxhandle.ZIndex = (bedesppart.Name == "Covers" and 10 or 0)
+						boxhandle.ZIndex = (bedesppart.Name == "Blanket" and 10 or 0)
 						boxhandle.Visible = true
 						boxhandle.Adornee = bedesppart
 						boxhandle.Color3 = bedesppart.Color
@@ -5319,7 +5319,7 @@ runFunction(function()
 							local boxhandle = Instance.new("BoxHandleAdornment")
 							boxhandle.Size = bedesppart.Size + Vector3.new(.01, .01, .01)
 							boxhandle.AlwaysOnTop = true
-							boxhandle.ZIndex = (bedesppart.Name == "Covers" and 10 or 0)
+							boxhandle.ZIndex = (bedesppart.Name == "Blanket" and 10 or 0)
 							boxhandle.Visible = true
 							boxhandle.Adornee = bedesppart
 							boxhandle.Color3 = bedesppart.Color
@@ -11336,9 +11336,9 @@ end
 		local selectedBed
 		for _, bed in next, workspace:GetChildren() do
 			if bed.Name == "bed" and not selectedBed then
-				local covers = bed:WaitForChild("Covers")
+				local Blanket = bed:WaitForChild("Blanket")
 				
-				if lplr.TeamColor ~= covers.BrickColor then
+				if lplr.TeamColor ~= Blanket.BrickColor then
 					selectedBed = bed
 				end
 			end
@@ -11412,8 +11412,8 @@ runFunction(function()
 		local selectedBed
 		for _, bed in next, workspace:GetChildren() do
 			if bed.Name == "bed" and not selectedBed then
-				local covers = bed:WaitForChild("Covers")
-				if lplr.TeamColor ~= covers.BrickColor then
+				local Blanket = bed:WaitForChild("Blanket")
+				if lplr.TeamColor ~= Blanket.BrickColor then
 					selectedBed = bed
 				end
 			end
@@ -13675,33 +13675,6 @@ runFunction(function()
 	ProjectileAuraRange.Object.Visible = false
 	ProjectileAuraRangeSlider.Object.Visible = false
 	ProjectileAuraMobs.Object.Visible = false
-end)
-
-runFunction(function()
-	local SetMechanic = {Enabled = false}
-	local SetMechanicList = {Value = 'capture_points'}
-
-	SetMechanic = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-		Name = 'SetMechanic',
-		Function = function(callback)
-			if callback and bedwarsStore.matchState == 0 then
-				bedwars.ClientHandler:GetNamespace('CustomMatches'):Get('SetMatchMechanic'):CallServerAsync(SetMechanicList.Value)
-			end
-		end,
-		HoverText = 'average bw dev iq'
-	})
-	local list = {}
-	for i, v in require(replicatedStorageService.TS.match.mechanics["match-mechanic-types"]).MatchMechanic do table.insert(list, v) end
-	SetMechanicList = SetMechanic.CreateDropdown({
-		Name = 'Mechanic',
-		List = list,
-		Function = function(val)
-			if SetMechanic.Enabled then
-				SetMechanic.ToggleButton(false)
-				SetMechanic.ToggleButton(false)
-			end
-		end
-	})
 end)
 
 warningNotification("Load Information:", "No errors, config loaded in "..math.floor(timeTaken).." milliseconds", 5)
