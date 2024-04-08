@@ -7248,7 +7248,6 @@ runFunction(function()
 	local AutoBuy = {Enabled = false}
 	local AutoBuyArmor = {Enabled = false}
 	local AutoBuySword = {Enabled = false}
-	local AutoBuyUpgrades = {Enabled = false}
 	local AutoBuyGen = {Enabled = false}
 	local AutoBuyProt = {Enabled = false}
 	local AutoBuySharp = {Enabled = false}
@@ -7300,7 +7299,7 @@ runFunction(function()
 		for i,v in pairs(collectionService:GetTagged("BedwarsItemShop")) do
 			table.insert(bedwarsshopnpcs, {Position = v.Position, TeamUpgradeNPC = true, Id = v.Name})
 		end
-		for i,v in pairs(collectionService:GetTagged("BedwarsTeamUpgrader")) do
+		for i,v in pairs(collectionService:GetTagged("TeamUpgradeShopkeeper")) do
 			table.insert(bedwarsshopnpcs, {Position = v.Position, TeamUpgradeNPC = false, Id = v.Name})
 		end
 	end)
@@ -7309,13 +7308,13 @@ runFunction(function()
 		local npc, npccheck, enchant, newid = nil, false, false, nil
 		if entityLibrary.isAlive then
 			local enchanttab = {}
-			for i,v in pairs(collectionService:GetTagged("broken-enchant-table")) do 
+			for i,v in pairs(collectionService:GetTagged("broken-enchant-table")) do
 				table.insert(enchanttab, v)
 			end
-			for i,v in pairs(collectionService:GetTagged("enchant-table")) do 
+			for i,v in pairs(collectionService:GetTagged("enchant-table")) do
 				table.insert(enchanttab, v)
 			end
-			for i,v in pairs(enchanttab) do 
+			for i,v in pairs(enchanttab) do
 				if ((entityLibrary.LocalPosition or entityLibrary.character.HumanoidRootPart.Position) - v.Position).magnitude <= 6 then
 					if ((not v:GetAttribute("Team")) or v:GetAttribute("Team") == lplr:GetAttribute("Team")) then
 						npc, npccheck, enchant = true, true, true
@@ -7329,10 +7328,10 @@ runFunction(function()
 				end
 			end
 			local suc, res = pcall(function() return lplr.leaderstats.Bed.Value == "✅"  end)
-			if AutoBankDeath.Enabled and (workspace:GetServerTimeNow() - lplr.Character:GetAttribute("LastDamageTakenTime")) < 2 and suc and res then 
+			if AutoBankDeath.Enabled and (workspace:GetServerTimeNow() - lplr.Character:GetAttribute("LastDamageTakenTime")) < 2 and suc and res then
 				return nil, false, false
 			end
-			if AutoBankStay.Enabled then 
+			if AutoBankStay.Enabled then
 				return nil, false, false
 			end
 		end
@@ -7342,40 +7341,21 @@ runFunction(function()
 	local function buyItem(itemtab, waitdelay)
 		if not id then return end
 		local res
-		bedwars.ClientHandler:Get("BedwarsPurchaseItem"):CallServerAsync({
+		bedwars.Client:Get("BedwarsPurchaseItem"):CallServerAsync({
 			shopItem = itemtab,
 			shopId = id
 		}):andThen(function(p11)
 			if p11 then
 				bedwars.SoundManager:playSound(bedwars.SoundList.BEDWARS_PURCHASE_ITEM)
 				bedwars.ClientStoreHandler:dispatch({
-					type = "BedwarsAddItemPurchased", 
+					type = "BedwarsAddItemPurchased",
 					itemType = itemtab.itemType
 				})
 			end
 			res = p11
 		end)
-		if waitdelay then 
+		if waitdelay then
 			repeat task.wait() until res ~= nil
-		end
-	end
-
-	local function buyUpgrade(upgradetype, inv, upgrades)
-		if not AutoBuyUpgrades.Enabled then return end
-		local teamupgrade = bedwars.Shop.getUpgrade(bedwars.Shop.TeamUpgrades, upgradetype)
-		local teamtier = teamupgrade.tiers[upgrades[upgradetype] and upgrades[upgradetype] + 2 or 1]
-		if teamtier then 
-			local teamcurrency = getItem(teamtier.currency, inv.items)
-			if teamcurrency and teamcurrency.amount >= teamtier.price then 
-				bedwars.ClientHandler:Get("BedwarsPurchaseTeamUpgrade"):CallServerAsync({
-					upgradeId = upgradetype, 
-					tier = upgrades[upgradetype] and upgrades[upgradetype] + 1 or 0
-				}):andThen(function(suc)
-					if suc then
-						bedwars.SoundManager:playSound(bedwars.SoundList.BEDWARS_PURCHASE_ITEM)
-					end
-				end)
-			end
 		end
 	end
 
@@ -7398,41 +7378,41 @@ runFunction(function()
 	end
 
 	local function getShopItem(itemType)
-		if itemType == "axe" then 
+		if itemType == "axe" then
 			itemType = getAxeNear() or "wood_axe"
 			itemType = axes[table.find(axes, itemType) + 1] or itemType
 		end
-		if itemType == "pickaxe" then 
+		if itemType == "pickaxe" then
 			itemType = getPickaxeNear() or "wood_pickaxe"
 			itemType = pickaxes[table.find(pickaxes, itemType) + 1] or itemType
 		end
-		for i,v in pairs(bedwars.ShopItems) do 
+		for i,v in pairs(bedwars.ShopItems) do
 			if v.itemType == itemType then return v end
 		end
 		return nil
 	end
 
 	local buyfunctions = {
-		Armor = function(inv, upgrades, shoptype) 
+		Armor = function(inv, upgrades, shoptype)
 			if AutoBuyArmor.Enabled == false or shoptype ~= "item" then return end
 			local currentarmor = (inv.armor[2] ~= "empty" and inv.armor[2].itemType:find("chestplate") ~= nil) and inv.armor[2] or nil
 			local armorindex = (currentarmor and table.find(armors, currentarmor.itemType) or 0) + 1
 			if armors[armorindex] == nil then return end
 			local highestbuyable = nil
-			for i = armorindex, #armors, 1 do 
+			for i = armorindex, #armors, 1 do
 				local shopitem = getShopItem(armors[i])
-				if shopitem and (AutoBuyTierSkip.Enabled or i == armorindex) then 
+				if shopitem and i == armorindex then
 					local currency = getItem(shopitem.currency, inv.items)
-					if currency and currency.amount >= shopitem.price then 
+					if currency and currency.amount >= shopitem.price then
 						highestbuyable = shopitem
 						bedwars.ClientStoreHandler:dispatch({
-							type = "BedwarsAddItemPurchased", 
+							type = "BedwarsAddItemPurchased",
 							itemType = shopitem.itemType
 						})
 					end
 				end
 			end
-			if highestbuyable and (highestbuyable.ignoredByKit == nil or table.find(highestbuyable.ignoredByKit, bedwarsStore.equippedKit) == nil) then 
+			if highestbuyable and (highestbuyable.ignoredByKit == nil or table.find(highestbuyable.ignoredByKit, bedwarsStore.equippedKit) == nil) then
 				buyItem(highestbuyable)
 			end
 		end,
@@ -7442,54 +7422,31 @@ runFunction(function()
 			local swordindex = (currentsword and table.find(swords, currentsword.itemType) or 0) + 1
 			if currentsword ~= nil and table.find(swords, currentsword.itemType) == nil then return end
 			local highestbuyable = nil
-			for i = swordindex, #swords, 1 do 
+			for i = swordindex, #swords, 1 do
 				local shopitem = getShopItem(swords[i])
-				if shopitem then 
+				if shopitem and i == swordindex then
 					local currency = getItem(shopitem.currency, inv.items)
-					if currency and currency.amount >= shopitem.price and (shopitem.category ~= "Armory" or upgrades.armory) then 
+					if currency and currency.amount >= shopitem.price and (shopitem.category ~= "Armory" or upgrades.armory) then
 						highestbuyable = shopitem
 						bedwars.ClientStoreHandler:dispatch({
-							type = "BedwarsAddItemPurchased", 
+							type = "BedwarsAddItemPurchased",
 							itemType = shopitem.itemType
 						})
 					end
 				end
 			end
-			if highestbuyable and (highestbuyable.ignoredByKit == nil or table.find(highestbuyable.ignoredByKit, bedwarsStore.equippedKit) == nil) then 
+			if highestbuyable and (highestbuyable.ignoredByKit == nil or table.find(highestbuyable.ignoredByKit, bedwarsStore.equippedKit) == nil) then
 				buyItem(highestbuyable)
 			end
-		end,
-		Protection = function(inv, upgrades)
-			if not AutoBuyProt.Enabled then return end
-			buyUpgrade("armor", inv, upgrades)
-		end,
-		Sharpness = function(inv, upgrades)
-			if not AutoBuySharp.Enabled then return end
-			buyUpgrade("damage", inv, upgrades)
-		end,
-		Generator = function(inv, upgrades)
-			if not AutoBuyGen.Enabled then return end
-			buyUpgrade("generator", inv, upgrades)
-		end,
-		Destruction = function(inv, upgrades)
-			if not AutoBuyDestruction.Enabled then return end
-			buyUpgrade("destruction", inv, upgrades)
-		end,
-		Diamond = function(inv, upgrades)
-			if not AutoBuyDiamond.Enabled then return end
-			buyUpgrade("diamond_generator", inv, upgrades)
-		end,
-		Alarm = function(inv, upgrades)
-			if not AutoBuyAlarm.Enabled then return end
-			buyUpgrade("alarm", inv, upgrades)
 		end
 	}
 
 	AutoBuy = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-		Name = "AutoBuy", 
+		Name = "AutoBuy",
 		Function = function(callback)
-			if callback then 
-				buyingthing = false 
+			if callback then
+				--[[
+				buyingthing = false
 				task.spawn(function()
 					repeat
 						task.wait()
@@ -7498,7 +7455,7 @@ runFunction(function()
 						if found then
 							local inv = bedwarsStore.localInventory.inventory
 							local currentupgrades = bedwars.ClientStoreHandler:getState().Bedwars.teamUpgrades
-							if bedwarsStore.equippedKit == "dasher" then 
+							if bedwarsStore.equippedKit == "dasher" then
 								swords = {
 									[1] = "wood_dao",
 									[2] = "stone_dao",
@@ -7506,36 +7463,36 @@ runFunction(function()
 									[4] = "diamond_dao",
 									[5] = "emerald_dao"
 								}
-							elseif bedwarsStore.equippedKit == "ice_queen" then 
+							elseif bedwarsStore.equippedKit == "ice_queen" then
 								swords[5] = "ice_sword"
-							elseif bedwarsStore.equippedKit == "ember" then 
+							elseif bedwarsStore.equippedKit == "ember" then
 								swords[5] = "infernal_saber"
-							elseif bedwarsStore.equippedKit == "lumen" then 
+							elseif bedwarsStore.equippedKit == "lumen" then
 								swords[5] = "light_sword"
 							end
 							if (AutoBuyGui.Enabled == false or (bedwars.AppController:isAppOpen("BedwarsItemShopApp") or bedwars.AppController:isAppOpen("BedwarsTeamUpgradeApp"))) and (not enchant) then
-								for i,v in pairs(AutoBuyCustom.ObjectList) do 
+								for i,v in pairs(AutoBuyCustom.ObjectList) do
 									local autobuyitem = v:split("/")
-									if #autobuyitem >= 3 and autobuyitem[4] ~= "true" then 
+									if #autobuyitem >= 3 and autobuyitem[4] ~= "true" then
 										local shopitem = getShopItem(autobuyitem[1])
-										if shopitem then 
+										if shopitem then
 											local currency = getItem(shopitem.currency, inv.items)
 											local actualitem = getItem(shopitem.itemType == "wool_white" and getWool() or shopitem.itemType, inv.items)
-											if currency and currency.amount >= shopitem.price and (actualitem == nil or actualitem.amount < tonumber(autobuyitem[2])) then 
+											if currency and currency.amount >= shopitem.price and (actualitem == nil or actualitem.amount < tonumber(autobuyitem[2])) then
 												buyItem(shopitem, tonumber(autobuyitem[2]) > 1)
 											end
 										end
 									end
 								end
 								for i,v in pairs(buyfunctions) do v(inv, currentupgrades, npctype and "upgrade" or "item") end
-								for i,v in pairs(AutoBuyCustom.ObjectList) do 
+								for i,v in pairs(AutoBuyCustom.ObjectList) do
 									local autobuyitem = v:split("/")
-									if #autobuyitem >= 3 and autobuyitem[4] == "true" then 
+									if #autobuyitem >= 3 and autobuyitem[4] == "true" then
 										local shopitem = getShopItem(autobuyitem[1])
-										if shopitem then 
+										if shopitem then
 											local currency = getItem(shopitem.currency, inv.items)
 											local actualitem = getItem(shopitem.itemType == "wool_white" and getWool() or shopitem.itemType, inv.items)
-											if currency and currency.amount >= shopitem.price and (actualitem == nil or actualitem.amount < tonumber(autobuyitem[2])) then 
+											if currency and currency.amount >= shopitem.price and (actualitem == nil or actualitem.amount < tonumber(autobuyitem[2])) then
 												buyItem(shopitem, tonumber(autobuyitem[2]) > 1)
 											end
 										end
@@ -7545,6 +7502,7 @@ runFunction(function()
 						end
 					until (not AutoBuy.Enabled)
 				end)
+			--]]
 			end
 		end,
 		HoverText = "Automatically Buys Swords, Armor, and Team Upgrades\nwhen you walk near the NPC"
@@ -7558,86 +7516,23 @@ runFunction(function()
 	})
 	AutoBuyArmor = AutoBuy.CreateToggle({
 		Name = "Buy Armor",
-		Function = function() end, 
+		Function = function() end,
 		Default = true
 	})
 	AutoBuySword = AutoBuy.CreateToggle({
 		Name = "Buy Sword",
-		Function = function() end, 
+		Function = function() end,
 		Default = true
-	})
-	AutoBuyUpgrades = AutoBuy.CreateToggle({
-		Name = "Buy Team Upgrades",
-		Function = function(callback) 
-			if AutoBuyUpgrades.Object then AutoBuyUpgrades.Object.ToggleArrow.Visible = callback end
-			if AutoBuyGen.Object then AutoBuyGen.Object.Visible = callback end
-			if AutoBuyProt.Object then AutoBuyProt.Object.Visible = callback end
-			if AutoBuySharp.Object then AutoBuySharp.Object.Visible = callback end
-			if AutoBuyDestruction.Object then AutoBuyDestruction.Object.Visible = callback end
-			if AutoBuyDiamond.Object then AutoBuyDiamond.Object.Visible = callback end
-			if AutoBuyAlarm.Object then AutoBuyAlarm.Object.Visible = callback end
-		end, 
-		Default = true
-	})
-	AutoBuyGen = AutoBuy.CreateToggle({
-		Name = "Buy Team Generator",
-		Function = function() end, 
-	})
-	AutoBuyProt = AutoBuy.CreateToggle({
-		Name = "Buy Protection",
-		Function = function() end, 
-		Default = true
-	})
-	AutoBuySharp = AutoBuy.CreateToggle({
-		Name = "Buy Sharpness",
-		Function = function() end, 
-		Default = true
-	})
-	AutoBuyDestruction = AutoBuy.CreateToggle({
-		Name = "Buy Destruction",
-		Function = function() end, 
-	})
-	AutoBuyDiamond = AutoBuy.CreateToggle({
-		Name = "Buy Diamond Generator",
-		Function = function() end, 
-	})
-	AutoBuyAlarm = AutoBuy.CreateToggle({
-		Name = "Buy Alarm",
-		Function = function() end, 
 	})
 	AutoBuyGui = AutoBuy.CreateToggle({
 		Name = "Shop GUI Check",
-		Function = function() end, 	
+		Function = function() end,
 	})
 	AutoBuyTierSkip = AutoBuy.CreateToggle({
 		Name = "Tier Skip",
-		Function = function() end, 
+		Function = function() end,
 		Default = true
 	})
-	AutoBuyGen.Object.BackgroundTransparency = 0
-	AutoBuyGen.Object.BorderSizePixel = 0
-	AutoBuyGen.Object.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	AutoBuyGen.Object.Visible = AutoBuyUpgrades.Enabled
-	AutoBuyProt.Object.BackgroundTransparency = 0
-	AutoBuyProt.Object.BorderSizePixel = 0
-	AutoBuyProt.Object.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	AutoBuyProt.Object.Visible = AutoBuyUpgrades.Enabled
-	AutoBuySharp.Object.BackgroundTransparency = 0
-	AutoBuySharp.Object.BorderSizePixel = 0
-	AutoBuySharp.Object.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	AutoBuySharp.Object.Visible = AutoBuyUpgrades.Enabled
-	AutoBuyDestruction.Object.BackgroundTransparency = 0
-	AutoBuyDestruction.Object.BorderSizePixel = 0
-	AutoBuyDestruction.Object.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	AutoBuyDestruction.Object.Visible = AutoBuyUpgrades.Enabled
-	AutoBuyDiamond.Object.BackgroundTransparency = 0
-	AutoBuyDiamond.Object.BorderSizePixel = 0
-	AutoBuyDiamond.Object.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	AutoBuyDiamond.Object.Visible = AutoBuyUpgrades.Enabled
-	AutoBuyAlarm.Object.BackgroundTransparency = 0
-	AutoBuyAlarm.Object.BorderSizePixel = 0
-	AutoBuyAlarm.Object.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-	AutoBuyAlarm.Object.Visible = AutoBuyUpgrades.Enabled
 	AutoBuyCustom = AutoBuy.CreateTextList({
 		Name = "BuyList",
 		TempText = "item/amount/priority/after",
@@ -7662,9 +7557,9 @@ runFunction(function()
 
 	local function refreshbank()
 		if autobankui then
-			local echest = replicatedStorageService.Inventories:FindFirstChild(lplr.Name.."_personal")
-			for i,v in pairs(autobankui:GetChildren()) do 
-				if echest:FindFirstChild(v.Name) then 
+			local echest = replicatedStorage.Inventories:FindFirstChild(lplr.Name.."_personal")
+			for i,v in pairs(autobankui:GetChildren()) do
+				if echest:FindFirstChild(v.Name) then
 					v.Amount.Text = echest[v.Name]:GetAttribute("Amount")
 				else
 					v.Amount.Text = ""
@@ -7685,11 +7580,11 @@ runFunction(function()
 				task.spawn(function()
 					repeat
 						task.wait()
-						if autobankui then 
+						if autobankui then
 							local hotbar = lplr.PlayerGui:FindFirstChild("hotbar")
-							if hotbar then 
+							if hotbar then
 								local healthbar = hotbar["1"]:FindFirstChild("HotbarHealthbarContainer")
-								if healthbar then 
+								if healthbar then
 									autobankui.Position = UDim2.new(0.5, 0, 0, healthbar.AbsolutePosition.Y - 50)
 								end
 							end
@@ -7748,7 +7643,7 @@ runFunction(function()
 						local chestitems = bedwarsStore.localInventory.inventory.items
 						for i3,v3 in pairs(chestitems) do
 							if (v3.itemType == "emerald" or v3.itemType == "iron" or v3.itemType == "diamond" or v3.itemType == "gold" or (v3.itemType == "apple" and AutoBankApple.Enabled) or (v3.itemType == "balloon" and AutoBankBalloon.Enabled)) then
-								bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, v3.tool)
+								bedwars.Client:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, v3.tool)
 								refreshbank()
 							end
 						end
@@ -7760,20 +7655,20 @@ runFunction(function()
 				end
 				table.insert(AutoBank.Connections, replicatedStorageService.Inventories.DescendantAdded:Connect(function(p3)
 					if p3.Parent.Name == lplr.Name then
-						if echest == nil then 
+						if echest == nil then
 							echest = replicatedStorageService.Inventories:FindFirstChild(lplr.Name.."_personal")
-						end	
+						end
 						if not echest then return end
-						if p3.Name == "apple" and AutoBankApple.Enabled then 
+						if p3.Name == "apple" and AutoBankApple.Enabled then
 							if autobankapple then return end
-						elseif p3.Name == "balloon" and AutoBankBalloon.Enabled then 
+						elseif p3.Name == "balloon" and AutoBankBalloon.Enabled then
 							if autobankballoon then vapeEvents.AutoBankBalloon:Fire() return end
 						elseif (p3.Name == "emerald" or p3.Name == "iron" or p3.Name == "diamond" or p3.Name == "gold") then
 							if not ((not AutoBankTransmitted) or (AutoBankTransmittedType and p3.Name ~= "diamond")) then return end
 						else
 							return
 						end
-						bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, p3)
+						bedwars.Client:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, p3)
 						refreshbank()
 					end
 				end))
@@ -7781,17 +7676,17 @@ runFunction(function()
 					repeat
 						task.wait()
 						local found, npctype = nearNPC(AutoBankRange.Value)
-						if echest == nil then 
+						if echest == nil then
 							echest = replicatedStorageService.Inventories:FindFirstChild(lplr.Name.."_personal")
 						end
-						if autobankballoon then 
+						if autobankballoon then
 							local chestitems = echest and echest:GetChildren() or {}
 							if #chestitems > 0 then
 								for i3,v3 in pairs(chestitems) do
 									if v3:IsA("Accessory") and v3.Name == "balloon" then
 										if (not getItem("balloon")) then
 											task.spawn(function()
-												bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
+												bedwars.Client:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
 												refreshbank()
 											end)
 										end
@@ -7799,7 +7694,7 @@ runFunction(function()
 								end
 							end
 						end
-						if autobankballoon ~= autobankoldballoon and AutoBankBalloon.Enabled then 
+						if autobankballoon ~= autobankoldballoon and AutoBankBalloon.Enabled then
 							if entityLibrary.isAlive then
 								if not autobankballoon then
 									local chestitems = bedwarsStore.localInventory.inventory.items
@@ -7807,7 +7702,7 @@ runFunction(function()
 										for i3,v3 in pairs(chestitems) do
 											if v3 and v3.itemType == "balloon" then
 												task.spawn(function()
-													bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, v3.tool)
+													bedwars.Client:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, v3.tool)
 													refreshbank()
 												end)
 											end
@@ -7817,14 +7712,14 @@ runFunction(function()
 							end
 							autobankoldballoon = autobankballoon
 						end
-						if autobankapple then 
+						if autobankapple then
 							local chestitems = echest and echest:GetChildren() or {}
 							if #chestitems > 0 then
 								for i3,v3 in pairs(chestitems) do
 									if v3:IsA("Accessory") and v3.Name == "apple" then
 										if (not getItem("apple")) then
 											task.spawn(function()
-												bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
+												bedwars.Client:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
 												refreshbank()
 											end)
 										end
@@ -7832,7 +7727,7 @@ runFunction(function()
 								end
 							end
 						end
-						if (autobankapple ~= autobankoldapple) and AutoBankApple.Enabled then 
+						if (autobankapple ~= autobankoldapple) and AutoBankApple.Enabled then
 							if entityLibrary.isAlive then
 								if not autobankapple then
 									local chestitems = bedwarsStore.localInventory.inventory.items
@@ -7840,7 +7735,7 @@ runFunction(function()
 										for i3,v3 in pairs(chestitems) do
 											if v3 and v3.itemType == "apple" then
 												task.spawn(function()
-													bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, v3.tool)
+													bedwars.Client:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, v3.tool)
 													refreshbank()
 												end)
 											end
@@ -7857,10 +7752,10 @@ runFunction(function()
 								if #chestitems > 0 then
 									for i3,v3 in pairs(chestitems) do
 										if v3 and (v3.itemType == "emerald" or v3.itemType == "iron" or v3.itemType == "diamond" or v3.itemType == "gold") then
-											if (not AutoBankTransmitted) or (AutoBankTransmittedType and v3.Name ~= "diamond") then 
+											if (not AutoBankTransmitted) or (AutoBankTransmittedType and v3.Name ~= "diamond") then
 												task.spawn(function()
 													pcall(function()
-														bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, v3.tool)
+														bedwars.Client:GetNamespace("Inventory"):Get("ChestGiveItem"):CallServer(echest, v3.tool)
 													end)
 													refreshbank()
 												end)
@@ -7870,14 +7765,14 @@ runFunction(function()
 								end
 							end
 						end
-						if found then 
+						if found then
 							local chestitems = echest and echest:GetChildren() or {}
 							if #chestitems > 0 then
 								for i3,v3 in pairs(chestitems) do
 									if v3:IsA("Accessory") and ((npctype == false and (v3.Name == "emerald" or v3.Name == "iron" or v3.Name == "gold")) or v3.Name == "diamond") then
 										task.spawn(function()
 											pcall(function()
-												bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
+												bedwars.Client:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
 											end)
 											refreshbank()
 										end)
@@ -7899,7 +7794,7 @@ runFunction(function()
 						if v3:IsA("Accessory") and (v3.Name == "emerald" or v3.Name == "iron" or v3.Name == "diamond" or v3.Name == "apple" or v3.Name == "balloon") then
 							task.spawn(function()
 								pcall(function()
-									bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
+									bedwars.Client:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
 								end)
 								refreshbank()
 							end)
@@ -7918,14 +7813,14 @@ runFunction(function()
 	})
 	AutoBankApple = AutoBank.CreateToggle({
 		Name = "Apple",
-		Function = function(callback) 
-			if not callback then 
+		Function = function(callback)
+			if not callback then
 				local echest = replicatedStorageService.Inventories:FindFirstChild(lplr.Name.."_personal")
 				local chestitems = echest and echest:GetChildren() or {}
 				for i3,v3 in pairs(chestitems) do
 					if v3:IsA("Accessory") and v3.Name == "apple" then
 						task.spawn(function()
-							bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
+							bedwars.Client:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
 							refreshbank()
 						end)
 					end
@@ -7936,14 +7831,14 @@ runFunction(function()
 	})
 	AutoBankBalloon = AutoBank.CreateToggle({
 		Name = "Balloon",
-		Function = function(callback) 
-			if not callback then 
+		Function = function(callback)
+			if not callback then
 				local echest = replicatedStorageService.Inventories:FindFirstChild(lplr.Name.."_personal")
 				local chestitems = echest and echest:GetChildren() or {}
 				for i3,v3 in pairs(chestitems) do
 					if v3:IsA("Accessory") and v3.Name == "balloon" then
 						task.spawn(function()
-							bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
+							bedwars.Client:GetNamespace("Inventory"):Get("ChestGetItem"):CallServer(echest, v3)
 							refreshbank()
 						end)
 					end
@@ -12028,471 +11923,6 @@ runFunction(function()
     initializeNotifications(notifications, lplr)
 end)
 
-SessionInfo = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-	Name = "SessionInfo",
-	HoverText = "Custom session info window",
-	Function = function(callback)
-		if callback then
-			local lplr = game.Players.LocalPlayer
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local DropShadowHolder = Instance.new("Frame")
-local DropShadow = Instance.new("ImageLabel")
-local Frame_2 = Instance.new("Frame")
-local UIGradient = Instance.new("UIGradient")
-local DropShadowHolder_2 = Instance.new("Frame")
-local DropShadow_2 = Instance.new("ImageLabel")
-local TextLabel = Instance.new("TextLabel")
-local ImageLabel = Instance.new("ImageLabel")
-local TextLabel_2 = Instance.new("TextLabel")
-local TextLabel_3 = Instance.new("TextLabel")
-local TextLabel_4 = Instance.new("TextLabel")
-local TextLabel_5 = Instance.new("TextLabel")
-local TextLabel_6 = Instance.new("TextLabel")
-local TextLabel_7 = Instance.new("TextLabel")
-local TextLabel_8 = Instance.new("TextLabel")
-local TextLabel_9 = Instance.new("TextLabel")
-local TextLabel_10 = Instance.new("TextLabel")
-local TextLabel_11 = Instance.new("TextLabel")
-local TextLabel_12 = Instance.new("TextLabel")
-local FullscreenExit = Instance.new("ImageLabel")
-local MainFrame = Frame
-local Drag = Frame_2 
-local PlayersNumb = TextLabel_10
-local AlivePlrsNumb = TextLabel_11
-local KillsNum = TextLabel_3
-local DeathsNumb = TextLabel_8
-local TimeNumb = TextLabel_9
-
-
---Properties:
-
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BackgroundTransparency = 0.356
-Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BorderSizePixel = 0
-Frame.Position = UDim2.new(0.00887371972, 0, 0.489077657, 0)
-Frame.Size = UDim2.new(0, 277, 0, 346)
-Frame.Draggable = true
-Frame.Selectable = true 
-Frame.Active = true 
-
-DropShadowHolder.Name = "DropShadowHolder"
-DropShadowHolder.Parent = Frame
-DropShadowHolder.BackgroundTransparency = 1.000
-DropShadowHolder.BorderSizePixel = 0
-DropShadowHolder.Size = UDim2.new(1, 0, 1, 0)
-DropShadowHolder.ZIndex = 0
-
-DropShadow.Name = "DropShadow"
-DropShadow.Parent = DropShadowHolder
-DropShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-DropShadow.BackgroundTransparency = 1.000
-DropShadow.BorderSizePixel = 0
-DropShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-DropShadow.Size = UDim2.new(1, 47, 1, 47)
-DropShadow.ZIndex = 0
-DropShadow.Image = "rbxassetid://6014261993"
-DropShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-DropShadow.ImageTransparency = 0.500
-DropShadow.ScaleType = Enum.ScaleType.Slice
-DropShadow.SliceCenter = Rect.new(49, 49, 450, 450)
-
-Frame_2.Parent = Frame
-Frame_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Frame_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Frame_2.BorderSizePixel = 0
-Frame_2.Position = UDim2.new(0, 0, 0.00289017335, 0)
-Frame_2.Size = UDim2.new(0, 277, 0, -4)
-
-UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(93, 0, 112)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(106, 0, 255))}
-UIGradient.Parent = Frame_2
-
-DropShadow_2.Name = "DropShadow"
-DropShadow_2.Parent = DropShadowHolder_2
-DropShadow_2.AnchorPoint = Vector2.new(0.5, 0.5)
-DropShadow_2.BackgroundTransparency = 1.000
-DropShadow_2.BorderSizePixel = 0
-DropShadow_2.Position = UDim2.new(0.5, 0, 0.5, 0)
-DropShadow_2.Size = UDim2.new(1, 47, 1, 47)
-DropShadow_2.ZIndex = 0
-DropShadow_2.Image = "rbxassetid://6014261993"
-DropShadow_2.ImageColor3 = Color3.fromRGB(0, 0, 0)
-DropShadow_2.ImageTransparency = 0.500
-DropShadow_2.ScaleType = Enum.ScaleType.Slice
-DropShadow_2.SliceCenter = Rect.new(49, 49, 450, 450)
-
-TextLabel_2.Parent = Frame
-TextLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_2.BackgroundTransparency = 1.000
-TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_2.BorderSizePixel = 0
-TextLabel_2.Position = UDim2.new(0, 0, 0.182080925, 0)
-TextLabel_2.Size = UDim2.new(0, 277, 0, 50)
-TextLabel_2.Font = Enum.Font.SourceSansBold
-TextLabel_2.Text = "Kills:"
-TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_2.TextSize = 40.000
-TextLabel_2.TextWrapped = true
-TextLabel_2.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_3.Parent = Frame
-TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_3.BackgroundTransparency = 1.000
-TextLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_3.BorderSizePixel = 0
-TextLabel_3.Position = UDim2.new(0.285198569, 0, 0.182080925, 0)
-TextLabel_3.Size = UDim2.new(0, 198, 0, 50)
-TextLabel_3.Font = Enum.Font.SourceSans
-TextLabel_3.Text = "10"
-TextLabel_3.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_3.TextSize = 40.000
-TextLabel_3.TextWrapped = true
-TextLabel_3.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_4.Parent = Frame
-TextLabel_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_4.BackgroundTransparency = 1.000
-TextLabel_4.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_4.BorderSizePixel = 0
-TextLabel_4.Position = UDim2.new(0, 0, 0.346820801, 0)
-TextLabel_4.Size = UDim2.new(0, 277, 0, 50)
-TextLabel_4.Font = Enum.Font.SourceSansBold
-TextLabel_4.Text = "Deaths:"
-TextLabel_4.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_4.TextSize = 40.000
-TextLabel_4.TextWrapped = true
-TextLabel_4.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_5.Parent = Frame
-TextLabel_5.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_5.BackgroundTransparency = 1.000
-TextLabel_5.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_5.BorderSizePixel = 0
-TextLabel_5.Position = UDim2.new(0, 0, 0.520231187, 0)
-TextLabel_5.Size = UDim2.new(0, 277, 0, 50)
-TextLabel_5.Font = Enum.Font.SourceSansBold
-TextLabel_5.Text = "Time:"
-TextLabel_5.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_5.TextSize = 40.000
-TextLabel_5.TextWrapped = true
-TextLabel_5.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_6.Parent = Frame
-TextLabel_6.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_6.BackgroundTransparency = 1.000
-TextLabel_6.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_6.BorderSizePixel = 0
-TextLabel_6.Position = UDim2.new(0, 0, 0.690751433, 0)
-TextLabel_6.Size = UDim2.new(0, 277, 0, 50)
-TextLabel_6.Font = Enum.Font.SourceSansBold
-TextLabel_6.Text = "Players:"
-TextLabel_6.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_6.TextSize = 40.000
-TextLabel_6.TextWrapped = true
-TextLabel_6.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_7.Parent = Frame
-TextLabel_7.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_7.BackgroundTransparency = 1.000
-TextLabel_7.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_7.BorderSizePixel = 0
-TextLabel_7.Position = UDim2.new(0, 0, 0.85549134, 0)
-TextLabel_7.Size = UDim2.new(0, 277, 0, 50)
-TextLabel_7.Font = Enum.Font.SourceSansBold
-TextLabel_7.Text = "Alive plrs:"
-TextLabel_7.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_7.TextSize = 40.000
-TextLabel_7.TextWrapped = true
-TextLabel_7.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_8.Parent = Frame
-TextLabel_8.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_8.BackgroundTransparency = 1.000
-TextLabel_8.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_8.BorderSizePixel = 0
-TextLabel_8.Position = UDim2.new(0.425992787, 0, 0.346820801, 0)
-TextLabel_8.Size = UDim2.new(0, 198, 0, 50)
-TextLabel_8.Font = Enum.Font.SourceSans
-TextLabel_8.Text = "10"
-TextLabel_8.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_8.TextSize = 40.000
-TextLabel_8.TextWrapped = true
-TextLabel_8.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_9.Parent = Frame
-TextLabel_9.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_9.BackgroundTransparency = 1.000
-TextLabel_9.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_9.BorderSizePixel = 0
-TextLabel_9.Position = UDim2.new(0.328519851, 0, 0.520231187, 0)
-TextLabel_9.Size = UDim2.new(0, 198, 0, 50)
-TextLabel_9.Font = Enum.Font.SourceSans
-TextLabel_9.Text = "10"
-TextLabel_9.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_9.TextSize = 40.000
-TextLabel_9.TextWrapped = true
-TextLabel_9.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_10.Parent = Frame
-TextLabel_10.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_10.BackgroundTransparency = 1.000
-TextLabel_10.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_10.BorderSizePixel = 0
-TextLabel_10.Position = UDim2.new(0.454873651, 0, 0.690751433, 0)
-TextLabel_10.Size = UDim2.new(0, 198, 0, 50)
-TextLabel_10.Font = Enum.Font.SourceSans
-TextLabel_10.Text = "10"
-TextLabel_10.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_10.TextSize = 40.000
-TextLabel_10.TextWrapped = true
-TextLabel_10.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_11.Parent = Frame
-TextLabel_11.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_11.BackgroundTransparency = 1.000
-TextLabel_11.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_11.BorderSizePixel = 0
-TextLabel_11.Position = UDim2.new(0.548736453, 0, 0.85549134, 0)
-TextLabel_11.Size = UDim2.new(0, 198, 0, 50)
-TextLabel_11.Font = Enum.Font.SourceSans
-TextLabel_11.Text = "10"
-TextLabel_11.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_11.TextSize = 40.000
-TextLabel_11.TextWrapped = true
-TextLabel_11.TextXAlignment = Enum.TextXAlignment.Left
-
-TextLabel_12.Parent = Frame
-TextLabel_12.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_12.BackgroundTransparency = 1.000
-TextLabel_12.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel_12.BorderSizePixel = 0
-TextLabel_12.Position = UDim2.new(0, 0, 0.00289017335, 0)
-TextLabel_12.Size = UDim2.new(0, 276, 0, 50)
-TextLabel_12.Font = Enum.Font.SourceSansBold
-TextLabel_12.Text = "Session Info"
-TextLabel_12.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel_12.TextScaled = true
-TextLabel_12.TextSize = 1.000
-TextLabel_12.TextWrapped = true
-
-FullscreenExit.Name = "Fullscreen Exit"
-FullscreenExit.Parent = Frame
-FullscreenExit.BackgroundColor3 = Color3.fromRGB(58, 58, 58)
-FullscreenExit.BackgroundTransparency = 1.000
-FullscreenExit.Position = UDim2.new(0.862815857, 0, 0.913294792, 0)
-FullscreenExit.Size = UDim2.new(0, 37, 0, 30)
-FullscreenExit.Image = "rbxassetid://2777726146"
-
-local function OKXLKOB_fake_script() 
-	local script = Instance.new('LocalScript', Frame_2)
-
-	
-	local frame = script.Parent
-	local gradient = frame.UIGradient
-	
-
-	gradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.new(1,1,1)),    
-		ColorSequenceKeypoint.new(0.25, Color3.new(1,1,1)),
-		ColorSequenceKeypoint.new(0.5, Color3.new(1,1,1)),   
-		ColorSequenceKeypoint.new(0.75, Color3.new(1,1,1)), 
-		ColorSequenceKeypoint.new(1, Color3.new(1,1,1)),   
-	})
-	
-	gradient.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0),   
-		NumberSequenceKeypoint.new(0.25, 1), 
-		NumberSequenceKeypoint.new(0.5, 0),  
-		NumberSequenceKeypoint.new(0.75, 1), 
-		NumberSequenceKeypoint.new(1, 0),   
-	})
-	
-	local tweenService = game:GetService("TweenService")
-	local shineSpeed = 2 
-	
-	local function animateShine()
-		local initialOffset = Vector2.new(0, 0)
-		local finalOffset = Vector2.new(0.5, 0)  
-	
-		local tweenInfo = TweenInfo.new(
-			shineSpeed,
-			Enum.EasingStyle.Linear,
-			Enum.EasingDirection.Out,
-			-1,
-			false, 
-			0  
-		)
-	
-		local tweenGoal = {
-			Offset = finalOffset,
-		}
-	
-		local tween = tweenService:Create(gradient, tweenInfo, tweenGoal)
-		tween:Play()
-	end
-	
-	animateShine()
-end
-coroutine.wrap(OKXLKOB_fake_script)()
-
-local deathCount = 0
-
-local function onDeath()
-    deathCount = deathCount + 1
-    DeathsNumb.Text = tostring(deathCount)
-end
-
-lplr.CharacterAdded:Connect(function(character)
-    local humanoid = character:WaitForChild("Humanoid")
-    humanoid.Died:Connect(onDeath)  
-end)
-
-local character = lplr.Character or lplr.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-humanoid.Died:Connect(onDeath)
-
-local function getLocalPlayerKills()
-    if lplr:FindFirstChild("leaderstats") and lplr.leaderstats:FindFirstChild("Kills") then
-        return lplr.leaderstats.Kills.Value
-    else
-        return 0 
-    end
-end
-
-
-local UIS = game:GetService("UserInputService")
-local dragging
-local dragInput
-local dragStart
-local startPos
-
-local function countAlivePlayers()
-    local totalPlayers = 0
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if game.Workspace:FindFirstChild(player.Name) then
-            totalPlayers = totalPlayers + 1
-        end
-    end
-    return totalPlayers
-end
-
-local function updateStats()
-    local totalPlayers = #game.Players:GetPlayers() 
-    local alivePlayers = countAlivePlayers()
-    local playerKills = getLocalPlayerKills()
-    local playerDeaths = deathCount
-    
-    PlayersNumb.Text = tostring(totalPlayers)
-    AlivePlrsNumb.Text = tostring(alivePlayers)
-    KillsNum.Text = tostring(playerKills)
-    DeathsNumb.Text = tostring(playerDeaths)
-end
-
-updateStats()
-
-local startTime = tick() 
-
-local function updateTimer()
-    local elapsedTime = math.floor(tick() - startTime)
-    
-    local minutes = math.floor(elapsedTime / 60)
-    local seconds = elapsedTime % 60
-    
-    TimeNumb.Text = string.format("%02d:%02d", minutes, seconds) 
-end
-
-game:GetService("RunService").Heartbeat:Connect(updateTimer)
-
-local runService = game:GetService("RunService")
-
-runService.Heartbeat:Connect(function()
-    updateStats()  
-    updateTimer() 
-end)
-
-
-local ImageLabelDrag = ImageLabel 
-
-local function startDrag(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = Frame.Position
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end
-
-local function duringDrag(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end
-
-local function endDrag(input)
-    if dragging then
-        update(input)
-    end
-end
-
-ImageLabelDrag.InputBegan:Connect(startDrag)
-ImageLabelDrag.InputChanged:Connect(duringDrag)
-UIS.InputChanged:Connect(endDrag)
-
-
-local ImageLabelDrag = FullscreenExit 
-
-local function startDrag(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = Frame.Position
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end
-
-local function duringDrag(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end
-
-local function endDrag(input)
-    if dragging then
-        update(input)
-    end
-end
-
-ImageLabelDrag.InputBegan:Connect(startDrag)
-ImageLabelDrag.InputChanged:Connect(duringDrag)
-UIS.InputChanged:Connect(endDrag)
-		else
-			local cr = game.Players.LocalPlayer.PlayerGui
-			local sg = cr:FindFirstChild("ScreenGui")
-			if sg then 
-				sg:Destroy()
-				print("[DEBUG]:Successfully destroyed Session Info")
-			else 
-				print("[DEBUG]:Couldnt Find Session Info")
-			end
-		end
-	end
-})
-
 
 runFunction(function()
 	local TweenService = game:GetService("TweenService")
@@ -13695,7 +13125,7 @@ runFunction(function()
 	local regiondisplay = plrgui.ServerRegionDisplay.ServerRegionText.Text
 	local playerded = false 
 	local debouncegaming = false
-	local SessionInfo = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+	local SessionInfo = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = "SessionInfo Custom",
 		HoverText = "Customizable session info.",
 		Function = function(callback)
