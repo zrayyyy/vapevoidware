@@ -147,10 +147,6 @@ void.version = VoidwareStore.VersionInfo.MainVersion
 
 void.load = tick()
 
-void.tab = function()
-	return GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api;
-end;
-
 bedwarsStore.blockRaycast.FilterType = Enum.RaycastFilterType.Include
 local AutoLeave = {Enabled = false}
 local function GetBedTeam(bedtomark)
@@ -10821,7 +10817,7 @@ runFunction(function()
 end)
 runFunction(function()
 	local Trolling = {}
-	Trolling = void.tab.CreateOptionsButton({
+	Trolling = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'Trolling',
 		HoverText = ':troll:',
 		Function = function(calling)
@@ -11276,7 +11272,7 @@ end
 if Allowed == true then
 	runFunction(function()
 		local Testing = {Enabled = false}
-		Testing = void.tab.CreateOptionsButton({
+		Testing = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 			Name = "Testing",
 			HoverText = "Some testing",
 			Function = function(callback) 
@@ -11292,7 +11288,7 @@ end
 
 runFunction(function()
 	local GetHost = {Enabled = false}
-	GetHost = void.tab.CreateOptionsButton({
+	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = "GetHost",
 		HoverText = ":troll:",
 		Function = function(callback) 
@@ -12032,7 +12028,7 @@ runFunction(function()
     initializeNotifications(notifications, lplr)
 end)
 
-SessionInfo = void.tab.CreateOptionsButton({
+SessionInfo = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 	Name = "SessionInfo",
 	HoverText = "Custom session info window",
 	Function = function(callback)
@@ -13223,7 +13219,7 @@ runFunction(function()
 		end 
 		return queuemeta
 	end
-	JoinQueue = void.tab.CreateOptionsButton({
+	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'JoinQueue',
 		NoSave = true,
 		HoverText = 'Starts a match for the provided gamemode.',
