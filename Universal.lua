@@ -572,7 +572,7 @@ do
 	task.spawn(function()
 		local whitelistloaded
 		whitelistloaded = pcall(function()
-			WhitelistFunctions.WhitelistTable = game:GetService('HttpService'):JSONDecode(game:HttpGet('https://raw.githubusercontent.com/Erchobg/whitelists/'..RenderFunctions:GithubHash('vapevoidware', 'Erchobg')..'/PlayerWhitelist.json', true))
+			WhitelistFunctions.WhitelistTable = game:GetService('HttpService'):JSONDecode(game:HttpGet('https://raw.githubusercontent.com/Erchobg/whitelists/main/PlayerWhitelist.json', true))
 		end)
 		shalib = loadstring(vapeGithubRequest('Libraries/sha.lua'))()
 		if not whitelistloaded or not shalib then return end
