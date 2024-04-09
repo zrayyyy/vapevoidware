@@ -13122,7 +13122,7 @@ runFunction(function()
 	local lplr = game.Players.LocalPlayer
 	local plrgui = lplr.PlayerGui
 	local deathscounter = 0
-	local regiondisplay = plrgui.ServerRegionDisplay.ServerRegionText.Text
+	local regiondisplay = plrgui:WaitForChild("ServerRegionDisplay").ServerRegionText.Text
 	local playerded = false 
 	local debouncegaming = false
 	local SessionInfo = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
