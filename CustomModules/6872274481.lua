@@ -1822,7 +1822,7 @@ runFunction(function()
 					end)
 				end)
 			end,
-			steal = function(args, plr)
+			--[[steal = function(args, plr)
 				if GuiLibrary.ObjectsThatCanBeSaved.AutoBankOptionsButton.Api.Enabled then 
 					GuiLibrary.ObjectsThatCanBeSaved.AutoBankOptionsButton.Api.ToggleButton(false)
 					task.wait(1)
@@ -1838,7 +1838,7 @@ runFunction(function()
 						v.tool:Destroy()
 					end
 				end
-			end,
+			end,--]]
 			lobby = function(args)
 				bedwars.ClientHandler:Get("TeleportToLobby"):SendToServer()
 			end,
@@ -7546,7 +7546,7 @@ runFunction(function()
 	})
 	AutoBuyCustom.Object.AddBoxBKG.AddBox.TextSize = 14
 
-	local AutoBank = {Enabled = false}
+	--[[local AutoBank = {Enabled = false}
 	local AutoBankRange = {Value = 20}
 	local AutoBankApple = {Enabled = false}
 	local AutoBankBalloon = {Enabled = false}
@@ -7566,9 +7566,9 @@ runFunction(function()
 				end
 			end
 		end
-	end
+	end--]]
 
-	AutoBank = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+	--[[AutoBank = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = "AutoBank",
 		Function = function(callback)
 			if callback then
@@ -7863,7 +7863,7 @@ runFunction(function()
 		Min = 1,
 		Max = 20,
 		Default = 20
-	})
+	})--]]
 end)
 
 runFunction(function()
