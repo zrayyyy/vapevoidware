@@ -13159,6 +13159,7 @@ runFunction(function()
 				Converted["_SessionInfo"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 				Converted["_SessionInfo"].Name = "SessionInfo"
 				Converted["_SessionInfo"].Parent = plrgui
+				Converted["_SessionInfo"].ResetOnSpawn = false
 				
 				Converted["_Background"].BackgroundColor3 = Color3.fromHSV(0, 0, 0)
 				Converted["_Background"].BackgroundTransparency = 0.800000011920929
