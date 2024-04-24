@@ -36,19 +36,56 @@ local isfile = isfile or function(file)
 end
 
 if readfile == nil then
-	task.spawn(error, 'Render - Exploit not supported. Your exploit doesn\'t have filesystem support.')
+	task.spawn(error, 'Voidware - Exploit not supported. Your exploit doesn\'t have filesystem support.')
 	while task.wait() do end
 end 
 
 pcall(function() core = game:GetService('CoreGui') end)
 
+local function displayErrorPopup(text, funclist)
+	local oldidentity = getidentity()
+	setidentity(8)
+	local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
+	local prompt = ErrorPrompt.new("Default")
+	prompt._hideErrorCode = true
+	local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+	prompt:setErrorTitle("Vape")
+	local funcs
+	if funclist then 
+		funcs = {}
+		local num = 0
+		for i,v in pairs(funclist) do 
+			num = num + 1
+			table.insert(funcs, {
+				Text = i,
+				Callback = function() 
+					prompt:_close() 
+					v()
+				end,
+				Primary = num == #funclist
+			})
+		end
+	end
+	prompt:updateButtons(funcs or {{
+		Text = "OK",
+		Callback = function() 
+			prompt:_close() 
+		end,
+		Primary = true
+	}}, 'Default')
+	prompt:setParent(gui)
+	prompt:_open(text)
+	setidentity(oldidentity)
+end
+
 local function vapeGithubRequest(scripturl)
 	if not isfile('vape/'..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidware/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
+		--[[local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/Erchobg/vapevoidwarelite/'..readfile('vape/commithash.txt')..'/'..scripturl, true) end)
 		assert(suc, res)
 		assert(res ~= '404: Not Found', res)
 		if scripturl:find('.lua') then res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n'..res end
-		writefile('vape/'..scripturl, res)
+		writefile('vape/'..scripturl, res)--]]
+		displayErrorPopup("The following file cannot be downloaded in this version of Voidware. Please either download the folder from the discord server or dm erchobg#0 on discord with the following file name: "..scripturl)
 	end
 	return readfile('vape/'..scripturl)
 end
@@ -565,7 +602,7 @@ local function AllNearPosition(distance, amount, checktab)
 	return returnedplayer
 end
 
-local WhitelistFunctions = {StoredHashes = {}, WhitelistTable = {WhitelistedUsers = {}}, Loaded = false, CustomTags = {}, LocalPriority = 0}
+--[[local WhitelistFunctions = {StoredHashes = {}, WhitelistTable = {WhitelistedUsers = {}}, Loaded = false, CustomTags = {}, LocalPriority = 0}
 do
 	local shalib
 
@@ -626,7 +663,8 @@ do
 		end
 		return false
 	end
-end
+end--]]
+local WhitelistFunctions = {StoredHashes = {}, WhitelistTable = {WhitelistedUsers = {}}, Loaded = false, CustomTags = {}, LocalPriority = 0}
 shared.vapewhitelist = WhitelistFunctions
 
 local RunLoops = {RenderStepTable = {}, StepTable = {}, HeartTable = {}}
@@ -7036,6 +7074,7 @@ runFunction(function()
 		Function = function(callback)
 			if callback then 
 				task.spawn(function()
+					warningNotification("InfiniteYield", "Warning this script might not load in this version of Voidware", 5)
 					loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 				end)
 			end
@@ -7346,6 +7385,7 @@ runFunction(function()
         HoverText = "Roblox doors scripts",
 		Function = function(callback)
 			if callback then
+				warningNotification("DoorsScript", "Warning this script might not load in this version of Voidware", 5)
 				if ScriptChoice.Value == "BlackKing (Best)" then
 					loadstring(game:HttpGet("https://raw.githubusercontent.com/KINGHUB01/BlackKing-obf/main/Doors%20Blackking%20And%20BobHub"))()
 				elseif ScriptChoice.Value == "KiwiBirdScript" then
@@ -7442,6 +7482,7 @@ runFunction(function()
         HoverText = "Roblox bladeball script",
 		Function = function(callback)
 			if callback then
+				warningNotification("BladeBallScript", "Warning this script might not load in this version of Voidware", 5)
 				warningNotification("BladeBallScript", "Key is W2antToKMS1 (set to your clipboard)", 7)
 				setclipboard("W2antToKMS1")
 				loadstring(game:HttpGet("https://gist.githubusercontent.com/de-ishi/6712885d9952b7a0321b063cfa1626e1/raw"))()
@@ -7467,6 +7508,7 @@ runFunction(function()
         HoverText = "Pet Sim X script",
 		Function = function(callback)
 			if callback then
+				warningNotification("PetSimXScript", "Warning this script might not load in this version of Voidware", 5)
 				loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/PetSimulator99/main/redz9999.lua"))()
 			end
 		end,
