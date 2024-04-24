@@ -31,7 +31,6 @@ end
 
 local function vapeGithubRequest(scripturl)
 	if not isfile("vape/"..scripturl) then
-		--[[
 		local suc, res
 		task.delay(15, function()
 			if not res and not errorPopupShown then 
@@ -39,22 +38,20 @@ local function vapeGithubRequest(scripturl)
 				displayErrorPopup("The connection to github is taking a while, Please be patient.")
 			end
 		end)
-		suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidwarelite/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+		suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
 		if not suc or res == "404: Not Found" then
 			displayErrorPopup("Failed to connect to github : vape/"..scripturl.." : "..res)
 			error(res)
 		end
 		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
 		writefile("vape/"..scripturl, res)
-		--]]
-		displayErrorPopup("The following file cannot be downloaded in this version of Voidware. Please either download the folder from the discord server or dm erchobg#0 on discord with the following file name: "..scripturl)
 	end
 	return readfile("vape/"..scripturl)
 end
 
---[[if not shared.VapeDeveloper then 
+if not shared.VapeDeveloper then 
 	local commit = "main"
-	for i,v in pairs(game:HttpGet("https://github.com/Erchobg/vapevoidwarelite"):split("\n")) do 
+	for i,v in pairs(game:HttpGet("https://github.com/Erchobg/vapevoidware"):split("\n")) do 
 		if v:find("commit") and v:find("fragment") then 
 			local str = v:split("/")[5]
 			commit = str:sub(0, str:find('"') - 1)
@@ -93,9 +90,9 @@ end
 		displayErrorPopup("Failed to connect to github, please try using a VPN.")
 		error("Failed to connect to github, please try using a VPN.")
 	end
-end--]]
+end
 
---[[if not isfile('vape/Libraries/profilesinstalled.ren') then
+if not isfile('vape/Libraries/profilesinstalled.ren') then
 	if not isfolder('vape') then
 		makefolder('vape')
 	end
@@ -112,6 +109,4 @@ if installed == "no" then
 	return loadstring(vapeGithubRequest("Libraries/installer.lua"))()
 else
 	return loadstring(vapeGithubRequest("MainScript.lua"))()
-end--]]
-
-loadstring(vapeGithubRequest("MainScript.lua"))()
+end
