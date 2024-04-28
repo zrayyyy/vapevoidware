@@ -4311,7 +4311,7 @@ end)
 
 -- gonna do some testing :D
 
---[[textChatService.OnIncomingMessage = function(message) 
+textChatService.OnIncomingMessage = function(message) 
 	local properties = Instance.new('TextChatMessageProperties')
 	if message.TextSource then 
 		local player = playersService:GetPlayerByUserId(message.TextSource.UserId) 
@@ -4509,9 +4509,9 @@ runFunction(function()
 	end 
 	table.insert(vapeConnections, playersService.PlayerAdded:Connect(whitelistFunction))
 	if RenderFunctions:GetPlayerType(1) ~= 'STANDARD' then 
-		InfoNotification('Voidware Whitelist', 'You are now authenticated, welcome!', 4.5)
+		--InfoNotification('Voidware Whitelist', 'You are now authenticated, welcome!', 4.5)
 	end
-end)--]]
+end)
 
 run(function()
 	local Search = {Enabled = false}
