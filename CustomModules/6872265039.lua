@@ -7,6 +7,7 @@ local GuiLibrary = shared.GuiLibrary
 local players = game:GetService("Players")
 local textservice = game:GetService("TextService")
 local repstorage = game:GetService("ReplicatedStorage")
+local replicatedStorage = repstorage
 local lplr = players.LocalPlayer
 local workspace = game:GetService("Workspace")
 local lighting = game:GetService("Lighting")
@@ -2194,6 +2195,12 @@ end)
 	})
 end)--]]
 
+--[[local bedwars = {}
+
+local store = {
+	queueType = "bedwars_test"
+}
+
 runFunction(function() 
 	local JoinQueue = {}
 	local queuetojoin = {Value = ''}
@@ -2237,4 +2244,4 @@ runFunction(function()
 			end
 		end
 	end)
-end)
+end)--]]
