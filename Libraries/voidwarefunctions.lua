@@ -99,7 +99,7 @@ function RenderFunctions:CreateLocalDirectory(directory)
     return directory
 end
 
-function RenderFunctions:RefreshLocalEnv()
+--[[function RenderFunctions:RefreshLocalEnv()
     local signal = Instance.new('BindableEvent')
     local start = tick()
     local coreinstalled = 0
@@ -130,7 +130,7 @@ function RenderFunctions:RefreshLocalEnv()
         end)
     end
     return signal
-end
+end--]]
 
 local cachederrors = {}
 function RenderFunctions:GetFile(file, onlineonly, custompath, customrepo)
