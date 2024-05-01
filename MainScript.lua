@@ -1881,21 +1881,14 @@ GuiLibrary.SelfDestruct = function()
 	--game:GetService("RunService"):SetRobloxGuiFocused(false)	
 end
 
-GeneralSettings.CreateButton2({
-	Name = "RESET CURRENT PROFILE", 
-	Function = function()
-		local vapePrivateCheck = shared.VapePrivate
-		GuiLibrary.SelfDestruct()
-		if delfile then
-			delfile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt")
-		else
-			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
-		end
-		shared.VapeOpenGui = true
-		shared.VapePrivate = vapePrivateCheck
-		loadstring(vapeGithubRequest("NewMainScript.lua"))()
-	end
-})
+GuiLibrary.Restart = function()
+	GuiLibrary.SelfDestruct()
+	local vapePrivateCheck = shared.VapePrivate
+	shared.VapeSwitchServers = true
+	shared.VapeOpenGui = true
+	shared.VapePrivate = vapePrivateCheck
+	loadstring(vapeGithubRequest("NewMainScript.lua"))()
+end
 GUISettings.CreateButton2({
 	Name = "RESET GUI POSITIONS", 
 	Function = function()
@@ -1954,8 +1947,27 @@ GUISettings.CreateButton2({
 	end
 })
 GeneralSettings.CreateButton2({
+	Name = "RESET CURRENT PROFILE", 
+	Function = function()
+		local vapePrivateCheck = shared.VapePrivate
+		GuiLibrary.SelfDestruct()
+		if delfile then
+			delfile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt")
+		else
+			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
+		end
+		shared.VapeOpenGui = true
+		shared.VapePrivate = vapePrivateCheck
+		loadstring(vapeGithubRequest("NewMainScript.lua"))()
+	end
+})
+GeneralSettings.CreateButton2({
 	Name = "UNINJECT",
 	Function = GuiLibrary.SelfDestruct
+})
+GeneralSettings.CreateButton2({
+	Name = "RESTART",
+	Function = GuiLibrary.Restart
 })
 
 local function loadVape()
