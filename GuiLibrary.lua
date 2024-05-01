@@ -106,12 +106,12 @@ if shared.VapeExecuted then
 
 	local Platform = inputService:GetPlatform()
 
-	GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
+	GuiLibrary.ColorStepped = runService.RenderStepped:Connect(pcall(function()
 		local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
 		for i, v in pairs(GuiLibrary.RainbowSliders) do 
 			v.SetValue(col)
 		end
-	end)
+	end))
 
 	local function randomString()
 		local randomlength = math.random(10,100)
