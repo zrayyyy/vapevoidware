@@ -105,14 +105,15 @@ if shared.VapeExecuted then
 	local translatedlogo = false
 
 	local Platform = inputService:GetPlatform()
-
-	GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
-		pcall(
-			local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
-			for i, v in pairs(GuiLibrary.RainbowSliders) do 
-				v.SetValue(col)
-			end
-		)
+	task.spawn(function()
+		GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
+			pcall(function()
+				local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
+				for i, v in pairs(GuiLibrary.RainbowSliders) do 
+					v.SetValue(col)
+				end
+			end)
+		end)
 	end)
 
 	local function randomString()
