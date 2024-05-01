@@ -106,11 +106,7 @@ if not isfile('vape/Libraries/profilesinstalled.ren') then
 end
 local profiles, installed = pcall(function() return readfile('vape/Libraries/profilesinstalled.ren') end)
 if installed == "no" then
-    print("Loading installer")
     return loadstring(vapeGithubRequest("Libraries/installer.lua"))()
-    print("Ok")
 else
-    print("Loading main")
     return loadstring(vapeGithubRequest("MainScript.lua"))()
-    print("Ok")
 end
