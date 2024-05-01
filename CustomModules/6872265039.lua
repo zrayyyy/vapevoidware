@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.
 --[[ 
 	Credits
 	Infinite Yield - Blink
@@ -358,7 +359,7 @@ task.spawn(function()
 	players.PlayerAdded:Connect(renderNametag)
 end)
 
---[[task.spawn(function()
+task.spawn(function()
 	for i,v in next, (
 		{
 			'SafeWalkOptionsButton', 
@@ -376,21 +377,9 @@ end)
 			'FlyOptionsButton'
 		}
 	) do 
-		pcall(GuiLibrary.RemoveObject, v..'OptionsButton') 
+		pcall(GuiLibrary.RemoveObject, v) 
 	end
-end)--]]
-
-GuiLibrary["RemoveObject"]("SilentAimOptionsButton")
-GuiLibrary["RemoveObject"]("AutoClickerOptionsButton")
-GuiLibrary["RemoveObject"]("MouseTPOptionsButton")
-GuiLibrary["RemoveObject"]("ReachOptionsButton")
-GuiLibrary["RemoveObject"]("HitBoxesOptionsButton")
-GuiLibrary["RemoveObject"]("KillauraOptionsButton")
-GuiLibrary["RemoveObject"]("LongJumpOptionsButton")
-GuiLibrary["RemoveObject"]("HighJumpOptionsButton")
-GuiLibrary["RemoveObject"]("SafeWalkOptionsButton")
-GuiLibrary["RemoveObject"]("TriggerBotOptionsButton")
-GuiLibrary["RemoveObject"]("ClientKickDisablerOptionsButton")
+end)
 
 local teleportedServers = false
 teleportfunc = lplr.OnTeleport:Connect(function(State)
@@ -419,7 +408,6 @@ Sprint = GuiLibrary["ObjectsThatCanBeSaved"]["CombatWindow"]["Api"].CreateOption
 	end, 
 	["HoverText"] = "Sets your sprinting to true."
 })
-GuiLibrary["RemoveObject"]("FlyOptionsButton")
 local flymissile
 runFunction(function()
 	local OldNoFallFunction
@@ -688,7 +676,6 @@ local AnticheatBypass = {["Enabled"] = false}
 local Scaffold = {["Enabled"] = false}
 local longjump = {["Enabled"] = false}
 local flyvelo
-GuiLibrary["RemoveObject"]("SpeedOptionsButton")
 runFunction(function()
 	local speedmode = {["Value"] = "Normal"}
 	local speedval = {["Value"] = 1}
