@@ -358,7 +358,7 @@ task.spawn(function()
 	players.PlayerAdded:Connect(renderNametag)
 end)
 
-task.spawn(function()
+--[[task.spawn(function()
 	for i,v in next, (
 		{
 			'SafeWalkOptionsButton', 
@@ -378,7 +378,19 @@ task.spawn(function()
 	) do 
 		pcall(GuiLibrary.RemoveObject, v..'OptionsButton') 
 	end
-end)
+end)--]]
+
+GuiLibrary["RemoveObject"]("SilentAimOptionsButton")
+GuiLibrary["RemoveObject"]("AutoClickerOptionsButton")
+GuiLibrary["RemoveObject"]("MouseTPOptionsButton")
+GuiLibrary["RemoveObject"]("ReachOptionsButton")
+GuiLibrary["RemoveObject"]("HitBoxesOptionsButton")
+GuiLibrary["RemoveObject"]("KillauraOptionsButton")
+GuiLibrary["RemoveObject"]("LongJumpOptionsButton")
+GuiLibrary["RemoveObject"]("HighJumpOptionsButton")
+GuiLibrary["RemoveObject"]("SafeWalkOptionsButton")
+GuiLibrary["RemoveObject"]("TriggerBotOptionsButton")
+GuiLibrary["RemoveObject"]("ClientKickDisablerOptionsButton")
 
 local teleportedServers = false
 teleportfunc = lplr.OnTeleport:Connect(function(State)
@@ -407,6 +419,7 @@ Sprint = GuiLibrary["ObjectsThatCanBeSaved"]["CombatWindow"]["Api"].CreateOption
 	end, 
 	["HoverText"] = "Sets your sprinting to true."
 })
+GuiLibrary["RemoveObject"]("FlyOptionsButton")
 local flymissile
 runFunction(function()
 	local OldNoFallFunction
@@ -675,6 +688,7 @@ local AnticheatBypass = {["Enabled"] = false}
 local Scaffold = {["Enabled"] = false}
 local longjump = {["Enabled"] = false}
 local flyvelo
+GuiLibrary["RemoveObject"]("SpeedOptionsButton")
 runFunction(function()
 	local speedmode = {["Value"] = "Normal"}
 	local speedval = {["Value"] = 1}
