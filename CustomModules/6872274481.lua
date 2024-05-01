@@ -1897,7 +1897,7 @@ run(function()
 	end
 end)
 
---[[task.spawn(function()
+task.spawn(function()
 	for i,v in next, (
 		{
 			'TargetStrafeOptionsButton', 
@@ -1922,31 +1922,9 @@ end)
 			'SilentAimOptionsButton'
 		}
 	) do 
-		pcall(GuiLibrary.RemoveObject, v..'OptionsButton') 
+		pcall(GuiLibrary.RemoveObject, v) 
 	end
-end)--]]
-
-GuiLibrary.RemoveObject("SilentAimOptionsButton")
-GuiLibrary.RemoveObject("ReachOptionsButton")
-GuiLibrary.RemoveObject("MouseTPOptionsButton")
-GuiLibrary.RemoveObject("PhaseOptionsButton")
-GuiLibrary.RemoveObject("AutoClickerOptionsButton")
-GuiLibrary.RemoveObject("SpiderOptionsButton")
-GuiLibrary.RemoveObject("LongJumpOptionsButton")
-GuiLibrary.RemoveObject("HitBoxesOptionsButton")
-GuiLibrary.RemoveObject("KillauraOptionsButton")
-GuiLibrary.RemoveObject("TriggerBotOptionsButton")
-GuiLibrary.RemoveObject("AutoLeaveOptionsButton")
-GuiLibrary.RemoveObject("SpeedOptionsButton")
-GuiLibrary.RemoveObject("FlyOptionsButton")
-GuiLibrary.RemoveObject("ClientKickDisablerOptionsButton")
-GuiLibrary.RemoveObject("NameTagsOptionsButton")
-GuiLibrary.RemoveObject("SafeWalkOptionsButton")
-GuiLibrary.RemoveObject("BlinkOptionsButton")
-GuiLibrary.RemoveObject("FOVChangerOptionsButton")
-GuiLibrary.RemoveObject("AntiVoidOptionsButton")
-GuiLibrary.RemoveObject("SongBeatsOptionsButton")
-GuiLibrary.RemoveObject("TargetStrafeOptionsButton")
+end)
 
 run(function()
 	local AimAssist = {Enabled = false}
