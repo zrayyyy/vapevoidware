@@ -104,6 +104,7 @@ if shared.VapeExecuted then
 	local translations = shared.VapeTranslation or {}
 	local translatedlogo = false
 
+	print("before")
 	local Platform = inputService:GetPlatform()
 	task.spawn(function()
 		GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
@@ -115,6 +116,7 @@ if shared.VapeExecuted then
 			end)
 		end)
 	end)
+	print("ok")
 
 	local function randomString()
 		local randomlength = math.random(10,100)
