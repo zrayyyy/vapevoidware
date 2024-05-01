@@ -1820,16 +1820,21 @@ do
 		until not vapeInjected
 	end)
 	local textlabel = Instance.new("TextLabel")
-	textlabel.Size = UDim2.new(1, 0, 0, 36)
-	textlabel.Text = "Ty for using Voidware :D -erchobg"
-	textlabel.BackgroundTransparency = 1
-	textlabel.ZIndex = 10
-	textlabel.TextStrokeTransparency = 0
-	textlabel.TextScaled = true
 	textlabel.Font = Enum.Font.SourceSans
-	textlabel.TextColor3 = Color3.new(1, 1, 1)
-	textlabel.Position = UDim2.new(0, 0, 1, -36)
-	textlabel.Parent = GuiLibrary.MainGui.ScaledGui.ClickGui
+	textlabel.RichText = true
+	textlabel.Text = "Thanks for using voidware :D -erchobg"
+	textlabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	textlabel.TextScaled = true
+	textlabel.TextSize = 14
+	textlabel.TextStrokeTransparency = 0
+	textlabel.TextWrapped = true
+	textlabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	textlabel.BackgroundTransparency = 1
+	textlabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	textlabel.BorderSizePixel = 0
+	textlabel.Position = UDim2.new(0.348523736, 0, 0.937343359, 0)
+	textlabel.Size = UDim2.new(0.302310646, 0, 0.062656641, 0)
+	textlabel.Parent = GuiLibrary.MainGui.ScaledGui.ClickGui	
 end
 
 if store.matchState == 0 then
