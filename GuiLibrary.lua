@@ -850,13 +850,15 @@ if shared.VapeExecuted then
 		end
 	end
 
-	GuiLibrary["RemoveObject"] = pcall(function(objname)
-		GuiLibrary.ObjectsThatCanBeSaved[objname]["Object"]:Remove()
-		if GuiLibrary.ObjectsThatCanBeSaved[objname]["Type"] == "OptionsButton" then 
-			GuiLibrary.ObjectsThatCanBeSaved[objname]["ChildrenObject"].Name = "RemovedChildren"
-		end
+	GuiLibrary["RemoveObject"] = function(objname)
+		pcall(function()
+			GuiLibrary.ObjectsThatCanBeSaved[objname]["Object"]:Remove()
+			if GuiLibrary.ObjectsThatCanBeSaved[objname]["Type"] == "OptionsButton" then 
+				GuiLibrary.ObjectsThatCanBeSaved[objname]["ChildrenObject"].Name = "RemovedChildren"
+			end
+		end)
 		GuiLibrary.ObjectsThatCanBeSaved[objname] = nil
-	end)
+	end
 
 	GuiLibrary["CreateMainWindow"] = function()
 		local windowapi = {}
