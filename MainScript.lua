@@ -103,7 +103,6 @@ local customassetcheck = (getsynasset or getcustomasset) and true
 local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or function() end
 local delfile = delfile or function(file) writefile(file, "") end
 
-print("before")
 local function displayErrorPopup(text, funclist)
 	local oldidentity = getidentity()
 	setidentity(8)
@@ -139,7 +138,6 @@ local function displayErrorPopup(text, funclist)
 	prompt:_open(text)
 	setidentity(oldidentity)
 end
-print("after")
 
 local function vapeGithubRequest(scripturl)
 	if not isfile("vape/"..scripturl) then
