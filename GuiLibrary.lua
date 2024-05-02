@@ -7071,5 +7071,14 @@ if shared.VapeExecuted then
 		end
 	end)
 
+	GuiLibrary.ReportBug = function(text)
+		game.GetService(game, 'StarterGui'):SetCore('SendNotification', ({
+			Title = 'VoidwareErrorReporting', 
+			Text = "Error found! Error Data: "..text, 
+			Icon = 'rbxassetid://16498204245',
+			Duration = 20
+		}))
+	end
+
 	return GuiLibrary
 end

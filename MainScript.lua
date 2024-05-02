@@ -140,12 +140,7 @@ local function displayErrorPopup(text, funclist)
 	setidentity(oldidentity)
 	end)
 	if err then
-		game.GetService(game, 'StarterGui'):SetCore('SendNotification', ({
-			Title = 'Voidware', 
-			Text = 'Error found. Please send this to erchobg#0 on discord. Error: '..text.." Error2: "..funclist, 
-			Icon = 'rbxassetid://16498204245',
-			Duration = 20
-		})) 
+		GuiLibrary.ReportBug(text)
 	else
 		print("success")
 	end
