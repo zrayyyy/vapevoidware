@@ -104,6 +104,7 @@ local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or fu
 local delfile = delfile or function(file) writefile(file, "") end
 
 local function displayErrorPopup(text, funclist)
+	--[[local suc, err = pcall(function()
 	local oldidentity = getidentity()
 	setidentity(8)
 	local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
@@ -137,6 +138,14 @@ local function displayErrorPopup(text, funclist)
 	prompt:setParent(gui)
 	prompt:_open(text)
 	setidentity(oldidentity)
+	end)
+	if err then
+		GuiLibrary.ReportBug(text)
+	else
+		print("success")
+	end--]]
+	task.spawn(error, text)
+	--GuiLibrary.ReportBug(text)
 end
 
 local function vapeGithubRequest(scripturl)
@@ -270,9 +279,7 @@ task.spawn(function()
 		task.wait(15)
 		if image and image.ContentImageSize == Vector2.zero and (not errorPopupShown) and (not redownloadedAssets) and (not isfile("vape/assets/check3.txt")) then 
             errorPopupShown = true
-            displayErrorPopup("Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")", {OK = function()
-                writefile("vape/assets/check3.txt", "")
-            end})
+            displayErrorPopup("Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")")
         end
 	end)
 end)
@@ -1881,21 +1888,14 @@ GuiLibrary.SelfDestruct = function()
 	--game:GetService("RunService"):SetRobloxGuiFocused(false)	
 end
 
-GeneralSettings.CreateButton2({
-	Name = "RESET CURRENT PROFILE", 
-	Function = function()
-		local vapePrivateCheck = shared.VapePrivate
-		GuiLibrary.SelfDestruct()
-		if delfile then
-			delfile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt")
-		else
-			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
-		end
-		shared.VapeOpenGui = true
-		shared.VapePrivate = vapePrivateCheck
-		loadstring(vapeGithubRequest("NewMainScript.lua"))()
-	end
-})
+GuiLibrary.Restart = function()
+	GuiLibrary.SelfDestruct()
+	local vapePrivateCheck = shared.VapePrivate
+	shared.VapeSwitchServers = true
+	shared.VapeOpenGui = true
+	shared.VapePrivate = vapePrivateCheck
+	loadstring(vapeGithubRequest("NewMainScript.lua"))()
+end
 GUISettings.CreateButton2({
 	Name = "RESET GUI POSITIONS", 
 	Function = function()
@@ -1954,8 +1954,27 @@ GUISettings.CreateButton2({
 	end
 })
 GeneralSettings.CreateButton2({
+	Name = "RESET CURRENT PROFILE", 
+	Function = function()
+		local vapePrivateCheck = shared.VapePrivate
+		GuiLibrary.SelfDestruct()
+		if delfile then
+			delfile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt")
+		else
+			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
+		end
+		shared.VapeOpenGui = true
+		shared.VapePrivate = vapePrivateCheck
+		loadstring(vapeGithubRequest("NewMainScript.lua"))()
+	end
+})
+GeneralSettings.CreateButton2({
 	Name = "UNINJECT",
 	Function = GuiLibrary.SelfDestruct
+})
+GeneralSettings.CreateButton2({
+	Name = "RESTART",
+	Function = GuiLibrary.Restart
 })
 
 local function loadVape()
