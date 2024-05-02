@@ -279,7 +279,7 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 			if not RenderFunctions:GetPlayerType(2) then 
 				continue
 			end
-			if not ({shared.vapewhitelist:get(v)})[2] then
+			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
 				continue
 			end
 			if not shared.vapeentity.isPlayerTargetable(v) then 
@@ -324,7 +324,7 @@ GetAllTargets = function(distance, sort)
 			if not RenderFunctions:GetPlayerType(2) then 
 				continue
 			end
-			if not ({shared.vapewhitelist:get(v)})[2] then 
+			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
 				continue
 			end
 			if not entityLibrary.isPlayerTargetable(v) then 
@@ -4311,7 +4311,7 @@ end)
 
 -- gonna do some testing :D
 
-textChatService.OnIncomingMessage = function(message) 
+--[[textChatService.OnIncomingMessage = function(message) 
 	local properties = Instance.new('TextChatMessageProperties')
 	if message.TextSource then 
 		local player = playersService:GetPlayerByUserId(message.TextSource.UserId) 
@@ -4474,7 +4474,7 @@ runFunction(function()
 	end)
 end)
 
---[[task.spawn(function()
+task.spawn(function()
 	local notified = tick()
 	local commit, hash = pcall(function() return readfile('vape/Libraries/commit.ren') end)
 	repeat  
@@ -4493,7 +4493,7 @@ end)
 		end
 		task.wait(23)
 	until not vapeInjected
-end)--]]
+end)
 
 runFunction(function()
 	local function whitelistFunction(plr)
@@ -4509,9 +4509,9 @@ runFunction(function()
 	end 
 	table.insert(vapeConnections, playersService.PlayerAdded:Connect(whitelistFunction))
 	if RenderFunctions:GetPlayerType(1) ~= 'STANDARD' then 
-		--InfoNotification('Voidware Whitelist', 'You are now authenticated, welcome!', 4.5)
+		InfoNotification('Voidware Whitelist', 'You are now authenticated, welcome!', 4.5)
 	end
-end)
+end)--]]
 
 run(function()
 	local Search = {Enabled = false}
@@ -7356,15 +7356,15 @@ runFunction(function()
 		Function = function(callback)
 			if callback then
 				task.spawn(function()
-					if not shared.vapewhitelist.loaded then 
-						repeat task.wait() until shared.vapewhitelist.loaded or not VapePrivateDetector.Enabled
+					if not WhitelistFunctions.Loaded then 
+						repeat task.wait() until WhitelistFunctions.Loaded or not VapePrivateDetector.Enabled
 					end
 					if not VapePrivateDetector.Enabled then 
 						return 
 					end
 					for i,v in pairs(playersService:GetPlayers()) do
 						if v ~= lplr then
-							local rank = shared.vapewhitelist:get(v)
+							local rank = WhitelistFunctions:GetWhitelist(v)
 							if rank > 0 and not table.find(alreadydetected, v) then
 								local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
 								warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
@@ -7378,7 +7378,7 @@ runFunction(function()
 						end
 					end
 					table.insert(VapePrivateDetector.Connections, playersService.PlayerAdded:Connect(function(v)
-						local rank = shared.vapewhitelist:get(v)
+						local rank = WhitelistFunctions:GetWhitelist(v)
 						if rank > 0 and not table.find(alreadydetected, v) then
 						local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
 						warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
@@ -7400,8 +7400,8 @@ runFunction(function()
 		Function = function() end
 	})
 	task.spawn(function()
-		repeat task.wait() until shared.vapewhitelist.loaded 
-		if shared.vapewhitelist:get(lplr) ~= 0 then 
+		repeat task.wait() until WhitelistFunctions.Loaded 
+		if WhitelistFunctions:GetWhitelist(lplr) ~= 0 then 
 			pcall(GuiLibrary.RemoveObject, "VapePrivateDetectorOptionsButton")
 		end
 	end)
@@ -7587,7 +7587,7 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 			if not RenderFunctions:GetPlayerType(2) then 
 				continue
 			end
-			if not ({shared.vapewhitelist:get(v)})[2] then
+			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
 				continue
 			end
 			if not shared.vapeentity.isPlayerTargetable(v) then 
@@ -7624,7 +7624,7 @@ GetAllTargets = function(distance, sort)
 			if not RenderFunctions:GetPlayerType(2) then 
 				continue
 			end
-			if not ({shared.vapewhitelist:get(v)})[2] then 
+			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
 				continue
 			end
 			if not entityLibrary.isPlayerTargetable(v) then 

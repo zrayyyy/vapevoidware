@@ -104,56 +104,13 @@ if shared.VapeExecuted then
 	local translations = shared.VapeTranslation or {}
 	local translatedlogo = false
 
-	local function warningNotification(title, text, delay)
-		local suc, res = pcall(function()
-			local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
-			frame.Frame.Frame.ImageColor3 = Color3.fromRGB(236, 129, 44)
-			return frame
-		end)
-		return (suc and res)
-	end
-
-	local function errorNotification(title, text, delay)
-		local suc, res = pcall(function()
-			local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
-			frame.Frame.Frame.ImageColor3 = Color3.fromRGB(255, 0, 0)
-			return frame
-		end)
-		return (suc and res)
-	end
-
-	GuiLibrary.ReportBug = function(text, delay)
-		--[[game.GetService(game, 'StarterGui'):SetCore('SendNotification', ({
-			Title = 'VoidwareError', 
-			Text = "Error found! Error Data: "..text, 
-			Icon = 'rbxassetid://17357670040',
-			Duration = 20
-		}))--]]
-		errorNotification("VoidwareBugReport", text, delay or 10)
-	end
-
-	GuiLibrary.WLReport = function(text, delay)
-		warningNotification("VoidwareWL", text, delay or 10)
-	end
-
 	local Platform = inputService:GetPlatform()
-	task.spawn(function()
-		GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
-			local suc, err = pcall(function()
-				local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
-				for i, v in pairs(GuiLibrary.RainbowSliders) do 
-					v.SetValue(col)
-				end
-			end)
-			if err then
-				GuiLibrary.ReportBug("On Error 1")
-			else
-				local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
-				for i, v in pairs(GuiLibrary.RainbowSliders) do 
-					v.SetValue(col)
-				end
-			end
-		end)
+
+	GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
+		local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
+		for i, v in pairs(GuiLibrary.RainbowSliders) do 
+			v.SetValue(col)
+		end
 	end)
 
 	local function randomString()
@@ -891,12 +848,10 @@ if shared.VapeExecuted then
 	end
 
 	GuiLibrary["RemoveObject"] = function(objname)
-		pcall(function()
-			GuiLibrary.ObjectsThatCanBeSaved[objname]["Object"]:Remove()
-			if GuiLibrary.ObjectsThatCanBeSaved[objname]["Type"] == "OptionsButton" then 
-				GuiLibrary.ObjectsThatCanBeSaved[objname]["ChildrenObject"].Name = "RemovedChildren"
-			end
-		end)
+		GuiLibrary.ObjectsThatCanBeSaved[objname]["Object"]:Remove()
+		if GuiLibrary.ObjectsThatCanBeSaved[objname]["Type"] == "OptionsButton" then 
+			GuiLibrary.ObjectsThatCanBeSaved[objname]["ChildrenObject"].Name = "RemovedChildren"
+		end
 		GuiLibrary.ObjectsThatCanBeSaved[objname] = nil
 	end
 
