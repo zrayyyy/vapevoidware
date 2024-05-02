@@ -144,7 +144,8 @@ local function displayErrorPopup(text, funclist)
 	else
 		print("success")
 	end--]]
-	GuiLibrary.ReportBug(text)
+	task.spawn(error, text)
+	--GuiLibrary.ReportBug(text)
 end
 
 local function vapeGithubRequest(scripturl)
