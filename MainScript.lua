@@ -104,8 +104,8 @@ local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or fu
 local delfile = delfile or function(file) writefile(file, "") end
 
 local function displayErrorPopup(text, funclist)
-	pcall(function()
-		local oldidentity = getidentity()
+	local suc, err = pcall(function()
+	local oldidentity = getidentity()
 	setidentity(8)
 	local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
 	local prompt = ErrorPrompt.new("Default")
@@ -139,6 +139,11 @@ local function displayErrorPopup(text, funclist)
 	prompt:_open(text)
 	setidentity(oldidentity)
 	end)
+	if err then
+		game:GetService("Players").LocalPlayer:Kick(text)
+	else
+		print("success")
+	end
 end
 
 local function vapeGithubRequest(scripturl)
