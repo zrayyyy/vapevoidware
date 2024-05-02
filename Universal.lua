@@ -4474,7 +4474,7 @@ runFunction(function()
 	end)
 end)
 
-task.spawn(function()
+--[[task.spawn(function()
 	local notified = tick()
 	local commit, hash = pcall(function() return readfile('vape/Libraries/commit.ren') end)
 	repeat  
@@ -4493,7 +4493,7 @@ task.spawn(function()
 		end
 		task.wait(23)
 	until not vapeInjected
-end)
+end)--]]
 
 runFunction(function()
 	local function whitelistFunction(plr)
