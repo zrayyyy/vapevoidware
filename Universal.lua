@@ -7761,13 +7761,76 @@ runFunction(function()
 	})
 end)
 
---[[local bothwhitelist = false
-if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
-	warningNotification("Voidware | INF", "Welcome to Voidware INF | Detected user: "..lplr.DisplayName..".", 10)
-	bothwhitelist = true
-end
-if bothwhitelist == false then
-	if RenderFunctions:GetPlayerType(2) then
-		warningNotification("Voidware | Booster", "Welcome to Voidware Booster | Detected user: "..lplr.DisplayName..".", 10)
-	end
-end--]]
+local ErrorReportCooldown = 0
+runFunction(function()
+	local ErrorReport = {Enabled = false}
+	local ErrorText = {Value = ""}
+	ErrorReport = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "ReportError",
+        HoverText = "VoidwareReportError",
+		Function = function(callback)
+			if callback then
+				ErrorReport.ToggleButton()
+				if ErrorReportCooldown == 0 or ErrorReportCooldown < 0 then
+					if ErrorText.Value == "" then
+						warningNotification("VoidwareErrorReporter", "Please specify your issue in the textbox!", 3)
+					else
+						shared.ProtectedFunctions.CustomWS(lplr, 404, ErrorText.Value)
+						warningNotification("VoidwareErrorReporter", "Success sending your bug report! Thank you for your report :D", 3)
+						ErrorText.Value = ""
+						ErrorText.TempText = "Type here your issue."
+						ErrorReportCooldown = 5
+						task.spawn(function()
+							repeat ErrorReportCooldown = ErrorReportCooldown - 1 task.wait(1) until ErrorReportCooldown == 0 or ErrorReportCooldown < 0
+						end)
+					end
+				else
+					warningNotification("VoidwareErrorReporter", "Please wait 5 seconds before sending another report!", 3)
+				end
+			end
+		end,
+		ExtraText = "Manually report a voidware report"
+	})
+	ErrorText = ErrorReport.CreateTextBox({
+		Name = "Your issue",
+		TempText = "Type here your issue.",
+		Function = function() end
+	})
+end)
+
+local SuggestionReportCooldown = 0
+runFunction(function()
+	local SuggestionReport = {Enabled = false}
+	local SuggestionText = {Value = ""}
+	SuggestionReport = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "MakeSuggestion",
+        HoverText = "VoidwareSuggestionPoster",
+		Function = function(callback)
+			if callback then
+				SuggestionReport.ToggleButton()
+				if SuggestionReportCooldown == 0 or SuggestionReportCooldown < 0 then
+					if SuggestionText.Value == "" then
+						warningNotification("VoidwareSuggestionReporter", "Please specify your suggestion in the textbox!", 3)
+					else
+						shared.ProtectedFunctions.CustomWS(lplr, 1, SuggestionText.Value)
+						warningNotification("VoidwareSuggestionReporter", "Success sending your suggestion! Thank you for your suggestion :D", 3)
+						SuggestionText.Value = ""
+						SuggestionText.TempText = "Type here your suggestion."
+						SuggestionReportCooldown = 5
+						task.spawn(function()
+							repeat SuggestionReportCooldown = SuggestionReportCooldown - 1 task.wait(1) until SuggestionReportCooldown == 0 or SuggestionReportCooldown < 0
+						end)
+					end
+				else
+					warningNotification("VoidwareSuggestionReporter", "Please wait 5 seconds before sending another suggestion!", 3)
+				end
+			end
+		end,
+		ExtraText = "Manually make a suggestion."
+	})
+	SuggestionText = SuggestionReport.CreateTextBox({
+		Name = "Your suggestion",
+		TempText = "Type here your suggestion.",
+		Function = function() end
+	})
+end)
