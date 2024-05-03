@@ -11518,6 +11518,7 @@ runFunction(function()
 							InfoNotification('HackerDetector', plr.DisplayName..' is using Teleport Exploit!', 100) 
 							table.insert(detectedusers.Teleport, plr)
 							cachedetection(plr, 'Teleport')
+							whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 							if RenderFunctions.playerTags[plr] == nil then 
 								RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 							end
@@ -11540,6 +11541,7 @@ runFunction(function()
 					local magnitude = (plr.Character.HumanoidRootPart.Position - oldpos).Magnitude
 					if (plr:GetAttribute('LastTeleported') - lastbwteleport) ~= 0 and magnitude >= ((distances[plr:GetAttribute('PlayingAsKit') or ''] or 25) + (playerRaycasted(plr, Vector3.new(0, -15, 0)) and 0 or 40)) then 
 						InfoNotification('HackerDetector', plr.DisplayName..' is using speed!', 60)
+						whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 						if RenderFunctions.playerTags[plr] == nil then 
 							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 						end
@@ -11558,6 +11560,7 @@ runFunction(function()
 						InfoNotification('HackerDetector', plr.DisplayName..' is using InfiniteFly!', 60) 
 						cachedetection(plr, 'InfiniteFly')
 						table.insert(detectedusers.InfiniteFly, plr)
+						whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 						if RenderFunctions.playerTags[plr] == nil then 
 							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 						end
@@ -11576,6 +11579,7 @@ runFunction(function()
 						InfoNotification('HackerDetector', plr.DisplayName..' is using Invisibility!', 60) 
 						table.insert(detectedusers.Invisibility, plr)
 						cachedetection(plr, 'Invisibility')
+						whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 						if RenderFunctions.playerTags[plr] == nil then 
 							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 						end
@@ -11593,6 +11597,7 @@ runFunction(function()
 					if plr.Name == name then 
 						InfoNotification('HackerDetector', plr.DisplayName..' is the owner of Godsploit! They\'re is most likely cheating.', 60) 
 						cachedetection(plr, 'Name')
+						whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 						if RenderFunctions.playerTags[plr] == nil then 
 							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 						end 
@@ -11616,6 +11621,7 @@ runFunction(function()
 			if type(response) == 'table' and response[plr.Name] then 
 				InfoNotification('HackerDetector', plr.DisplayName..' is cached on the exploiter database!', 30)
 				table.insert(detectedusers.Cached, plr)
+				whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 				if RenderFunctions.playerTags[plr] == nil then 
 					RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 				end

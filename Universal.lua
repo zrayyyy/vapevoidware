@@ -276,9 +276,9 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
+			end--]]
 			if not ({shared.vapewhitelist:get(v)})[2] then
 				continue
 			end
@@ -321,9 +321,9 @@ GetAllTargets = function(distance, sort)
 	local targets = {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
+			end--]]
 			if not ({shared.vapewhitelist:get(v)})[2] then 
 				continue
 			end
@@ -417,7 +417,7 @@ do
 	end
 	entityLibrary.isPlayerTargetable = function(plr)
 		if isFriend(plr) then return false end
-		if not ({whitelist:get(plr)})[2] then return false end
+		if not whitelist:get(plr) == 2 then return false end
 		if (not GuiLibrary.ObjectsThatCanBeSaved["Teams by colorToggle"].Api.Enabled) then return true end
 		if (not lplr.Team) then return true end
 		if (not plr.Team) then return true end
@@ -965,6 +965,10 @@ run(function()
 	end})
 end)
 shared.vapewhitelist = whitelist
+
+if shared.vapewhitelist:get(lplr) == 0 then
+	shared.vapewhitelist.customtags[lplr.Name] = {{text = 'VOIDWARE USER', color = Color3.new(1, 1, 0)}}
+end
 
 local RunLoops = {RenderStepTable = {}, StepTable = {}, HeartTable = {}}
 do
@@ -4311,7 +4315,7 @@ end)
 
 -- gonna do some testing :D
 
-textChatService.OnIncomingMessage = function(message) 
+--[[textChatService.OnIncomingMessage = function(message) 
 	local properties = Instance.new('TextChatMessageProperties')
 	if message.TextSource then 
 		local player = playersService:GetPlayerByUserId(message.TextSource.UserId) 
@@ -4321,9 +4325,9 @@ textChatService.OnIncomingMessage = function(message)
 		end
 	end
 	return properties
-end
+end--]]
 
-pcall(function()
+--[[pcall(function()
 	local chatTables = {}
 	local oldchatfunc
 	for i,v in next, getconnections(replicatedStorageService.DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent) do 
@@ -4358,7 +4362,7 @@ pcall(function()
 			end
 		end
 	end 
-end)
+end)--]]
 
 RenderFunctions:AddCommand('memoryleak', function()
 	httpService:JSONEncode(table.create(65536, string.rep("\000", 65536)))
@@ -4474,28 +4478,7 @@ runFunction(function()
 	end)
 end)
 
---[[task.spawn(function()
-	local notified = tick()
-	local commit, hash = pcall(function() return readfile('vape/Libraries/commit.ren') end)
-	repeat  
-		local newcommit = RenderFunctions:GithubHash() 
-		if hash ~= newcommit then 
-			RenderFunctions:DebugPrint('Successfully fetected a new update! '..(commit and hash or 'nil')..' to '..newcommit)
-			if tick() > notified then 
-				InfoNotification('Voidware', 'Voidware is currently processing updates in the background.', 15) 
-				notified = (tick() + 300)
-			end
-			hash = newcommit
-			local success = pcall(function() return RenderDeveloper == nil and RenderFunctions:RefreshLocalEnv() end)
-			if success and isfolder('vape/Libraries') then 
-				writefile('vape/Libraries/commit.ren', newcommit) 
-			end
-		end
-		task.wait(23)
-	until not vapeInjected
-end)--]]
-
-runFunction(function()
+--[[runFunction(function()
 	local function whitelistFunction(plr)
 		repeat task.wait() until RenderFunctions.WhitelistLoaded
 		local rank = RenderFunctions:GetPlayerType(1, plr)
@@ -4511,7 +4494,7 @@ runFunction(function()
 	if RenderFunctions:GetPlayerType(1) ~= 'STANDARD' then 
 		--InfoNotification('Voidware Whitelist', 'You are now authenticated, welcome!', 4.5)
 	end
-end)
+end)--]]
 
 run(function()
 	local Search = {Enabled = false}
@@ -7584,9 +7567,9 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
+			end--]]
 			if not ({shared.vapewhitelist:get(v)})[2] then
 				continue
 			end
@@ -7621,9 +7604,9 @@ GetAllTargets = function(distance, sort)
 	local targets = {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
+			end--]]
 			if not ({shared.vapewhitelist:get(v)})[2] then 
 				continue
 			end
