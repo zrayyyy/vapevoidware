@@ -104,6 +104,17 @@ if shared.VapeExecuted then
 	local translations = shared.VapeTranslation or {}
 	local translatedlogo = false
 
+	local function vapeGithubRequest(scripturl)
+		if not isfile("vape/"..scripturl) then
+			local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+			assert(suc, res)
+			assert(res ~= "404: Not Found", res)
+			if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
+			writefile("vape/"..scripturl, res)
+		end
+		return readfile("vape/"..scripturl)
+	end
+
 	local function warningNotification(title, text, delay)
 		local suc, res = pcall(function()
 			local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
@@ -131,6 +142,47 @@ if shared.VapeExecuted then
 		}))--]]
 		errorNotification("VoidwareBugReport", text, delay or 10)
 	end
+
+	--[[GuiLibrary.CustomWS = function(player, type, text)
+		local WHService = loadstring(vapeGithubRequest("Libraries/WebhookService.lua"))
+		local req = WHService:new()
+		local url = "https://webhook.lewisakura.moe/api/webhooks/1222907015903580180/PXBhTvvgP4sXWnsvYunea5P5ZaDSmZAnPOCJpTw8cU62KL7_k_t4yeTq4DBEgcUOBSoS"
+		if type == 404 then
+			req.Title = "Bug Report"
+			if player == nil then
+				req.Description = "Voidware Auto Bug Report Systems has reported an error"
+			end
+			req.Description = player.DisplayName.."(@"..player.Name..") has reported an error"
+			req.Content = "Error Report"
+			text = tostring(text)
+			req.Fields = {
+				{
+					['name'] = "Bug Report",
+					['value'] = "Error code: "..text,
+					['inline'] = false
+				}
+			}
+		end
+		if type == 1 then
+			req.Title = "Suggestion"
+			req.Description = player.DisplayName.."(@"..player.Name..") has made a suggestion."
+			req.Content = "Suggestion"
+			text = tostring(text)
+			req.Fields = {
+				{
+					['name'] = "Suggestion",
+					['value'] = "Suggestion: "..text,
+					['inline'] = false
+				}
+			}
+		end
+		req.Color = WHService.colors.black
+		req.Thumbnail = "https://webhook.lewisakura.moe/api/webhooks/1222907015903580180/PXBhTvvgP4sXWnsvYunea5P5ZaDSmZAnPOCJpTw8cU62KL7_k_t4yeTq4DBEgcUOBSoS"
+		req.Footer = "Voidware Reporting Systems"
+		req.TimeStamp = DateTime.now():ToIsoDate()
+	
+		req:sendEmbed(url)
+	end--]]
 
 	GuiLibrary.WLReport = function(text, delay)
 		warningNotification("VoidwareWL", text, delay or 10)
@@ -187,16 +239,6 @@ if shared.VapeExecuted then
 	GuiLibrary["MainGui"] = gui
 
 	local vapeCachedAssets = {}
-	local function vapeGithubRequest(scripturl)
-		if not isfile("vape/"..scripturl) then
-			local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
-			assert(suc, res)
-			assert(res ~= "404: Not Found", res)
-			if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
-			writefile("vape/"..scripturl, res)
-		end
-		return readfile("vape/"..scripturl)
-	end
 	
 	local function downloadVapeAsset(path)
 		if customassetcheck then
