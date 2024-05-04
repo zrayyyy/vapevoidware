@@ -196,6 +196,9 @@ local function downloadVapeAsset(path)
 	return getcustomasset(path) 
 end
 
+local ProtectedFunctions = loadstring(vapeGithubRequest("Libraries/funything.lua"))()
+shared.ProtectedFunctions = ProtectedFunctions
+
 assert(not shared.VapeExecuted, "Vape Already Injected")
 shared.VapeExecuted = true
 
