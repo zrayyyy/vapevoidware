@@ -280,19 +280,13 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 				continue
 			end--]]
 			if not ({shared.vapewhitelist:get(v)})[2] then
-				--continue
-			else
-				return
+				continue
 			end
 			if not shared.vapeentity.isPlayerTargetable(v) then 
-				--continue
-			else
-				return
+				continue
 			end
 			if not playerRaycasted(v) and raycast then 
-				--continue
-			else
-				return
+				continue
 			end
 			if healthmethod and v.Character.Humanoid.Health < magnitude then 
 				magnitude = v.Character.Humanoid.Health
@@ -300,10 +294,8 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 				target.RootPart = v.Character.HumanoidRootPart
 				target.Humanoid = v.Character.Humanoid
 				target.Player = v
-				--continue
-			else
-				return
-			end
+				continue
+			end 
 			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
 			if playerdistance < magnitude then 
 				magnitude = playerdistance
@@ -333,14 +325,10 @@ GetAllTargets = function(distance, sort)
 				continue
 			end--]]
 			if not ({shared.vapewhitelist:get(v)})[2] then 
-				--continue
-			else
-				return
+				continue
 			end
 			if not entityLibrary.isPlayerTargetable(v) then 
-			   	--continue
-			else
-				return
+				continue
 			end
 			local playerdistance = (lplr.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
 			if playerdistance <= (distance or math.huge) then 
@@ -361,19 +349,13 @@ getnewserver = function(customgame, popular, performance)
 		for i,v in serverTable.data do 
 			if v.id and v.playing and v.maxPlayers and tonumber(v.maxPlayers) > tonumber(v.playing) and tonumber(v.playing) > 0 then 
 				if v.id == tostring(game.JobId) then 
-					--continue 
-				else
-					return
+					continue 
 				end
 				if tonumber(v.playing) < players and popular then 
-					--continue
-				else
-					return
+					continue
 				end
 				if performance and v.ping and tonumber(v.ping) > 170 then
-					--continue
-				else
-					return
+					continue
 				end
 				players = tonumber(v.playing)
 				server = v.id
@@ -512,7 +494,7 @@ local function EntityNearPosition(distance, checktab)
 	if entityLibrary.isAlive then
 		local sortedentities = {}
 		for i, v in pairs(entityLibrary.entityList) do -- loop through playersService
-			--if not v.Targetable then continue end
+			if not v.Targetable then continue end
             if isVulnerable(v) then -- checks
 				local playerPosition = v.RootPart.Position
 				local mag = (entityLibrary.character.HumanoidRootPart.Position - playerPosition).magnitude
@@ -527,7 +509,7 @@ local function EntityNearPosition(distance, checktab)
 		table.sort(sortedentities, function(a, b) return a.Magnitude < b.Magnitude end)
 		for i, v in pairs(sortedentities) do
 			if checktab.WallCheck then
-			   	--if not raycastWallCheck(v.entity, checktab) then continue end
+				if not raycastWallCheck(v.entity, checktab) then continue end
 			end
 			return v.entity
 		end
@@ -540,7 +522,7 @@ local function EntityNearMouse(distance, checktab)
 		local sortedentities = {}
 		local mousepos = inputService.GetMouseLocation(inputService)
 		for i, v in pairs(entityLibrary.entityList) do
-			--if not v.Targetable then continue end
+			if not v.Targetable then continue end
             if isVulnerable(v) then
 				local vec, vis = worldtoscreenpoint(v[checktab.AimPart].Position)
 				local mag = (mousepos - Vector2.new(vec.X, vec.Y)).magnitude
@@ -552,7 +534,7 @@ local function EntityNearMouse(distance, checktab)
 		table.sort(sortedentities, function(a, b) return a.Magnitude < b.Magnitude end)
 		for i, v in pairs(sortedentities) do
 			if checktab.WallCheck then
-				--if not raycastWallCheck(v.entity, checktab) then continue end
+				if not raycastWallCheck(v.entity, checktab) then continue end
 			end
 			return v.entity
 		end
@@ -566,7 +548,7 @@ local function AllNearPosition(distance, amount, checktab)
     if entityLibrary.isAlive then
 		local sortedentities = {}
 		for i, v in pairs(entityLibrary.entityList) do
-			--if not v.Targetable then continue end
+			if not v.Targetable then continue end
             if isVulnerable(v) then
 				local playerPosition = v.RootPart.Position
 				local mag = (entityLibrary.character.HumanoidRootPart.Position - playerPosition).magnitude
@@ -581,7 +563,7 @@ local function AllNearPosition(distance, amount, checktab)
 		table.sort(sortedentities, function(a, b) return a.Magnitude < b.Magnitude end)
 		for i,v in pairs(sortedentities) do
 			if checktab.WallCheck then
-				--if not raycastWallCheck(v.entity, checktab) then continue end
+				if not raycastWallCheck(v.entity, checktab) then continue end
 			end
 			table.insert(returnedplayer, v.entity)
 			currentamount = currentamount + 1
@@ -1034,10 +1016,8 @@ GuiLibrary.SelfDestructEvent.Event:Connect(function()
 	vapeInjected = false
 	entityLibrary.selfDestruct()
 	for i, v in pairs(vapeConnections) do
-		--if v.Disconnect then pcall(function() v:Disconnect() end) continue end
-		--if v.disconnect then pcall(function() v:disconnect() end) continue end
-		if v.Disconnect then pcall(function() v:Disconnect() end) end
-		if v.Disconnect then pcall(function() v:Disconnect() end) end
+		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
+		if v.disconnect then pcall(function() v:disconnect() end) continue end
 	end
 end)
 
@@ -1205,12 +1185,7 @@ run(function()
 		return pos, Vector3.new(vel.X, 0, vel.Z)
 	end
 
-	local function LaunchAngle(v, g, d, h, higherArc)
-	    v = tonumber(v)
-	    g = tonumber(g)
-	    d = tonumber(d)
-	    h = tonumber(h)
-	    
+	local function LaunchAngle(v: number, g: number, d: number, h: number, higherArc: boolean)
 		local v2 = v * v
 		local v4 = v2 * v2
 		local root = math.sqrt(v4 - g*(g*d*d + 2*h*v2))
@@ -1218,7 +1193,7 @@ run(function()
 		return math.atan((v2 + root) / (g * d))
 	end
 
-	local function LaunchDirection(start, target, v, g, higherArc)
+	local function LaunchDirection(start, target, v, g, higherArc: boolean)
 		local horizontal = Vector3.new(target.X - start.X, 0, target.Z - start.Z)
 		local h = target.Y - start.Y
 		local d = horizontal.Magnitude
@@ -1229,13 +1204,7 @@ run(function()
 		return CFrame.fromAxisAngle(rotAxis, a) * vec
 	end
 
-	local function FindLeadShot(targetPosition, targetVelocity, projectileSpeed, shooterPosition, shooterVelocity, Gravityity)
-	    shooterPosition = Vector3.new(shooterPosition)
-	    shooterVelovity = Vector3.new(shooterVelocity)
-	    Gravityity = tonumber(Gravityity)
-	    targetPosition = Vector3.new(targetPosition)
-	    targetVelocity = Vector3.new(targetVelocity)
-	    projectileSpeed = tonumber(projectileSpeed)
+	local function FindLeadShot(targetPosition: Vector3, targetVelocity: Vector3, projectileSpeed: Number, shooterPosition: Vector3, shooterVelocity: Vector3, Gravityity: Number)
 		local distance = (targetPosition - shooterPosition).Magnitude
 		local p = targetPosition - shooterPosition
 		local v = targetVelocity - shooterVelocity
