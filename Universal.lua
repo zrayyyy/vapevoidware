@@ -125,7 +125,8 @@ local function downloadVapeAsset(path)
         if suc and req then
 		    writefile(path, req)
         else
-            return ""
+			writefile(path, req)
+            --return ""
         end
 	end
 	if not vapeCachedAssets[path] then vapeCachedAssets[path] = getcustomasset(path) end

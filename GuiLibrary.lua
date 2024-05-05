@@ -261,7 +261,8 @@ if shared.VapeExecuted then
 				if suc and req then
 					writefile(path, req)
 				else
-					return ""
+					writefile(path, req)
+            		--return ""
 				end
 			end
 		end
