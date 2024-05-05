@@ -7834,3 +7834,154 @@ runFunction(function()
 		Function = function() end
 	})
 end)
+
+local StaffFetcherCooldown = 0
+runFunction(function()
+	local StaffFetcher = {Enabled = false}
+	local Groupid = {Value = ""}
+	local Roleid = {Value = ""}
+	local DoneList = {Value = "Bedwars"}
+	local Simplified = {["Enabled"] = true}
+	StaffFetcher = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "StaffInfo",
+		Function = function(callback)
+			if callback then
+				StaffFetcher.ToggleButton()
+				if StaffFetcherCooldown == 0 or StaffFetcherCooldown < 0 then
+					local groupid
+					local roleid = {}
+
+					local onlineusers = {}
+					local ingameusers = {}
+					local offlineusers = {}
+
+					local activestaffs = 0
+					local offlinestaffs = 0
+					local onlinestaffs = 0
+
+					if Groupid.Value == "" then
+						groupid = nil
+					else
+						groupid = Groupid.Value
+					end
+					if Roleid.Value == "" then
+						roleid = {}
+					else
+						local initialTable = {Roleid.Value}
+						local convertedTable = {}
+						for _, value in ipairs(initialTable) do
+							if string.find(value, ",") then
+								for num in value:gmatch("%d+") do
+									table.insert(convertedTable, num)
+								end
+							else
+								table.insert(convertedTable, value)
+							end
+						end
+						for i, v in ipairs(convertedTable) do
+							table.insert(roleid, convertedTable[i])
+						end
+					end
+					if DoneList.Value == "Bedwars" then
+						if #roleid == 0 or groupid == nil then
+							groupid = "5774246"
+							table.insert(roleid, "79029254")
+						end
+					end
+					if DoneList.Value == "PetSimulator99" then
+						if #roleid == 0 or groupid == nil then
+							groupid = "5060810"
+							local roles = {"33738765", "33738740", "33738767", "33752283", "98198411", "33738739"}
+							for i, v in pairs(roles) do
+								table.insert(roleid, roles[i])
+							end
+						end
+					end
+					warningNotification("StaffFetcher", "Please wait a moment", 2)
+					local data = {}
+					if #roleid > 0 then
+						for i, v in pairs(roleid) do
+							data[i] = shared.ProtectedFunctions.StaffDetector(groupid, roleid[i])
+						end
+					end
+					if #data > 0 then
+						for i, v in pairs(data) do
+							if type(data[i]) == "string" then
+								warningNotification("StaffFetcher", "Failure loading data. Please try again later :( DataNumber: "..i, 3)
+								if i == #data then
+									StaffFetcherCooldown = 5
+									task.spawn(function()
+										repeat StaffFetcherCooldown = StaffFetcherCooldown - 1 task.wait(1) until StaffFetcherCooldown == 0 or StaffFetcherCooldown < 0
+									end)
+									shared.ProtectedFunctions.CustomWS(nil, 404, data)
+								end
+							end
+							if type(data[i]) == "table" then
+								table.insert(ingameusers, data[i][1])
+								table.insert(offlineusers, data[i][2])
+								table.insert(onlineusers, data[i][3])
+
+								activestaffs = activestaffs + #ingameusers
+								offlinestaffs = activestaffs + #offlineusers
+								onlinestaffs = activestaffs + #onlineusers
+								
+								if i == #data then
+									if Simplified.Enabled == true then
+										warningNotification("StaffFetcher", "There are currently "..activestaffs.." staffs ingame!", 10)
+									else
+										local text = ""
+										local addedNames = {}
+
+										for i2, v2 in pairs(data) do
+											for i3, v3 in pairs(ingameusers[i2]) do
+												local displayName = ingameusers[i2][i3].DisplayName
+												local name = ingameusers[i2][i3].Name
+												local rank = ingameusers[i2][i3].Rank
+												if not addedNames[name] then
+													text = text..displayName.."(@"..name..")".." Rank: "..rank
+													addedNames[name] = true
+												end
+											end
+										end
+										warningNotification("StaffFetcher", "The following staffs are ingame: "..text, 10)
+										print("InGameStaffsCount: "..activestaffs.." OnlineStaffsCount: "..onlinestaffs.." OfflineStaffsCount: "..offlinestaffs)
+										warningNotification("StaffFetcher", "InGameStaffsCount: "..activestaffs.." OnlineStaffsCount: "..onlinestaffs.." OfflineStaffsCount: "..offlinestaffs, 10)
+										StaffFetcherCooldown = 5
+										task.spawn(function()
+											repeat StaffFetcherCooldown = StaffFetcherCooldown - 1 task.wait(1) until StaffFetcherCooldown == 0 or StaffFetcherCooldown < 0
+										end)
+									end
+								else
+									continue
+								end
+							end
+						end
+					end
+				else
+					warningNotification("StaffInfo", "Please wait 5 seconds before using this module again!", 3)
+				end
+			end
+		end,
+		ExtraText = "Get info about staff members"
+	})
+	Groupid = StaffFetcher.CreateTextBox({
+		Name = "GroupID",
+		TempText = "Type here the GroupID",
+		Function = function() end
+	})
+	Roleid = StaffFetcher.CreateTextBox({
+		Name = "RoleID",
+		TempText = "Type here the RoleID",
+		Function = function() end
+	})
+	DoneList = StaffFetcher.CreateDropdown({
+		["Name"] = "SetGames",
+		["Function"] = function() end,
+		["List"] = {"Bedwars", "PetSimulator99"}
+	})
+	Simplified = StaffFetcher.CreateToggle({
+		["Name"] = "Simplified",
+		["Function"] = function() end, 
+		["Default"] = true
+	})
+end)
