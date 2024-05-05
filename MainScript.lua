@@ -1,4 +1,3 @@
-warn("Before da loop")
 repeat task.wait() until game:IsLoaded() 
 warn("Ok error ain't here mf")
 if shared == nil then
