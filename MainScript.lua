@@ -190,8 +190,7 @@ local function downloadVapeAsset(path)
 			if suc and req then
 				writefile(path, req)
 			else
-				writefile(path, req)
-            	--return ""
+				return ""
 			end
 		end
 	end
