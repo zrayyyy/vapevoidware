@@ -1,5 +1,3 @@
-warn("CustomReport: Getgenv")
-warn(getgenv)
 if getgenv and not getgenv().shared then getgenv().shared = {} end
 local errorPopupShown = false
 local setidentity = syn and syn.set_thread_identity or set_thread_identity or setidentity or setthreadidentity or function() end
@@ -110,6 +108,5 @@ local profiles, installed = pcall(function() return readfile('vape/Libraries/pro
 if installed == "no" then
     return loadstring(vapeGithubRequest("Libraries/installer.lua"))()
 else
-    print("loading da mainscript")
     return loadstring(vapeGithubRequest("MainScript.lua"))()
 end
