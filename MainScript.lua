@@ -282,7 +282,9 @@ task.spawn(function()
 		if image and image.ContentImageSize == Vector2.zero and (not errorPopupShown) and (not redownloadedAssets) and (not isfile("vape/assets/check3.txt")) then 
             errorPopupShown = true
             task.spawn(error, "Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")")
-			writefile("vape/assets/check3.txt", "")
+			displayErrorPopup("Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")", {OK = function()
+                writefile("vape/assets/check3.txt", "")
+            end})
         end
 	end)
 end)
