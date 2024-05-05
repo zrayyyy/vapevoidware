@@ -113,4 +113,3 @@ else
     print("loading da mainscript")
     return loadstring(vapeGithubRequest("MainScript.lua"))()
 end
-print("ok pass")
