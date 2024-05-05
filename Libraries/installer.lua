@@ -16,7 +16,7 @@ local function vapeGithubRequest(scripturl)
 	return print(scripturl)
 end
 
-local GuiLibrary = {
+local Gui1 = {
     MainGui = ""
 }
 
@@ -27,7 +27,7 @@ local gui = Instance.new("ScreenGui")
 	gui.OnTopOfCoreBlur = true
 	gui.ResetOnSpawn = false
 	gui.Parent = game:GetService("Players").LocalPlayer.PlayerGui
-	GuiLibrary["MainGui"] = gui
+	Gui1["MainGui"] = gui
 
 local function downloadVapeProfile(path)
 	if not isfile('vape/'..path) then
@@ -42,7 +42,7 @@ local function downloadVapeProfile(path)
 			textlabel.Font = Enum.Font.SourceSans
 			textlabel.TextColor3 = Color3.new(1, 1, 1)
 			textlabel.Position = UDim2.new(0, 0, 0, -36)
-			textlabel.Parent = GuiLibrary.MainGui
+			textlabel.Parent = Gui1.MainGui
             vapeGithubRequest(path)
 			textlabel:Destroy()
 		end)
