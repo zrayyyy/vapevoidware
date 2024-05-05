@@ -72,6 +72,16 @@ task.spawn(function()
 	end
 end)	
 
+if isfolder('vape') then
+	if isfolder('vape/Libraries') then
+	else
+		makefolder('vape/Libraries')
+	end
+else
+	makefolder('vape')
+	makefolder('vape/Libraries')
+end
+
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
 
-return loadfile('vape/NewMainScript.lua')()
+return loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/main/NewMainScript.lua", true))()
