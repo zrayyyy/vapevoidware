@@ -1978,7 +1978,7 @@ GeneralSettings.CreateButton2({
 })
 GeneralSettings.CreateButton2({
 	Name = "RESTART",
-	Function = GuiLibrary.Restart
+	Function = GuiLibrary.Restart()
 })
 
 local function loadVape()
