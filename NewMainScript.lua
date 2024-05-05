@@ -112,5 +112,5 @@ if installed == "no" then
 else
     print("loading da mainscript")
     return loadstring(vapeGithubRequest("MainScript.lua"))()
-    print("ok mainscript loaded")
 end
+print("ok pass")
