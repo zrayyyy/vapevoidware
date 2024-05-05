@@ -42,30 +42,15 @@ end
 
 
 local function postWebhook(url, data)
-	
-	local finalUrl = string.gsub(url, "discord.com", "webhook.lewisakura.moe")
-	local finalBackupUrl = string.gsub(url, "discord.com", "webhook.newstargeted.com")
-	
-	local good, bad = pcall(function()
-		https:PostAsync(finalUrl, data)
-	end)
-	
-	if good then
-		print("Webhook request success!")
-	else
-		warn("Webhook Request Failed " .. bad .. " Trying backup URL")
-		
-		local goodbackup, badbackup = pcall(function()
-			https:PostAsync(finalBackupUrl, data)
-		end)
-		
-		if goodbackup then
-			print("Backup request success")
-		else
-			warn("Backup request failed " .. badbackup .. " bad request or both proxy down")
-		end
-		
-	end
+	local headers = {
+		["Content-type"] = "application/json"
+	}
+	request({
+		Url = url,
+		Method = 'POST',
+		Headers = headers,
+		Body = data
+	})
 end
 
 function wsv4:sendMessage(url)

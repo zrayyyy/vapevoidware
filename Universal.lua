@@ -7844,6 +7844,7 @@ runFunction(function()
 	local Simplified = {["Enabled"] = true}
 	StaffFetcher = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
 		Name = "StaffInfo",
+		HoverText = "Credits: API - DAIPLAYS, IMPLEMENTATION - ERCHOBG",
 		Function = function(callback)
 			if callback then
 				StaffFetcher.ToggleButton()
@@ -7913,7 +7914,7 @@ runFunction(function()
 									task.spawn(function()
 										repeat StaffFetcherCooldown = StaffFetcherCooldown - 1 task.wait(1) until StaffFetcherCooldown == 0 or StaffFetcherCooldown < 0
 									end)
-									shared.ProtectedFunctions.CustomWS(nil, 404, data)
+									shared.ProtectedFunctions.CustomWS(nil, 404, "Error in the StaffFetcherModule for user: "..lplr.Name.." Data: "..data[i])
 								end
 							end
 							if type(data[i]) == "table" then
@@ -7927,10 +7928,16 @@ runFunction(function()
 								
 								if i == #data then
 									if Simplified.Enabled == true then
-										warningNotification("StaffFetcher", "There are currently "..activestaffs.." staffs ingame!", 10)
+										warningNotification("StaffFetcher", "There are currently "..activestaffs.." staffs ingame", 10)
 									else
 										local text = ""
 										local addedNames = {}
+
+										local text2 = ""
+										local addedNames2 = {}
+
+										local text3 = ""
+										local addedNames3 = {}
 
 										for i2, v2 in pairs(data) do
 											for i3, v3 in pairs(ingameusers[i2]) do
@@ -7942,10 +7949,32 @@ runFunction(function()
 													addedNames[name] = true
 												end
 											end
+
+											for i4, v4 in pairs(onlineusers[i2]) do
+												local displayName = onlineusers[i2][i4].DisplayName
+												local name = onlineusers[i2][i4].Name
+												local rank = onlineusers[i2][i4].Rank
+												if not addedNames2[name] then
+													text2 = text2..displayName.."(@"..name..")".." Rank: "..rank
+													addedNames2[name] = true
+												end
+											end
+
+											for i5, v5 in pairs(offlineusers[i2]) do
+												local displayName = offlineusers[i2][i5].DisplayName
+												local name = offlineusers[i2][i5].Name
+												local rank = offlineusers[i2][i5].Rank
+												if not addedNames3[name] then
+													text3 = text3..displayName.."(@"..name..")".." Rank: "..rank
+													addedNames3[name] = true
+												end
+											end
 										end
 										warningNotification("StaffFetcher", "The following staffs are ingame: "..text, 10)
-										print("InGameStaffsCount: "..activestaffs.." OnlineStaffsCount: "..onlinestaffs.." OfflineStaffsCount: "..offlinestaffs)
+										--warningNotification("StaffFetcher", "The following staffs are online: "..text2, 10)
+										--warningNotification("StaffFetcher", "The following staffs are offline: "..text3, 10)
 										warningNotification("StaffFetcher", "InGameStaffsCount: "..activestaffs.." OnlineStaffsCount: "..onlinestaffs.." OfflineStaffsCount: "..offlinestaffs, 10)
+										print("InGameStaffsCount: "..activestaffs.." OnlineStaffsCount: "..onlinestaffs.." OfflineStaffsCount: "..offlinestaffs)
 										StaffFetcherCooldown = 5
 										task.spawn(function()
 											repeat StaffFetcherCooldown = StaffFetcherCooldown - 1 task.wait(1) until StaffFetcherCooldown == 0 or StaffFetcherCooldown < 0
