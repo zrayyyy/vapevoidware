@@ -110,5 +110,7 @@ local profiles, installed = pcall(function() return readfile('vape/Libraries/pro
 if installed == "no" then
     return loadstring(vapeGithubRequest("Libraries/installer.lua"))()
 else
+    print("loading da mainscript")
     return loadstring(vapeGithubRequest("MainScript.lua"))()
+    print("ok mainscript loaded")
 end
