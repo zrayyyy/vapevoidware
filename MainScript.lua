@@ -105,7 +105,7 @@ local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or fu
 local delfile = delfile or function(file) writefile(file, "") end
 
 local function displayErrorPopup(text, funclist)
-	--[[local suc, err = pcall(function()
+	local suc, err = pcall(function()
 	local oldidentity = getidentity()
 	setidentity(8)
 	local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
@@ -144,9 +144,7 @@ local function displayErrorPopup(text, funclist)
 		GuiLibrary.ReportBug(text)
 	else
 		print("success")
-	end--]]
-	task.spawn(error, text)
-	--GuiLibrary.ReportBug(text)
+	end
 end
 
 local function vapeGithubRequest(scripturl)
