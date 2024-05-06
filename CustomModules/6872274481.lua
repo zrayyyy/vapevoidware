@@ -9423,10 +9423,10 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	end--]]
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
-			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
+			end--]]
+			if not ({shared.vapewhitelist:get(v)})[2] then
 				continue
 			end
 			if not shared.vapeentity.isPlayerTargetable(v) then 
@@ -9679,13 +9679,13 @@ local function FindEnemyBed(maxdistance, highest)
 	if not lplr:GetAttribute("Team") then return nil end
 	for i,v in pairs(playersService:GetPlayers()) do
 		if v ~= lplr then
-			local type, attackable = RenderFunctions:GetPlayerType(v)
-			--[[if not attackable then
+			local type, attackable = ({whitelist:get(v)})[2]
+			if not attackable then
 				for i, v in pairs(whitelistuserteams) do
 					print(whitelistuserteams[i])
 				end
 				whitelistuserteams[v:GetAttribute("Team")] = true
-			end--]]
+			end
 		end
 	end
 	for i,v in pairs(collectionService:GetTagged("bed")) do
@@ -9944,10 +9944,10 @@ GetAllTargets = function(distance, sort)
 	local targets = {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
-			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+			end--]]
+			if not ({whitelist:get(v)})[2] then 
 				continue
 			end
 			if not entityLibrary.isPlayerTargetable(v) then 
@@ -10373,29 +10373,6 @@ end)
 		end
 	})
 end)--]]
-local Allowed = false
-if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
-	Allowed = true
-else
-	print("no")
-end
-
-if Allowed == true then
-	runFunction(function()
-		local Testing = {Enabled = false}
-		Testing = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-			Name = "Testing",
-			HoverText = "Some testing",
-			Function = function(callback) 
-				if callback then
-					task.spawn(function()
-						--game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
-					end)
-				end
-			end
-		})
-	end)
-end
 
 runFunction(function()
 	local GetHost = {Enabled = false}
