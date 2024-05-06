@@ -1,5 +1,4 @@
-repeat task.wait() until game:IsLoaded() 
-
+repeat task.wait() until game:IsLoaded()
 if shared == nil then
 	getgenv().shared = {} 
 end
@@ -91,8 +90,7 @@ local vapeAssetTable = {
 }
 local Platform = inputService:GetPlatform()
 
-if Platform ~= Enum.Platform.Windows then 
-	--mobile exploit fix
+if Platform ~= Enum.Platform.Windows then
 	getgenv().getsynasset = nil
 	getgenv().getcustomasset = nil
 	-- why is this needed
@@ -105,7 +103,6 @@ local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or fu
 local delfile = delfile or function(file) writefile(file, "") end
 
 local function displayErrorPopup(text, funclist)
-	local suc, err = pcall(function()
 	local oldidentity = getidentity()
 	setidentity(8)
 	local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
@@ -139,12 +136,6 @@ local function displayErrorPopup(text, funclist)
 	prompt:setParent(gui)
 	prompt:_open(text)
 	setidentity(oldidentity)
-	end)
-	if err then
-		GuiLibrary.ReportBug(text)
-	else
-		print("success")
-	end
 end
 
 local function vapeGithubRequest(scripturl)
@@ -281,8 +272,8 @@ task.spawn(function()
 		task.wait(15)
 		if image and image.ContentImageSize == Vector2.zero and (not errorPopupShown) and (not redownloadedAssets) and (not isfile("vape/assets/check3.txt")) then 
             errorPopupShown = true
-            task.spawn(error, "Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")")
-			displayErrorPopup("Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")", {OK = function()
+			task.spawn(error, "Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")")
+            displayErrorPopup("Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")", {OK = function()
                 writefile("vape/assets/check3.txt", "")
             end})
         end
@@ -1020,7 +1011,7 @@ local function TextGUIUpdate()
 		VapeTextExtra.Text = formattedText
         VapeText.Size = UDim2.fromOffset(154, (formattedText ~= "" and textService:GetTextSize(formattedText, VapeText.TextSize, VapeText.Font, Vector2.new(1000000, 1000000)) or Vector2.zero).Y)
 
-		local offsets = TextGUIOffsets[Platform] or {
+		local offsets = {
 			5,
 			1,
 			23,
@@ -1830,6 +1821,7 @@ local teleportConnection = playersService.LocalPlayer.OnTeleport:Connect(functio
     if (not teleportedServers) and (not shared.VapeIndependent) then
 		teleportedServers = true
 		local teleportScript = [[
+			shared.VapeSwitchServers = true 
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/NewMainScript.lua", true))() 
 		]]
 		if shared.VapeDeveloper then
@@ -1879,6 +1871,7 @@ GuiLibrary.SelfDestruct = function()
 	shared.VapeExecuted = nil
 	shared.VapePrivate = nil
 	shared.VapeFullyLoaded = nil
+	shared.VapeSwitchServers = nil
 	shared.GuiLibrary = nil
 	shared.VapeIndependent = nil
 	shared.VapeManualLoad = nil
@@ -2018,6 +2011,7 @@ local function loadVape()
 	GUIbind.Reload()
 	TextGUIUpdate()
 	GuiLibrary.UpdateUI(GUIColorSlider.Hue, GUIColorSlider.Sat, GUIColorSlider.Value, true)
+	if not shared.VapeSwitchServers then
 		if BlatantModeToggle.Enabled then
 			pcall(function()
 				local frame = GuiLibrary.CreateNotification("Blatant Enabled", "Vape is now in Blatant Mode.", 5.5, "assets/WarningNotification.png")
@@ -2025,6 +2019,9 @@ local function loadVape()
 			end)
 		end
 		GuiLibrary.LoadedAnimation(welcomeMessage.Enabled)
+	else
+		shared.VapeSwitchServers = nil
+	end
 	if shared.VapeOpenGui then
 		GuiLibrary.MainGui.ScaledGui.ClickGui.Visible = true
 		GuiLibrary.MainGui.ScaledGui.LegitGui.Visible = false
