@@ -272,8 +272,6 @@ task.spawn(function()
 		task.wait(15)
 		if image and image.ContentImageSize == Vector2.zero and (not errorPopupShown) and (not redownloadedAssets) and (not isfile("vape/assets/check3.txt")) then 
             errorPopupShown = true
-			task.spawn(error, "Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")")
-			writefile("vape/assets/check3.txt", "")
             displayErrorPopup("Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")", {OK = function()
                 writefile("vape/assets/check3.txt", "")
             end})
@@ -282,11 +280,6 @@ task.spawn(function()
 end)
 
 local GUI = GuiLibrary.CreateMainWindow()
-local Voidware = GuiLibrary.CreateWindow({
-	Name = "Voidware", 
-	Icon = "vape/assets/UtilityIcon.png", 
-	IconSize = 17
-})
 local Combat = GuiLibrary.CreateWindow({
 	Name = "Combat", 
 	Icon = "vape/assets/CombatIcon.png", 
@@ -312,6 +305,11 @@ local World = GuiLibrary.CreateWindow({
 	Icon = "vape/assets/WorldIcon.png", 
 	IconSize = 16
 })
+local Voidware = GuiLibrary.CreateWindow({
+	Name = "Voidware", 
+	Icon = "vape/assets/UtilityIcon.png", 
+	IconSize = 17
+})
 local GameScripts = GuiLibrary.CreateWindow({
 	Name = "GameScripts", 
 	Icon = "vape/assets/HoverArrow2.png", 
@@ -333,12 +331,6 @@ local Profiles = GuiLibrary.CreateWindow2({
 	IconSize = 19
 })
 GUI.CreateDivider()
-GUI.CreateButton({
-	Name = "Voidware", 
-	Function = function(callback) Voidware.SetVisible(callback) end, 
-	Icon = "vape/assets/UtilityIcon.png", 
-	IconSize = 17
-})
 GUI.CreateButton({
 	Name = "Combat", 
 	Function = function(callback) Combat.SetVisible(callback) end, 
@@ -368,6 +360,12 @@ GUI.CreateButton({
 	Function = function(callback) World.SetVisible(callback) end, 
 	Icon = "vape/assets/WorldIcon.png", 
 	IconSize = 16
+})
+GUI.CreateButton({
+	Name = "Voidware", 
+	Function = function(callback) Voidware.SetVisible(callback) end, 
+	Icon = "vape/assets/UtilityIcon.png", 
+	IconSize = 17
 })
 GUI.CreateDivider("CustomScripts")
 GUI.CreateButton({
@@ -743,13 +741,13 @@ OnlineProfilesButton.MouseButton1Click:Connect(function()
 		local onlineprofiles = {}
 		local saveplaceid = tostring(shared.CustomSaveVape or game.PlaceId)
         local success, result = pcall(function()
-            return game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Erchobg/VapeProfiles/main/Profiles/"..saveplaceid.."/profilelist.txt", true))
+            return game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/7GrandDadPGN/VapeProfiles/main/Profiles/"..saveplaceid.."/profilelist.txt", true))
         end)
 		for i,v in pairs(success and result or {}) do 
 			onlineprofiles[i] = v
 		end
 		for i2,v2 in pairs(onlineprofiles) do
-			local profileurl = "https://raw.githubusercontent.com/Erchobg/VapeProfiles/main/Profiles/"..saveplaceid.."/"..v2.OnlineProfileName
+			local profileurl = "https://raw.githubusercontent.com/7GrandDadPGN/VapeProfiles/main/Profiles/"..saveplaceid.."/"..v2.OnlineProfileName
 			local profilebox = Instance.new("Frame")
 			profilebox.BackgroundColor3 = Color3.fromRGB(31, 30, 31)
 			profilebox.Parent = OnlineProfilesList
@@ -1604,11 +1602,12 @@ local windowSortOrder = {
 	UtilityButton = 4,
 	WorldButton = 5,
 	VoidwareButton = 6,
-	FriendsButton = 7,
-	TargetsButton = 8,
-	ProfilesButton = 9
+	CustomScriptsButton = 7,
+	FriendsButton = 8,
+	TargetsButton = 9,
+	ProfilesButton = 10
 }
-local windowSortOrder2 = {"Combat", "Blatant", "Render", "Utility", "World", "Voidware"}
+local windowSortOrder2 = {"Combat", "Blatant", "Render", "Utility", "World", "Voidware", "CustomScripts"}
 
 local function getVapeSaturation(val)
 	local sat = 0.9
@@ -1823,7 +1822,11 @@ local teleportConnection = playersService.LocalPlayer.OnTeleport:Connect(functio
 		teleportedServers = true
 		local teleportScript = [[
 			shared.VapeSwitchServers = true 
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/NewMainScript.lua", true))() 
+			if shared.VapeDeveloper then 
+				loadstring(readfile("vape/NewMainScript.lua"))() 
+			else 
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/NewMainScript.lua", true))() 
+			end
 		]]
 		if shared.VapeDeveloper then
 			teleportScript = 'shared.VapeDeveloper = true\n'..teleportScript
@@ -1895,6 +1898,23 @@ GuiLibrary.Restart = function()
 	shared.VapePrivate = vapePrivateCheck
 	loadstring(vapeGithubRequest("NewMainScript.lua"))()
 end
+
+GeneralSettings.CreateButton2({
+	Name = "RESET CURRENT PROFILE", 
+	Function = function()
+		local vapePrivateCheck = shared.VapePrivate
+		GuiLibrary.SelfDestruct()
+		if delfile then
+			delfile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt")
+		else
+			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
+		end
+		shared.VapeSwitchServers = true
+		shared.VapeOpenGui = true
+		shared.VapePrivate = vapePrivateCheck
+		loadstring(vapeGithubRequest("NewMainScript.lua"))()
+	end
+})
 GUISettings.CreateButton2({
 	Name = "RESET GUI POSITIONS", 
 	Function = function()
@@ -1918,12 +1938,13 @@ GUISettings.CreateButton2({
 			UtilityWindow = 5,
 			WorldWindow = 6,
 			VoidwareWindow = 7,
-			FriendsWindow = 8,
-			TargetsWindow = 9,
-			ProfilesWindow = 10,
-			["Text GUICustomWindow"] = 11,
-			TargetInfoCustomWindow = 12,
-			RadarCustomWindow = 13
+			CustomScriptsWindow = 8,
+			FriendsWindow = 9,
+			TargetsWindow = 10,
+			ProfilesWindow = 11,
+			["Text GUICustomWindow"] = 12,
+			TargetInfoCustomWindow = 13,
+			RadarCustomWindow = 14
 		}
 		local storedpos = {}
 		local num = 6
@@ -1953,29 +1974,13 @@ GUISettings.CreateButton2({
 	end
 })
 GeneralSettings.CreateButton2({
-	Name = "RESET CURRENT PROFILE", 
-	Function = function()
-		local vapePrivateCheck = shared.VapePrivate
-		GuiLibrary.SelfDestruct()
-		if delfile then
-			delfile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt")
-		else
-			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
-		end
-		shared.VapeOpenGui = true
-		shared.VapePrivate = vapePrivateCheck
-		loadstring(vapeGithubRequest("NewMainScript.lua"))()
-	end
-})
-GeneralSettings.CreateButton2({
 	Name = "UNINJECT",
 	Function = GuiLibrary.SelfDestruct
 })
 GeneralSettings.CreateButton2({
 	Name = "RESTART",
-	Function = GuiLibrary.Restart()
+	Function = GuiLibrary.Restart
 })
-
 local function loadVape()
 	if not shared.VapeIndependent then
 		loadstring(vapeGithubRequest("Universal.lua"))()
