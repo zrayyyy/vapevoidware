@@ -1981,8 +1981,22 @@ GeneralSettings.CreateButton2({
 	Name = "RESTART",
 	Function = GuiLibrary.Restart
 })
+local function customload(data, file)
+	local success, err = pcall(function()
+		loadstring(data)()
+	end)
+	if not success then
+		GuiLibrary.SaveSettings = function() end
+		task.spawn(error, "Vape - Failed to load "..file..".lua | "..err)
+		pcall(function()
+			local notification = GuiLibrary.CreateNotification("Failure loading "..file..".lua", err, 25, "assets/WarningNotification.png")
+			notification.IconLabel.ImageColor3 = Color3.new(220, 0, 0)
+			notification.Frame.Frame.ImageColor3 = Color3.new(220, 0, 0)
+	    end)
+	end
+end
 local function loadVape()
-	if not shared.VapeIndependent then
+	--[[if not shared.VapeIndependent then
 		loadstring(vapeGithubRequest("Universal.lua"))()
 		if isfile("vape/CustomModules/"..game.PlaceId..".lua") then
 			loadstring(readfile("vape/CustomModules/"..game.PlaceId..".lua"))()
@@ -2002,7 +2016,25 @@ local function loadVape()
 		end
 	else
 		repeat task.wait() until shared.VapeManualLoad
+	end--]]
+
+	if true then -- don't ask why :)
+		customload(vapeGithubRequest("Universal.lua"), "Universal")
+		if bedwars then 
+			customload(vapeGithubRequest("CustomModules/6872274481.lua"), "6872274481")
+		else
+			local success, response = pcall(function()
+				return isfile("vape/CustomModules/"..game.PlaceId..".lua") and readfile("vape/CustomModules/"..game.PlaceId..".lua") or game:HttpGet("https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/main/CustomModules/"..game.PlaceId..".lua") 
+			end)
+			if success and response ~= "404: Not Found" then 
+				customload(response, game.PlaceId)
+				if not isfile("vape/CustomModules/"..game.PlaceId..".lua") then 
+					pcall(writefile, "vape/CustomModules/"..game.PlaceId..".lua", response)
+				end
+			end
+		end
 	end
+
 	if #ProfilesTextList.ObjectList == 0 then
 		table.insert(ProfilesTextList.ObjectList, "default")
 		ProfilesTextList.RefreshValues(ProfilesTextList.ObjectList)
