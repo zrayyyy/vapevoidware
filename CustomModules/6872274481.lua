@@ -9739,7 +9739,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
 	local function raycasted(entityroot) return abletocalculate() and blockRaycast and workspace:Raycast(entityroot.Position, Vector3.new(0, -2000, 0), store.blockRaycast) or not blockRaycast and true or false end
 	for i,v in pairs(playersService:GetPlayers()) do
 		if v ~= lplr and abletocalculate() and isAlive(v) and ({VoidwareFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
-			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+			if not ({whitelist:get(v)})[2] then 
 				continue
 			end
 			if sortmethods[sortmethod](v.Character.HumanoidRootPart, v.Character:GetAttribute("Health") or v.Character.Humanoid.Health) and raycasted(v.Character.HumanoidRootPart) then
@@ -11924,7 +11924,7 @@ GetTarget = function(distance, healthmethod, raycast, npc, mouse, bypass)
 			if not RenderFunctions:GetPlayerType(2, v) then 
 				continue
 			end
-			--[[if not ({WhitelistFunctions:GetWhitelist(v)})[2] then
+			--[[if not ({whitelist:get(v)})[2] then
 				continue
 			end--]]
 			if not entityLibrary.isPlayerTargetable(v) then 
