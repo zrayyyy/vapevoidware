@@ -10374,21 +10374,6 @@ end)
 	})
 end)--]]
 
-runFunction(function()
-	local GetHost = {Enabled = false}
-	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = "GetHost",
-		HoverText = ":troll:",
-		Function = function(callback) 
-			if callback then
-				task.spawn(function()
-					game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
-				end)
-			end
-		end
-	})
-end)
-
 local function warningNotification(title, text, delay)
 	local suc, res = pcall(function()
 		local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
@@ -12531,6 +12516,210 @@ runFunction(function()
 				print("no session info found lol")
 			end
 		end
+	})
+end)
+
+run(function()
+	local StaffDetector = {}
+	local StaffDetectorMode = {Value = 'Lobby'}
+	local StaffDetectorFamous = {}
+	local StaffDetectorManual = {ObjectList = {}}
+	local legitgamers = {}
+	local staffconfig = {legitmessages = {}, staffaccounts = {}, legitmodules = {}}
+	local cachedfriends = {}
+	local cachedroles = {}
+	local knownstaff = {}
+	local actionperformed
+	local olderror = errorNotification
+	local errorNotification = function(title: string, text: string, duration: number)
+		if StaffDetectorMode.Value == 'Uninject' then 
+			return game.GetService(game, 'StarterGui'):SetCore('SendNotification', ({
+				Title = title, 
+				Text = text, 
+				Duration = duration
+			})) 
+		end
+		return olderror(title, text, duration)
+	end
+	local staffactions = {
+		Uninject = GuiLibrary.SelfDestruct,
+		Lobby = function()
+			teleportService:Teleport(6872265039)
+		end,
+		Config = function()
+			for i,v in next, GuiLibrary.ObjectsThatCanBeSaved do 
+				if v.Type == 'OptionsButton' and table.find(staffconfig.legitmodules, i:gsub('OptionsButton', '')) == nil then 
+					GuiLibrary.SaveSettings = function() end
+					if v.Api.Enabled then
+						v.Api.ToggleButton()
+					end
+					pcall(GuiLibrary.RemoveObject, i)
+				end
+			end
+		end
+	}
+	for i,v in next, staffactions do 
+		local oldfunc = staffactions[i]
+		staffactions[i] = function()
+			actionperformed = true 
+			return oldfunc()
+		end
+	end
+	local function savestaffConfig(plr, detection)
+		local success, json = pcall(function() 
+			return httpService:JSONDecode(readfile('vape/Libraries/staffdata.json'))
+		end)
+		if not success then 
+			json = {}
+		end
+		table.insert(json, {Username = plr.Name, DisplayName = plr.DisplayName, Detection = detection, Tick = tick()})
+		if isfolder('vape/Libraries') then 
+			writefile('vape/Libraries/staffdata.json', httpService:JSONEncode(json))
+		end
+	end
+	local function GetRobloxFriends(plr)
+		local friends = {}
+		local success, page = pcall(playersService.GetFriendsAsync, playersService, plr.UserId)
+		if success then
+			repeat
+				for i,v in next, page:GetCurrentPage() do
+					table.insert(friends, v.UserId)
+				end
+				if not page.IsFinished then 
+					page:AdvanceToNextPageAsync()
+				end
+			until page.IsFinished
+		end
+		return friends
+	end
+	local function friendActive(friendtab)
+		for i,v in next, friendtab do 
+			local friend = playersService:GetPlayerByUserId(v)
+			if friend then 
+				return friend 
+			end
+		end
+	end
+	local function matchtag(tag: Instance)
+		if tag.Value:lower():find('mod') or tag.Value:lower():find('dev') or tag.Value:lower():find('owner') then 
+			return 'has a moderation rank in bedwars.'
+		end
+		if StaffDetectorFamous.Enabled and tag.Value:lower():find('famous') then 
+			return 'is a famous creator in bedwars.'
+		end
+	end
+	local function staffDetectorFunction(player)
+		task.spawn(function()
+			local tags = player:WaitForChild('Tags', 9e9)
+			local addconnection
+			for i,v in next, tags:GetChildren() do 
+				if v:IsA('StringValue') then 
+					local report = matchtag(v)
+					if report then 
+						savestaffConfig(player, 'illegal_tag')
+						bedwars.LobbyEvents.leaveParty:FireServer()
+						errorNotification('StaffDetector', player.DisplayName..' '..report, 60)
+						return actionperformed or staffactions[StaffDetectorMode.Value]()
+					end
+				end
+			end
+			addconnection = tags.ChildAdded:Connect(function(v)
+				local report = matchtag(v)
+				if report then 
+					addconnection:Disconnect()
+					savestaffConfig(player, 'illegal_tag')
+					bedwars.LobbyEvents.leaveParty:FireServer()
+					errorNotification('StaffDetector', player.DisplayName..' '..report, 60)
+					return actionperformed or staffactions[StaffDetectorMode.Value]()
+				end
+			end)
+			table.insert(StaffDetector.Connections, addconnection)
+		end)
+		repeat 
+			for i,v in next, StaffDetectorManual.ObjectList do 
+				if player.Name:lower() == v:lower() or tonumber(v) == tonumber(player.UserId) then 
+					savestaffConfig(player, 'manual_user')
+					bedwars.LobbyEvents.leaveParty:FireServer()
+					errorNotification('StaffDetector', player.DisplayName..' is currently in your blacklisted user list.', 60)
+					return actionperformed or staffactions[StaffDetectorMode.Value]()
+				end
+			end
+			local friends = (cachedfriends[player] or GetRobloxFriends(player))
+			cachedfriends[player] = friends
+			if player:GetAttribute('Spectator') and table.find(legitgamers, player) == nil and friendActive(friends) == nil and bedwars.ClientStoreHandler:getState().Game.customMatch == nil then 
+				savestaffConfig(player, 'illegal_join')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' is overwatching you.', 60)
+				return actionperformed or staffactions[StaffDetectorMode.Value]()
+			end
+			if table.find(legitgamers, player) == nil and tostring(player.Team) ~= 'Neutral' and not player:GetAttribute('Spectator') then 
+				table.insert(legitgamers, player)
+			end
+			if table.find(staffconfig.staffaccounts, player.UserId) or table.find(knownstaff, player.UserId) then 
+				savestaffConfig(player, 'blacklisted_users')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' is cached on staff json.', 60)
+				return actionperformed or staffactions[StaffDetectorMode.Value]()
+			end
+			local success, response = true, cachedroles[player]
+			if response == nil then 
+				success, response = pcall(player.GetRoleInGroup, lplr, 5774246)
+			end
+			cachedroles[player] = response 
+			if tonumber(response) and tonumber(response) >= 121 then 
+				savestaffConfig(player, 'group_rank')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' has a high role in the Easy.gg group (GetRoleInGroup() >= 121).', 60)
+				return actionperformed or staffactions[StaffDetectorMode.Value]()
+			end
+			task.wait()
+		until (not StaffDetector.Enabled)
+	end
+	StaffDetector = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'StaffDetector',
+		HoverText = 'Detects when bedwars staff are in the server (75% accuracy).',
+		ExtraText = "Credits: SystemXVoid"
+		Function = function(calling)
+			if calling then 
+				if store.matchState ~= 0 then 
+					return 
+				end
+				pcall(function() staffconfig = httpService:JSONDecode(game.HttpGetAsync(game, 'https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Libraries/staffconfig.json')) end)
+				pcall(function() knownstaff = httpService:JSONDecode(game.HttpGetAsync(game, 'https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Libraries/knownstaff.json')) end)
+				pcall(function() 
+					for i,v in next, httpService:JSONDecode(readfile('vape/Libraries/staffdata.json')) do 
+						if table.find(knownstaff, v) == nil then 
+							table.insert(knownstaff, v)
+						end
+					end
+				end)
+				repeat task.wait() until (shared.VapeFullyLoaded or not StaffDetector.Enabled)
+				if not StaffDetector.Enabled then 
+					return 
+				end
+				for i,v in next, playersService:GetPlayers() do 
+					if v ~= lplr then
+						task.spawn(staffDetectorFunction, v)
+					end
+				end
+				table.insert(vapeConnections, playersService.PlayerAdded:Connect(staffDetectorFunction))
+			end
+		end
+	})
+	StaffDetectorMode = StaffDetector.CreateDropdown({
+		Name = 'Action',
+		List = dumptable(staffactions, 1),
+		Function = function() end
+	})
+	StaffDetectorManual = StaffDetector.CreateTextList({
+		Name = 'Accounts',
+		TempText = 'accounts (user/id)',
+		AddFunction = function() end,
+	})
+	StaffDetectorFamous = StaffDetector.CreateToggle({
+		Name = 'Famous',
+		HoverText = 'Detects famous bedwars creators',
+		Function = function() end
 	})
 end)
 																																																			
