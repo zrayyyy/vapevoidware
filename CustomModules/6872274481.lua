@@ -9945,8 +9945,8 @@ GetAllTargets = function(distance, sort)
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
 			--if not RenderFunctions:GetPlayerType(2) then 
-				continue
-			end--]]
+				--continue
+			--end--]]
 			if not ({whitelist:get(v)})[2] then 
 				continue
 			end
