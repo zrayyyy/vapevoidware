@@ -5019,12 +5019,12 @@ run(function()
 			if alreadygot[item.Name] == nil and (table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name)) then
 				alreadygot[item.Name] = true
 				v.Enabled = true
-                local blockimage = Instance.new("ImageLabel")
-                blockimage.Size = UDim2.new(0, 32, 0, 32)
-                blockimage.BackgroundTransparency = 1
-                blockimage.Image = bedwars.getIcon({itemType = item.Name}, true)
-                blockimage.Parent = v.Frame
-            end
+				local blockimage = Instance.new("ImageLabel")
+				blockimage.Size = UDim2.new(0, 32, 0, 32)
+				blockimage.BackgroundTransparency = 1
+				blockimage.Image = bedwars.getIcon({itemType = item.Name}, true)
+				blockimage.Parent = v.Frame
+			end
 		end
 	end
 
