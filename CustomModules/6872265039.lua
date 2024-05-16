@@ -369,7 +369,7 @@ task.spawn(function()
 			'HitBoxesOptionsButton', 
 			'LongJumpOptionsButton', 
 			'AutoClickerOptionsButton',
-			'MouseTPOptionsButton',
+			--'MouseTPOptionsButton',
 			'ReachOptionsButton',
 			'SilentAimOptionsButton',
 			'SpeedOptionsButton',

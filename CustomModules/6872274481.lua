@@ -1917,7 +1917,7 @@ task.spawn(function()
 			'SpiderOptionsButton',
 			'AutoClickerOptionsButton',
 			'PhaseOptionsButton',
-			'MouseTPOptionsButton',
+			--'MouseTPOptionsButton',
 			'ReachOptionsButton',
 			'SilentAimOptionsButton'
 		}
