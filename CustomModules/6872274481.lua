@@ -8529,7 +8529,7 @@ run(function()
 	bedprotectorrange = BedProtector.CreateSlider({
 		Name = "Place range",
 		Min = 1,
-		Max = 20,
+		Max = 100,
 		Function = function(val) end,
 		Default = 20
 	})
@@ -8697,7 +8697,6 @@ run(function()
 		end
 	})
 end)
-
 
 run(function()
 	local controlmodule = require(lplr.PlayerScripts.PlayerModule).controls
@@ -11879,6 +11878,24 @@ runFunction(function()
 			end
 		end
 	end)
+end)
+
+runFunction(function() 
+	local Penguin = {}
+	Penguin = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'Penguin',
+		HoverText = 'Auto penguin mode',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					while wait(1) do
+						--GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.OptionsButtons.BedProtector.ToggleButton(true)
+						GuiLibrary.ObjectsThatCanBeSaved.BedProtectorOptionsButton.Api.ToggleButton()
+					end
+				end)
+			end
+		end
+	})
 end)
 
 local playerRaycasted = function() return true end
