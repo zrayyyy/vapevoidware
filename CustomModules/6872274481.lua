@@ -9678,11 +9678,8 @@ local function FindEnemyBed(maxdistance, highest)
 	if not lplr:GetAttribute("Team") then return nil end
 	for i,v in pairs(playersService:GetPlayers()) do
 		if v ~= lplr then
-			local type, attackable = ({whitelist:get(v)})[2]
+			local type, attackable = shared.vapewhitelist:get(v)
 			if not attackable then
-				for i, v in pairs(whitelistuserteams) do
-					print(whitelistuserteams[i])
-				end
 				whitelistuserteams[v:GetAttribute("Team")] = true
 			end
 		end
