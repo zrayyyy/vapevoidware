@@ -10378,6 +10378,7 @@ runFunction(function()
 		Function = function(callback) 
 			if callback then
 				task.spawn(function()
+					warningNotification("GetHost", "This module is only for show. None of the settings will work.")
 					game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
 				end)
 			end
