@@ -137,6 +137,15 @@ local store = {
 	zephyrOrb = 0
 }
 
+local sendmessage = function() end
+sendmessage = function(text)
+	if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(text)
+	else
+		replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(text, 'All')
+	end
+end
+
 void = {}
 
 void.round = function(x : Number)
@@ -7598,16 +7607,16 @@ run(function()
 end)
 
 run(function()
-	local justsaid = ""
+	local justsaid = ''
 	local leavesaid = false
 	local alreadyreported = {}
 
 	local function removerepeat(str)
-		local newstr = ""
-		local lastlet = ""
-		for i,v in pairs(str:split("")) do
+		local newstr = ''
+		local lastlet = ''
+		for i,v in next, (str:split('')) do 
 			if v ~= lastlet then
-				newstr = newstr..v
+				newstr = newstr..v 
 				lastlet = v
 			end
 		end
@@ -7615,95 +7624,98 @@ run(function()
 	end
 
 	local reporttable = {
-		gay = "Bullying",
-		gae = "Bullying",
-		gey = "Bullying",
-		hack = "Scamming",
-		exploit = "Scamming",
-		cheat = "Scamming",
-		hecker = "Scamming",
-		haxker = "Scamming",
-		hacer = "Scamming",
-		report = "Bullying",
-		fat = "Bullying",
-		black = "Bullying",
-		getalife = "Bullying",
-		fatherless = "Bullying",
-		report = "Bullying",
-		fatherless = "Bullying",
-		disco = "Offsite Links",
-		yt = "Offsite Links",
-		dizcourde = "Offsite Links",
-		retard = "Swearing",
-		bad = "Bullying",
-		trash = "Bullying",
-		nolife = "Bullying",
-		nolife = "Bullying",
-		loser = "Bullying",
-		killyour = "Bullying",
-		kys = "Bullying",
-		hacktowin = "Bullying",
-		bozo = "Bullying",
-		kid = "Bullying",
-		adopted = "Bullying",
-		linlife = "Bullying",
-		commitnotalive = "Bullying",
-		vape = "Offsite Links",
-		futureclient = "Offsite Links",
-		download = "Offsite Links",
-		youtube = "Offsite Links",
-		die = "Bullying",
-		lobby = "Bullying",
-		ban = "Bullying",
-		wizard = "Bullying",
-		wisard = "Bullying",
-		witch = "Bullying",
-		magic = "Bullying",
+		gay = 'Bullying',
+		gae = 'Bullying',
+		gey = 'Bullying',
+		hack = 'Scamming',
+		exploit = 'Scamming',
+		cheat = 'Scamming',
+		hecker = 'Scamming',
+		haxker = 'Scamming',
+		hacer = 'Scamming',
+		report = 'Bullying',
+		fat = 'Bullying',
+		black = 'Bullying',
+		getalife = 'Bullying',
+		fatherless = 'Bullying',
+		report = 'Bullying',
+		fatherless = 'Bullying',
+		disco = 'Offsite Links',
+		yt = 'Offsite Links',
+		dizcourde = 'Offsite Links',
+		retard = 'Swearing',
+		bad = 'Bullying',
+		trash = 'Bullying',
+		nolife = 'Bullying',
+		nolife = 'Bullying',
+		loser = 'Bullying',
+		killyour = 'Bullying',
+		kys = 'Bullying',
+		hacktowin = 'Bullying',
+		bozo = 'Bullying',
+		kid = 'Bullying',
+		adopted = 'Bullying',
+		linlife = 'Bullying',
+		commitnotalive = 'Bullying',
+		vape = 'Offsite Links',
+		futureclient = 'Offsite Links',
+		download = 'Offsite Links',
+		youtube = 'Offsite Links',
+		die = 'Bullying',
+		lobby = 'Bullying',
+		ban = 'Bullying',
+		wizard = 'Bullying',
+		wisard = 'Bullying',
+		witch = 'Bullying',
+		magic = 'Bullying',
 	}
 	local reporttableexact = {
-		L = "Bullying",
+		L = 'Bullying',
 	}
 
+	local rendermessages = {
+		[1] = {'cry me a river <name>', 'boo hooo <name>', 'womp womp <name>', 'I could care less <name>.'}
+	}
 
 	local function findreport(msg)
-		local checkstr = removerepeat(msg:gsub("%W+", ""):lower())
-		for i,v in pairs(reporttable) do
-			if checkstr:find(i) then
+		local checkstr = removerepeat(msg:gsub('%W+', ''):lower())
+		for i,v in next, (reporttable) do 
+			if checkstr:find(i) then 
 				return v, i
 			end
 		end
-		for i,v in pairs(reporttableexact) do
-			if checkstr == i then
+		for i,v in next, (reporttableexact) do 
+			if checkstr == i then 
 				return v, i
 			end
 		end
-		for i,v in pairs(AutoToxicPhrases5.ObjectList) do
-			if checkstr:find(v) then
-				return "Bullying", v
+		for i,v in next, (AutoToxicPhrases5.ObjectList) do 
+			if checkstr:find(v) then 
+				return 'Bullying', v
 			end
 		end
 		return nil
 	end
 
 	AutoToxic = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-		Name = "AutoToxic",
-		Function = function(callback)
-			if callback then
+		Name = 'AutoToxic',
+		Function = function(calling)
+			if calling then 
 				table.insert(AutoToxic.Connections, vapeEvents.BedwarsBedBreak.Event:Connect(function(bedTable)
-					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute("Team") then
-						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or "How dare you break my bed >:( <name> | vxpe on top"
+					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute('Team') then
+						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got Render <name>? | Voidware'
 						if custommsg then
-							custommsg = custommsg:gsub("<name>", (bedTable.player.DisplayName or bedTable.player.Name))
+							custommsg = custommsg:gsub('<name>', (bedTable.player.DisplayName or bedTable.player.Name))
 						end
 						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
 					elseif AutoToxicBedBreak.Enabled and bedTable.player.UserId == lplr.UserId then
-						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or "nice bed <teamname> | vxpe on top"
+						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or 'Your bed has been sent to the abyss <teamname>! | Voidware'
 						if custommsg then
-							local team = bedwars.QueueMeta[store.queueType].teams[tonumber(bedTable.brokenBedTeam.id)]
-							local teamname = team and team.displayName:lower() or "white"
-							custommsg = custommsg:gsub("<teamname>", teamname)
+							local team = bedwars.QueueMeta[bedwarsStore.queueType].teams[tonumber(bedTable.brokenBedTeam.id)]
+							local teamname = team and team.displayName:lower() or 'white'
+							custommsg = custommsg:gsub('<teamname>', teamname)
 						end
-						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+						sendmessage(custommsg)
 					end
 				end))
 				table.insert(AutoToxic.Connections, vapeEvents.EntityDeathEvent.Event:Connect(function(deathTable)
@@ -7711,27 +7723,27 @@ run(function()
 						local killer = playersService:GetPlayerFromCharacter(deathTable.fromEntity)
 						local killed = playersService:GetPlayerFromCharacter(deathTable.entityInstance)
 						if not killed or not killer then return end
-						if killed == lplr then
+						if killed == lplr then 
 							if (not leavesaid) and killer ~= lplr and AutoToxicDeath.Enabled then
 								leavesaid = true
-								local custommsg = #AutoToxicPhrases3.ObjectList > 0 and AutoToxicPhrases3.ObjectList[math.random(1, #AutoToxicPhrases3.ObjectList)] or "My gaming chair expired midfight, thats why you won <name> | vxpe on top"
+								local custommsg = #AutoToxicPhrases3.ObjectList > 0 and AutoToxicPhrases3.ObjectList[math.random(1, #AutoToxicPhrases3.ObjectList)] or 'I was too laggy <name>. That\'s why you won. | Voidware'
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (killer.DisplayName or killer.Name))
+									custommsg = custommsg:gsub('<name>', (killer.DisplayName or killer.Name))
 								end
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+								sendmessage(custommsg)
 							end
 						else
-							if killer == lplr and AutoToxicFinalKill.Enabled then
-								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or "L <name> | vxpe on top"
+							if killer == lplr and AutoToxicFinalKill.Enabled then 
+								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render. | Voidware'
 								if custommsg == lastsaid then
-									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or "L <name> | vxpe on top"
+									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Render. | Voidware'
 								else
 									lastsaid = custommsg
 								end
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (killed.DisplayName or killed.Name))
+									custommsg = custommsg:gsub('<name>', (killed.DisplayName or killed.Name))
 								end
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+								sendmessage(custommsg)
 							end
 						end
 					end
@@ -7740,40 +7752,26 @@ run(function()
 					local myTeam = bedwars.ClientStoreHandler:getState().Game.myTeam
 					if myTeam and myTeam.id == winstuff.winningTeamId or lplr.Neutral then
 						if AutoToxicGG.Enabled then
-							textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync("gg")
-							if shared.ggfunction then
-								shared.ggfunction()
-							end
+							sendmessage('gg')
 						end
 						if AutoToxicWin.Enabled then
-							textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or "EZ L TRASH KIDS | vxpe on top")
+							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'Render is simply better everyone. | Voidware')
 						end
 					end
 				end))
-				table.insert(AutoToxic.Connections, vapeEvents.LagbackEvent.Event:Connect(function(plr)
-					if AutoToxicLagback.Enabled then
-						local custommsg = #AutoToxicPhrases8.ObjectList > 0 and AutoToxicPhrases8.ObjectList[math.random(1, #AutoToxicPhrases8.ObjectList)]
-						if custommsg then
-							custommsg = custommsg:gsub("<name>", (plr.DisplayName or plr.Name))
-						end
-						local msg = custommsg or "Imagine lagbacking L "..(plr.DisplayName or plr.Name).." | vxpe on top"
-						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(msg)
-					end
-				end))
-				table.insert(AutoToxic.Connections, textChatService.MessageReceived:Connect(function(tab)
+				table.insert(AutoToxic.Connections, RenderStore.MessageReceived.Event:Connect(function(plr, text)
 					if AutoToxicRespond.Enabled then
-						local plr = playersService:GetPlayerByUserId(tab.TextSource.UserId)
-						local args = tab.Text:split(" ")
+						local args = text:split(' ')
 						if plr and plr ~= lplr and not alreadyreported[plr] then
-							local reportreason, reportedmatch = findreport(tab.Text)
-							if reportreason then
+							local reportreason, reportedmatch = findreport(text)
+							if reportreason then 
 								alreadyreported[plr] = true
 								local custommsg = #AutoToxicPhrases4.ObjectList > 0 and AutoToxicPhrases4.ObjectList[math.random(1, #AutoToxicPhrases4.ObjectList)]
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (plr.DisplayName or plr.Name))
+									custommsg = custommsg:gsub('<name>', (plr.DisplayName or plr.Name))
 								end
-								local msg = custommsg or "I don't care about the fact that I'm hacking, I care about you dying in a block game. L "..(plr.DisplayName or plr.Name).." | vxpe on top"
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(msg)
+								local msg = (custommsg or getrandomvalue(rendermessages[1]):gsub('<name>', plr.DisplayName)..' | Voidware')
+								sendmessage(msg)
 							end
 						end
 					end
@@ -7782,84 +7780,79 @@ run(function()
 		end
 	})
 	AutoToxicGG = AutoToxic.CreateToggle({
-		Name = "AutoGG",
-		Function = function() end,
+		Name = 'AutoGG',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicWin = AutoToxic.CreateToggle({
-		Name = "Win",
-		Function = function() end,
+		Name = 'Win',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicDeath = AutoToxic.CreateToggle({
-		Name = "Death",
-		Function = function() end,
+		Name = 'Death',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicBedBreak = AutoToxic.CreateToggle({
-		Name = "Bed Break",
-		Function = function() end,
+		Name = 'Bed Break',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicBedDestroyed = AutoToxic.CreateToggle({
-		Name = "Bed Destroyed",
-		Function = function() end,
+		Name = 'Bed Destroyed',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicRespond = AutoToxic.CreateToggle({
-		Name = "Respond",
-		Function = function() end,
+		Name = 'Respond',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicFinalKill = AutoToxic.CreateToggle({
-		Name = "Final Kill",
-		Function = function() end,
+		Name = 'Final Kill',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicTeam = AutoToxic.CreateToggle({
-		Name = "Teammates",
-		Function = function() end,
-	})
-	AutoToxicLagback = AutoToxic.CreateToggle({
-		Name = "Lagback",
-		Function = function() end,
-		Default = true
+		Name = 'Teammates',
+		Function = function() end, 
 	})
 	AutoToxicPhrases = AutoToxic.CreateTextList({
-		Name = "ToxicList",
-		TempText = "phrase (win)",
+		Name = 'ToxicList',
+		TempText = 'phrase (win)',
 	})
 	AutoToxicPhrases2 = AutoToxic.CreateTextList({
-		Name = "ToxicList2",
-		TempText = "phrase (kill) <name>",
+		Name = 'ToxicList2',
+		TempText = 'phrase (kill) <name>',
 	})
 	AutoToxicPhrases3 = AutoToxic.CreateTextList({
-		Name = "ToxicList3",
-		TempText = "phrase (death) <name>",
+		Name = 'ToxicList3',
+		TempText = 'phrase (death) <name>',
 	})
 	AutoToxicPhrases7 = AutoToxic.CreateTextList({
-		Name = "ToxicList7",
-		TempText = "phrase (bed break) <teamname>",
+		Name = 'ToxicList7',
+		TempText = 'phrase (bed break) <teamname>',
 	})
 	AutoToxicPhrases7.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases6 = AutoToxic.CreateTextList({
-		Name = "ToxicList6",
-		TempText = "phrase (bed destroyed) <name>",
+		Name = 'ToxicList6',
+		TempText = 'phrase (bed destroyed) <name>',
 	})
 	AutoToxicPhrases6.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases4 = AutoToxic.CreateTextList({
-		Name = "ToxicList4",
-		TempText = "phrase (text to respond with) <name>",
+		Name = 'ToxicList4',
+		TempText = 'phrase (text to respond with) <name>',
 	})
 	AutoToxicPhrases4.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases5 = AutoToxic.CreateTextList({
-		Name = "ToxicList5",
-		TempText = "phrase (text to respond to)",
+		Name = 'ToxicList5',
+		TempText = 'phrase (text to respond to)',
 	})
 	AutoToxicPhrases5.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases8 = AutoToxic.CreateTextList({
-		Name = "ToxicList8",
-		TempText = "phrase (lagback) <name>",
+		Name = 'ToxicList8',
+		TempText = 'phrase (lagback) <name>',
 	})
 	AutoToxicPhrases8.Object.AddBoxBKG.AddBox.TextSize = 12
 end)
