@@ -80,6 +80,7 @@ local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
 local collectionService = game:GetService("CollectionService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local replicatedStorageService = replicatedStorage
 local gameCamera = workspace.CurrentCamera
 local lplr = playersService.LocalPlayer
 local vapeConnections = {}
