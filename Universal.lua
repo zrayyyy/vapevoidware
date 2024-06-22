@@ -8014,3 +8014,70 @@ runFunction(function()
 		["Default"] = true
 	})
 end)
+
+runFunction(function()
+	local GetHash = {}
+	local PlrsList = {Value = ''}
+	local Players = game:GetService("Players")
+	local plrs = {}
+	local plrs2 = {}
+	for i,v in pairs(Players:GetChildren()) do
+		table.insert(plrs, Players:GetChildren()[i].Name)
+		plrs2[Players:GetChildren()[i].Name] = Players:GetChildren()[i]
+	end
+	Players.ChildRemoved:Connect(function(child)
+		for i,v in pairs(plrs) do
+			if plrs[i] == child.Name then table.remove(plrs, i) end
+		end
+		if plrs2[child.Name] then plrs2[child.Name] = nil end
+		PlrsList.List = plrs
+	end)
+	Players.ChildAdded:Connect(function(child)
+		if child then
+			if child.Name then
+				table.insert(plrs, child.Name)
+				plrs2[child.Name] = child
+			else warn("No child name found!") end
+		else warn("Unknown child") end
+	end)
+	GetHash = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = 'GetHash',
+		HoverText = 'Get the whitelist hash of somebody in the server',
+		Function = function(calling)
+			if calling then 
+				local player = plrs2[PlrsList.Value]
+				local vapewl = shared.vapewhitelist
+				local plrName = player.Name
+				local plrUserId = player.UserId
+				local hash
+				if plrName and plrUserId then
+					hash = vapewl:hash(plrName..plrUserId)
+					if hash then setclipboard(hash) warningNotification("GetHash", "Successfully gotten the hash of plr: "..plrName.." Copied to clipboard!", 5) end
+				else
+					if plrName then else print("No plr name found!") end
+					if plrUserId then else print("No plruserid found!") end
+				end
+			end
+		end
+	})
+	PlrsList = GetHash.CreateDropdown({
+		Name = 'PlrsList',
+		List = plrs,
+		Function = function(plr)
+			if GetHash.Enabled then 
+				local player = plrs2[plr]
+				local vapewl = shared.vapewhitelist
+				local plrName = player.Name
+				local plrUserId = player.UserId
+				local hash
+				if plrName and plrUserId then
+					hash = vapewl:hash(plrName..plrUserId)
+					if hash then setclipboard(hash) warningNotification("GetHash", "Successfully gotten the hash of plr: "..plrName.." Copied to clipboard!", 5) end
+				else
+					if plrName then else print("No plr name found!") end
+					if plrUserId then else print("No plruserid found!") end
+				end
+			end
+		end
+	})
+end)
