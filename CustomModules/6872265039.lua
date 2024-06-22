@@ -2103,17 +2103,51 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 		end
 	})
 end)
-
+local replicatedStorageService = game:GetService("ReplicatedStorage")
 runFunction(function()
 	local Gamble = function()
 		replicatedStorageService["rbxts_include"]["node_modules"]["@rbxts"]["net"]["out"]["_NetManaged"]["RewardCrate/SpawnRewardCrate"]:FireServer({
-			["crateType"] = "level_up_create",
+			["crateType"] = "level_up_crate",
 			["altarId"] = 0
 		})
 		replicatedStorageService["rbxts_include"]["node_modules"]["@rbxts"]["net"]["out"]["_NetManaged"]["RewardCrate/SpawnRewardCrate"]:FireServer({
-			["crateType"] = "level_up_create",
+			["crateType"] = "level_up_crate",
 			["altarId"] = 1
 		})
+		wait(1)
+		local crate1folder = game:GetService("Workspace"):WaitForChild("CrateAltar_1")
+		local crate0folder = game:GetService("Workspace"):WaitForChild("CrateAltar_0")
+
+		local children1 = crate1folder:GetChildren()
+		local children2 = crate0folder:GetChildren()
+
+		function getRandomNumber()
+			local numbers = {1, 2, 3}
+			local index = math.random(1, #numbers)
+			return numbers[index]
+		end
+
+		if #children1 > 0 then
+			local num = getRandomNumber
+			if children1[1]:GetAttribute("owner") == game:GetService("Players").LocalPlayer.UserId then
+				local crateuuid = children1[num]:GetAttribute("crateId")
+				if type(crateuuid) == "string" then else crateuuid = tostring(crateuuid) end
+				replicatedStorageService:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RewardCrate/OpenRewardCrate"):FireServer({
+					["crateId"] = tostring(crateuuid)
+				})
+			end
+		end
+
+		if #children2 > 0 then
+			local num = getRandomNumber
+			if children2[1]:GetAttribute("owner") == game:GetService("Players").LocalPlayer.UserId then
+				local crateuuid = children2[num]:GetAttribute("crateId")
+				if type(crateuuid) == "string" then else crateuuid = tostring(crateuuid) end
+				replicatedStorageService:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RewardCrate/OpenRewardCrate"):FireServer({
+					["crateId"] = tostring(crateuuid)
+				})
+			end
+		end
 	end
 	local AutoGamble = {Enabled = false}
 	AutoGamble = GuiLibrary['ObjectsThatCanBeSaved']['VoidwareWindow']['Api'].CreateOptionsButton({
