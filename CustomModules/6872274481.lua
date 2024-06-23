@@ -12560,7 +12560,7 @@ runFunction(function()
     local isEnabled = false
     
     local instaWinExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-        Name = "InstaWinExploit",
+        Name = "BridgeduelsInstawin",
         Function = function(callback)
             isEnabled = callback
             if callback then
