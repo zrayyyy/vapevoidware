@@ -315,7 +315,7 @@ local GameScripts = GuiLibrary.CreateWindow({
 	Icon = "vape/assets/HoverArrow2.png", 
 	IconSize = 17
 })
-local VoidwareDev = GuiLibrary.CreateWindow2({
+local VoidwareDev = GuiLibrary.CreateWindow({
 	Name = "VoidwareDev", 
 	Icon = "vape/assets/HoverArrow2.png", 
 	IconSize = 17
