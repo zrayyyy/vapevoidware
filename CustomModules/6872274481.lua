@@ -12542,5 +12542,45 @@ runFunction(function()
 		end
 	})
 end)
+
+local function instawin()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    
+    for _, part in pairs(game.Workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            for _, child in pairs(part:GetChildren()) do
+                if child:IsA("TouchTransmitter") then
+                    firetouchinterest(humanoidRootPart, part, 0)
+                    firetouchinterest(humanoidRootPart, part, 1)
+                end
+            end
+        end
+    end
+end
+
+runFunction(function()
+    local isEnabled = false
+    
+    local instaWinExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = "InstaWinExploit",
+        Function = function(callback)
+            isEnabled = callback
+            if callback then
+                print("Waiting for the exploit to start...")
+                task.spawn(function()
+                    while isEnabled do
+                        instawin()
+                        wait(0.1)
+                    end
+                end)
+            else
+                print("InstaWinExploit disabled")
+            end
+        end,
+        HoverText = "Instantly wins every game for you"
+    })
+end)
 																																																			
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
