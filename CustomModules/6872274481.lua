@@ -5009,27 +5009,25 @@ end)
 run(function()
 	local ChestESPList = {ObjectList = {}, RefreshList = function() end}
 	local function nearchestitem(item)
-		for i,v in pairs(ChestESPList.ObjectList) do
+		for i,v in next, (ChestESPList.ObjectList) do 
 			if item:find(v) then return v end
 		end
 	end
 	local function refreshAdornee(v)
-		local chest = v:FindFirstChild("ChestFolderValue")
-		chest = chest and chest.Value or nil
-		if not chest then return end
+		local chest = v.Adornee.ChestFolderValue.Value
 		local chestitems = chest and chest:GetChildren() or {}
-		for i2,v2 in pairs(v.Frame:GetChildren()) do
-			if v2:IsA("ImageLabel") then
+		for i2,v2 in next, (v.Frame:GetChildren()) do
+			if v2:IsA('ImageLabel') then
 				v2:Remove()
 			end
 		end
 		v.Enabled = false
 		local alreadygot = {}
-		for itemNumber, item in pairs(chestitems) do
-			if alreadygot[item.Name] == nil and (table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name)) then
+		for itemNumber, item in next, (chestitems) do
+			if alreadygot[item.Name] == nil and (table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name)) then 
 				alreadygot[item.Name] = true
 				v.Enabled = true
-				local blockimage = Instance.new("ImageLabel")
+				local blockimage = Instance.new('ImageLabel')
 				blockimage.Size = UDim2.new(0, 32, 0, 32)
 				blockimage.BackgroundTransparency = 1
 				blockimage.Image = bedwars.getIcon({itemType = item.Name}, true)
@@ -5038,49 +5036,47 @@ run(function()
 		end
 	end
 
-	local ChestESPFolder = Instance.new("Folder")
-	ChestESPFolder.Name = "ChestESPFolder"
+	local ChestESPFolder = Instance.new('Folder')
+	ChestESPFolder.Name = 'ChestESPFolder'
 	ChestESPFolder.Parent = GuiLibrary.MainGui
-	local ChestESP = {Enabled = false}
-	local ChestESPBackground = {Enabled = true}
+	local ChestESP = {}
+	local ChestESPBackground = {}
 
 	local function chestfunc(v)
 		task.spawn(function()
-			local chest = v:FindFirstChild("ChestFolderValue")
-			chest = chest and chest.Value or nil
-			if not chest then return end
-			local billboard = Instance.new("BillboardGui")
+			local billboard = Instance.new('BillboardGui')
 			billboard.Parent = ChestESPFolder
-			billboard.Name = "chest"
+			billboard.Name = 'chest'
 			billboard.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
 			billboard.Size = UDim2.new(0, 42, 0, 42)
 			billboard.AlwaysOnTop = true
 			billboard.Adornee = v
-			local frame = Instance.new("Frame")
+			local frame = Instance.new('Frame')
 			frame.Size = UDim2.new(1, 0, 1, 0)
 			frame.BackgroundColor3 = Color3.new(0, 0, 0)
 			frame.BackgroundTransparency = ChestESPBackground.Enabled and 0.5 or 1
 			frame.Parent = billboard
-			local uilistlayout = Instance.new("UIListLayout")
+			local uilistlayout = Instance.new('UIListLayout')
 			uilistlayout.FillDirection = Enum.FillDirection.Horizontal
 			uilistlayout.Padding = UDim.new(0, 4)
 			uilistlayout.VerticalAlignment = Enum.VerticalAlignment.Center
 			uilistlayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-			uilistlayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			uilistlayout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
 				billboard.Size = UDim2.new(0, math.max(uilistlayout.AbsoluteContentSize.X + 12, 42), 0, 42)
 			end)
 			uilistlayout.Parent = frame
-			local uicorner = Instance.new("UICorner")
+			local uicorner = Instance.new('UICorner')
 			uicorner.CornerRadius = UDim.new(0, 4)
 			uicorner.Parent = frame
-			if chest then
+			local chest = v:WaitForChild('ChestFolderValue').Value
+			if chest then 
 				table.insert(ChestESP.Connections, chest.ChildAdded:Connect(function(item)
-					if table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name) then
+					if table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name) then 
 						refreshAdornee(billboard)
 					end
 				end))
 				table.insert(ChestESP.Connections, chest.ChildRemoved:Connect(function(item)
-					if table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name) then
+					if table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name) then 
 						refreshAdornee(billboard)
 					end
 				end))
@@ -5090,12 +5086,12 @@ run(function()
 	end
 
 	ChestESP = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
-		Name = "ChestESP",
-		Function = function(callback)
-			if callback then
+		Name = 'ChestESP',
+		Function = function(calling)
+			if calling then
 				task.spawn(function()
-					table.insert(ChestESP.Connections, collectionService:GetInstanceAddedSignal("chest"):Connect(chestfunc))
-					for i,v in pairs(collectionService:GetTagged("chest")) do chestfunc(v) end
+					table.insert(ChestESP.Connections, collectionService:GetInstanceAddedSignal('chest'):Connect(chestfunc))
+					for i,v in next, (collectionService:GetTagged('chest')) do chestfunc(v) end
 				end)
 			else
 				ChestESPFolder:ClearAllChildren()
@@ -5103,25 +5099,25 @@ run(function()
 		end
 	})
 	ChestESPList = ChestESP.CreateTextList({
-		Name = "ItemList",
-		TempText = "item or part of item",
+		Name = 'ItemList',
+		TempText = 'item or part of item',
 		AddFunction = function()
-			if ChestESP.Enabled then
+			if ChestESP.Enabled then 
 				ChestESP.ToggleButton(false)
 				ChestESP.ToggleButton(false)
 			end
 		end,
 		RemoveFunction = function()
-			if ChestESP.Enabled then
+			if ChestESP.Enabled then 
 				ChestESP.ToggleButton(false)
 				ChestESP.ToggleButton(false)
 			end
 		end
 	})
 	ChestESPBackground = ChestESP.CreateToggle({
-		Name = "Background",
+		Name = 'Background',
 		Function = function()
-			if ChestESP.Enabled then
+			if ChestESP.Enabled then 
 				ChestESP.ToggleButton(false)
 				ChestESP.ToggleButton(false)
 			end
