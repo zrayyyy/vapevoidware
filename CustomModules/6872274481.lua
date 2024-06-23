@@ -12578,5 +12578,63 @@ runFunction(function()
         HoverText = "Instantly wins every game for you"
     })
 end)
+
+runFunction(function()
+	local ShellExploit = {}
+	local shells = {}
+	local function remove_esp(part)
+		if part.Token:FindFirstChild("Highlight_ESP") then
+			part.Token:FindFirstChild("Highlight_ESP"):Destroy()
+		else warn("No highlight found!") end
+	end
+	local function add_esp(part)
+		local create = function(part)
+			local highlight = Instance.new("Highlight")
+			highlight.FillColor = Color3.new(236, 237, 41)
+			highlight.Name = "Highlight_ESP"
+			highlight.Parent = part.Token
+		end
+		if part.Token:FindFirstChild("Highlight_ESP") then remove_esp(part) create(part) else
+			create(part)
+		end
+	end
+	ShellExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'ShellExploit',
+		HoverText = 'Makes esp for u to see the shells',
+		Function = function(calling)
+			if calling then 
+				local neeeded_item_name = "Summer2024KillToken"
+				local workspace = game:GetService("Workspace")
+				local workspace_children = workspace:GetChildren()
+				for i,v in pairs(workspace_children) do
+					if workspace_children[i].Name == neeeded_item_name then
+						add_esp(workspace_children[i])
+						table.insert(shells, workspace_children[i])
+					end
+				end
+				workspace.ChildRemoved:Connect(function(child)
+					if child.Name == neeeded_item_name then
+						remove_esp(child)
+						for i,v in pairs(shells) do if shells[i] == child then table.remove(shells, tonumber(i)) end end
+					end
+				end)
+				workspace.ChildAdded:Connect(function(child)
+					if child.Name == neeeded_item_name then
+						add_esp(child)
+						table.insert(shells, child)
+					end
+				end)
+				local needed_parent = {}
+				for i,v in pairs(shells) do
+					shells[i].Parent = game.Attributes
+				end
+			else
+				for i,v in pairs(shells) do
+					remove_esp(shells[i])
+				end
+			end
+		end
+	})
+end)
 																																																			
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
