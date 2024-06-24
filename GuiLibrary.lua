@@ -2869,6 +2869,45 @@ if shared.VapeExecuted then
 			return textGuiLibrary
 		end
 
+		windowapi["CreateCredits"] = function(argstable)
+			local windowGuiLibrary = {}
+			local amount2 = #children2:GetChildren()
+			local frame = Instance.new("Frame")
+			frame.Size = UDim2.new(0, 220, 0, 40)
+			frame.BackgroundTransparency = 1
+			frame.ClipsDescendants = true
+			frame.LayoutOrder = amount2
+			frame.Name = argstable["Name"].." Test"
+			frame.Parent = children2
+		
+			local creditLabel = Instance.new("TextLabel")
+			creditLabel.Font = Enum.Font.SourceSans
+			creditLabel.TextSize = 16
+			creditLabel.Size = UDim2.new(1, 0, 0, 18)
+			creditLabel.Position = UDim2.new(0, 0, 0, -3)
+			creditLabel.BackgroundTransparency = 1
+			creditLabel.TextXAlignment = Enum.TextXAlignment.Left
+			creditLabel.TextYAlignment = Enum.TextYAlignment.Top
+			creditLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+			creditLabel.Text = "   Credits: " .. (argstable["Credits"] or "")
+			creditLabel.Parent = frame
+		
+			windowGuiLibrary["Object"] = frame
+			windowGuiLibrary["SetCredits"] = function(credits)
+				creditLabel.Text = "   Credits: " .. credits
+			end
+
+			GuiLibrary["UpdateHudEvent"]:Fire()
+		
+			GuiLibrary.ObjectsThatCanBeSaved[argstablemain["Name"]..argstable["Name"].."CreditsBox"] = {
+				["Type"] = "CreditsMain",
+				["Api"] = windowGuiLibrary,
+				["Object"] = frame
+			}
+		
+			return windowGuiLibrary
+		end		
+
 		windowapi["CreateCircleWindow"] = function(argstablemain3)
 			local buttonapi = {}
 			local buttonreturned = {}
@@ -3820,7 +3859,7 @@ if shared.VapeExecuted then
 		windowcorner.CornerRadius = UDim.new(0, 4)
 		windowcorner.Parent = windowtitle
 		local uilistlayout = Instance.new("UIListLayout")
-		uilistlayout.SortOrder = Enum.SortOrder.LayoutOrder
+		uilistlayout.SortOrder = Enum.SortOrder.Name
 		uilistlayout.Parent = children
 		uilistlayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 			if children.Visible then
@@ -4270,6 +4309,43 @@ if shared.VapeExecuted then
 				return textGuiLibrary
 			end
 
+			buttonapi["CreateCredits"] = function(argstable)
+				local buttonGuiLibrary = {}
+				local amount = #children2:GetChildren()
+				local frame = Instance.new("Frame")
+				frame.Size = UDim2.new(0, 220, 0, 20)
+				frame.BackgroundTransparency = 1
+				frame.ClipsDescendants = true
+				frame.LayoutOrder = amount
+				frame.Name = argstable["Name"]
+				frame.Parent = children2
+			
+				local creditLabel = Instance.new("TextLabel")
+				creditLabel.Font = Enum.Font.SourceSans
+				creditLabel.TextSize = 16
+				creditLabel.Size = UDim2.new(1, 0, 0, 1)
+				creditLabel.Position = UDim2.new(0, 0, 0.1, 0)
+				creditLabel.BackgroundTransparency = 1
+				creditLabel.TextXAlignment = Enum.TextXAlignment.Left
+				creditLabel.TextYAlignment = Enum.TextYAlignment.Top
+				creditLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+				creditLabel.Text = "   Credits: " .. (argstable["Credits"] or "")
+				creditLabel.Parent = frame
+			
+				buttonGuiLibrary["Object"] = frame
+				buttonGuiLibrary["SetCredits"] = function(credits)
+					creditLabel.Text = "   Credits: " .. credits
+				end
+			
+				GuiLibrary.ObjectsThatCanBeSaved[argstablemain["Name"]..argstable["Name"].."CreditsBox"] = {
+					["Type"] = "CreditsMain",
+					["Api"] = buttonGuiLibrary,
+					["Object"] = frame
+				}
+				
+				return buttonGuiLibrary
+			end
+			
 			buttonapi["CreateTargetWindow"] = function(argstablemain3)
 				local buttonapi = {}
 				local buttonreturned = {}

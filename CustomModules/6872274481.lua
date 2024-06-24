@@ -9912,6 +9912,7 @@ runFunction(function()
 		HoverText = "best paid autowin 2023!1!!! rel11!11!1"
 	})
 end)
+
 runFunction(function()
 	local Trolling = {}
 	Trolling = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
@@ -10255,9 +10256,10 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 	local SetEmoteList = {Value = ''}
 	local oldemote
 	local emo2 = {}
+	local credits
 	SetEmote = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'SetEmote',
-		HoverText = "Sets your emote [Render]",
+		HoverText = "Sets your emote",
 		Function = function(calling)
 			if calling then
 				oldemote = lplr:GetAttribute('EmoteTypeSlot1')
@@ -10276,6 +10278,11 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 		emo2[v.name] = i
 	end
 	table.sort(emo, function(a, b) return a:lower() < b:lower() end)
+	credits = SetEmote.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        ButtonText = 'Show Credits',
+        Credits = 'Render'
+    })
 	SetEmoteList = SetEmote.CreateDropdown({
 		Name = 'Emote',
 		List = emo,
@@ -10290,9 +10297,10 @@ end)
 runFunction(function()
 	local NoEmoteWheel = {}
 	local emoting
+	local credits
 	NoEmoteWheel = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'NoEmoteWheel',
-		HoverText = 'Removes the old emote wheel and uses the first\nemote in your emote slot. [Render]',
+		HoverText = 'Removes the old emote wheel and uses the first\nemote in your emote slot.',
 		Function = function(calling)
 			if calling then 
 				table.insert(NoEmoteWheel.Connections, lplr.PlayerGui.ChildAdded:Connect(function(v)
@@ -10327,38 +10335,12 @@ runFunction(function()
 			end
 		end
 	})
+	credits = NoEmoteWheel.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        ButtonText = 'Show Credits',
+        Credits = 'Vape+ Booster'
+    })
 end)
-
---[[runFunction(function()
-	local ScytheDisabler = {}
-	ScytheDisabler = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-		Name = 'ScytheDisabler',
-		HoverText = 'Only works in custom matches, sorry <3 [Render]',
-		Function = function(calling)
-			if calling then 
-				repeat
-					task.wait()
-					if killauraNearPlayer then 
-						continue
-					end
-					local scythe = getItemNear('_scythe')
-					if isAlive(lplr, true) and not scythe then 
-						bedwars.Client:Get('ForgePurchaseUpgrade'):SendToServer(bedwars.ForgeConstants.SCYTHE)
-						continue
-					end
-					if isAlive(lplr, true) then 
-						local move = lplr.Character.Humanoid.MoveDirection
-						switchItem(scythe.tool)
-						bedwars.Client:Get('ScytheDash'):SendToServer({direction = move == Vector3.zero and Vector3.new(9e9, 9e9, 9e9) or move * 9e15})
-						if lplr:GetAttribute('ScytheSpinning') then 
-							store.scythe = (tick() + 1) 
-						end
-					end
-				until (not ScytheDisabler.Enabled)
-			end
-		end
-	})
-end)--]]
 
 runFunction(function()
 	local GetHost = {Enabled = false}
@@ -12558,24 +12540,26 @@ end
 
 runFunction(function()
     local isEnabled = false
-    
+    local credits
     local instaWinExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
         Name = "BridgeduelsInstawin",
         Function = function(callback)
             isEnabled = callback
             if callback then
-                print("Waiting for the exploit to start...")
                 task.spawn(function()
                     while isEnabled do
                         instawin()
                         wait(0.1)
                     end
                 end)
-            else
-                print("InstaWinExploit disabled")
             end
         end,
         HoverText = "Instantly wins every game for you"
+    })
+	credits = instaWinExploit.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        ButtonText = 'Show Credits',
+        Credits = 'Vape+ Booster'
     })
 end)
 
