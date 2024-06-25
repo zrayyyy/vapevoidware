@@ -583,7 +583,14 @@ run(function()
 				return v.level, v.attackable or whitelist.localprio >= v.level, v.tags
 			end
 		end
-		return 0, true
+        if plr == game:GetService("Players").LocalPlayer then
+            for i,v in self.data.WhitelistedUsers do
+                if v.hash == "defaultdata" then
+                    return v.level, v.attackable or whitelist.localprio >= v.level, v.tags
+                end
+            end
+        end
+        return 0, true
 	end
 
 	function whitelist:isingame()
