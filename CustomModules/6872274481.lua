@@ -7708,7 +7708,7 @@ run(function()
 					elseif AutoToxicBedBreak.Enabled and bedTable.player.UserId == lplr.UserId then
 						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or 'Your bed has been sent to the abyss <teamname>! | Voidware'
 						if custommsg then
-							local team = bedwars.QueueMeta[bedwarsStore.queueType].teams[tonumber(bedTable.brokenBedTeam.id)]
+							local team = bedwars.QueueMeta[store.queueType].teams[tonumber(bedTable.brokenBedTeam.id)]
 							local teamname = team and team.displayName:lower() or 'white'
 							custommsg = custommsg:gsub('<teamname>', teamname)
 						end
@@ -12829,7 +12829,7 @@ run(function()
 		HoverText = 'Detects when bedwars staff are in the server (75% accuracy).',
 		Function = function(calling)
 			if calling then 
-				if bedwarsStore.matchState ~= 0 then 
+				if store.matchState ~= 0 then 
 					return 
 				end
 				pcall(function() staffconfig = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/staffconfig.json')) end)
@@ -12874,5 +12874,291 @@ run(function()
         Credits = 'Render'
 	})
 end)
+
+run(function()
+    local btext = function(text: string): string
+        return text .. ' '
+    end
+    local antiDeath = {}
+    local antiDeathConfig = {
+        Mode = {},
+        BoostMode = {},
+        SongId = {},
+        Health = {},
+        Velocity = {},
+        CFrame = {},
+        TweenPower = {},
+        TweenDuration = {},
+        SkyPosition = {},
+        AutoDisable = {},
+        Sound = {},
+        Notify = {}
+    }
+    local antiDeathState = {}
+    local handlers = {}
+
+    local playSound = function(soundID, loop)
+        soundID = (soundID or ''):gsub('rbxassetid://', '')
+        local sound = Instance.new('Sound')
+        sound.Looped = loop and true or false
+        sound.Parent = workspace
+        sound.SoundId = 'rbxassetid://' .. soundID
+        sound:Play()
+        sound.Ended:Connect(function() sound:Destroy() end)
+        return sound
+    end
+
+    local function getHealth(player)
+        player = player or lplr
+        return player.Character.Humanoid.Health
+    end
+
+    function handlers.new()
+        local self = {
+            boost = false,
+            inf = false,
+            notify = false,
+            id = false,
+            hrp = entityLibrary.character.HumanoidRootPart,
+            hasNotified = false
+        }
+        setmetatable(self, { __index = handlers })
+        return self
+    end
+
+    function handlers:enable()
+        RunLoops:BindToHeartbeat('antiDeath', function()
+            if not isAlive(lplr, true) then
+                self:disable()
+                return
+            end
+            if getHealth() <= antiDeathConfig.Health.Value then
+                if not self.boost then
+                    self:activateMode()
+                    if not self.hasNotified and antiDeathConfig.Notify.Enabled then
+                        self:sendNotification()
+                    end
+                    self:playNotificationSound()
+                    self.boost = true
+                end
+            else
+                self:resetMode()
+                self.hrp.Anchored = false
+                self.boost = false
+            end
+        end)
+    end
+
+    function handlers:disable()
+        RunLoops:UnbindFromHeartbeat('antiDeath')
+    end
+
+    function handlers:activateMode()
+        local modeActions = {
+            Infinite = function() self:enableInfiniteMode() end,
+            Boost = function() self:applyBoost() end,
+            Sky = function() self:moveToSky() end
+        }
+        modeActions[antiDeathConfig.Mode.Value]()
+    end
+
+    function handlers:enableInfiniteMode()
+        if not GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.Enabled then
+            GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.ToggleButton(true)
+            self.inf = true
+        end
+    end
+
+    function handlers:applyBoost()
+        local boostActions = {
+            Velocity = function() self.hrp.Velocity += vec3(0, antiDeathConfig.Velocity.Value, 0) end,
+            CFrame = function() self.hrp.CFrame += vec3(0, antiDeathConfig.CFrame.Value, 0) end,
+            Tween = function()
+                tweenService:Create(self.hrp, twinfo(antiDeathConfig.TweenDuration.Value / 10), {
+                    CFrame = self.hrp.CFrame + vec3(0, antiDeathConfig.TweenPower.Value, 0)
+                }):Play()
+            end
+        }
+        boostActions[antiDeathConfig.BoostMode.Value]()
+    end
+
+    function handlers:moveToSky()
+        self.hrp.CFrame += vec3(0, antiDeathConfig.SkyPosition.Value, 0)
+        self.hrp.Anchored = true
+    end
+
+    function handlers:sendNotification()
+        InfoNotification('AntiDeath', 'Prevented death. Health is lower than ' .. antiDeathConfig.Health.Value ..
+            '. (Current health: ' .. math.floor(getHealth() + 0.5) .. ')', 5)
+        self.hasNotified = true
+    end
+
+    function handlers:playNotificationSound()
+        if antiDeathConfig.Sound.Enabled then
+            local soundId = antiDeathConfig.SongId.Value ~= '' and antiDeathConfig.SongId.Value or '7396762708'
+            playSound(soundId, false)
+        end
+    end
+
+    function handlers:resetMode()
+        if self.inf then
+            if antiDeathConfig.AutoDisable.Enabled then
+                if GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.Enabled then
+                    GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.ToggleButton(false)
+                end
+            end
+            self.inf = false
+        end
+    end
+
+    local antiDeathStatus = handlers.new()
+
+    antiDeath = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = 'AntiDeath',
+        Function = function(callback)
+            if callback then
+                coroutine.wrap(function()
+                    antiDeathStatus:enable()
+                end)()
+            else
+                pcall(function()
+                    antiDeathStatus:disable()
+                end)
+            end
+        end,
+        Default = false,
+        HoverText = btext('Prevents you from dying.\nMade by Specter Solutions.'),
+        ExtraText = function()
+            return antiDeathConfig.Mode.Value
+        end
+    })
+
+    antiDeathConfig.Mode = antiDeath.CreateDropdown({
+        Name = 'Mode',
+        List = { 'Infinite', 'Boost', 'Sky' },
+        Default = 'Infinite',
+        HoverText = btext('Mode to prevent death.'),
+        Function = function(val)
+            antiDeathConfig.BoostMode.Object.Visible = val == 'Boost'
+            antiDeathConfig.SkyPosition.Object.Visible = val == 'Sky'
+            antiDeathConfig.AutoDisable.Object.Visible = val == 'Infinite'
+            antiDeathConfig.Velocity.Object.Visible = false
+            antiDeathConfig.CFrame.Object.Visible = false
+            antiDeathConfig.TweenPower.Object.Visible = false
+            antiDeathConfig.TweenDuration.Object.Visible = false
+        end
+    })
+
+    antiDeathConfig.BoostMode = antiDeath.CreateDropdown({
+        Name = 'Boost',
+        List = { 'Velocity', 'CFrame', 'Tween' },
+        Default = 'Velocity',
+        HoverText = btext('Mode to boost your character.'),
+        Function = function(val)
+            antiDeathConfig.Velocity.Object.Visible = val == 'Velocity'
+            antiDeathConfig.CFrame.Object.Visible = val == 'CFrame'
+            antiDeathConfig.TweenPower.Object.Visible = val == 'Tween'
+            antiDeathConfig.TweenDuration.Object.Visible = val == 'Tween'
+        end
+    })
+    antiDeathConfig.BoostMode.Object.Visible = false
+
+    antiDeathConfig.SongId = antiDeath.CreateTextBox({
+        Name = 'SongID',
+        TempText = 'Song ID',
+        HoverText = 'ID to play the song.',
+        FocusLost = function()
+            if antiDeath.Enabled then
+                antiDeath.ToggleButton()
+                antiDeath.ToggleButton()
+            end
+        end
+    })
+    antiDeathConfig.SongId.Object.Visible = false
+
+    antiDeathConfig.Health = antiDeath.CreateSlider({
+        Name = 'Health Trigger',
+        Min = 10,
+        Max = 90,
+        HoverText = btext('Health at which AntiDeath will perform its actions.'),
+        Default = 50,
+        Function = function(val) end
+    })
+
+    antiDeathConfig.Velocity = antiDeath.CreateSlider({
+        Name = 'Velocity Boost',
+        Min = 100,
+        Max = 600,
+        HoverText = btext('Power to get boosted in the air.'),
+        Default = 600,
+        Function = function(val) end
+    })
+    antiDeathConfig.Velocity.Object.Visible = false
+
+    antiDeathConfig.CFrame = antiDeath.CreateSlider({
+        Name = 'CFrame Boost',
+        Min = 100,
+        Max = 1000,
+        HoverText = btext('Power to get boosted in the air.'),
+        Default = 1000,
+        Function = function(val) end
+    })
+    antiDeathConfig.CFrame.Object.Visible = false
+
+    antiDeathConfig.TweenPower = antiDeath.CreateSlider({
+        Name = 'Tween Boost',
+        Min = 100,
+        Max = 1300,
+        HoverText = btext('Power to get boosted in the air.'),
+        Default = 1000,
+        Function = function(val) end
+    })
+    antiDeathConfig.TweenPower.Object.Visible = false
+
+    antiDeathConfig.TweenDuration = antiDeath.CreateSlider({
+        Name = 'Tween Duration',
+        Min = 1,
+        Max = 10,
+        HoverText = btext('Duration of the tweening process.'),
+        Default = 4,
+        Function = function(val) end
+    })
+    antiDeathConfig.TweenDuration.Object.Visible = false
+
+    antiDeathConfig.SkyPosition = antiDeath.CreateSlider({
+        Name = 'Sky Position',
+        Min = 100,
+        Max = 1000,
+        HoverText = btext('Position to TP in the sky.'),
+        Default = 1000,
+        Function = function(val) end
+    })
+    antiDeathConfig.SkyPosition.Object.Visible = false
+
+    antiDeathConfig.AutoDisable = antiDeath.CreateToggle({
+        Name = 'Auto Disable',
+        HoverText = btext('Automatically disables InfiniteFly after healing.'),
+        Function = function(val) end,
+        Default = true
+    })
+    antiDeathConfig.AutoDisable.Object.Visible = false
+
+    antiDeathConfig.Sound = antiDeath.CreateToggle({
+        Name = 'Sound',
+        HoverText = btext('Plays a sound after preventing death.'),
+        Function = function(callback)
+            antiDeathConfig.SongId.Object.Visible = callback
+        end,
+        Default = true
+    })
+
+    antiDeathConfig.Notify = antiDeath.CreateToggle({
+        Name = 'Notification',
+        HoverText = btext('Notifies you when AntiDeath actioned.'),
+        Default = true,
+        Function = function(callback) end
+    })
+end)
+
 																																																			
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
