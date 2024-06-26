@@ -12879,6 +12879,7 @@ run(function()
     local btext = function(text: string): string
         return text .. ' '
     end
+
     local antiDeath = {}
     local antiDeathConfig = {
         Mode = {},
@@ -12932,6 +12933,7 @@ run(function()
                 self:disable()
                 return
             end
+
             if getHealth() <= antiDeathConfig.Health.Value then
                 if not self.boost then
                     self:activateMode()
@@ -12945,6 +12947,11 @@ run(function()
                 self:resetMode()
                 self.hrp.Anchored = false
                 self.boost = false
+
+                -- Reset the notification state when health is above the threshold
+                if self.hasNotified then
+                    self.hasNotified = false
+                end
             end
         end)
     end
@@ -13008,6 +13015,9 @@ run(function()
                 end
             end
             self.inf = false
+
+            -- Reset the notification state when Infinite Fly is disabled
+            self.hasNotified = false
         end
     end
 
@@ -13159,6 +13169,5 @@ run(function()
         Function = function(callback) end
     })
 end)
-
 																																																			
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
