@@ -43,8 +43,9 @@ local function downloadVapeProfile(path)
 			textlabel.TextColor3 = Color3.new(1, 1, 1)
 			textlabel.Position = UDim2.new(0, 0, 0, -36)
 			textlabel.Parent = Gui1.MainGui
-            vapeGithubRequest(path)
+			task.wait(0.1)
 			textlabel:Destroy()
+            vapeGithubRequest(path)
 		end)
 	end
 	return downloadedprofiles[path] 
