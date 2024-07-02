@@ -139,43 +139,6 @@ local store = {
 	zephyrOrb = 0
 }
 
-local function displayErrorPopup(text, funclist)
-	local oldidentity = getidentity()
-	setidentity(8)
-	local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
-	local prompt = ErrorPrompt.new("Default")
-	prompt._hideErrorCode = true
-	local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-	prompt:setErrorTitle("Vape")
-	local funcs
-	if funclist then 
-		funcs = {}
-		local num = 0
-		for i,v in pairs(funclist) do 
-			num = num + 1
-			table.insert(funcs, {
-				Text = i,
-				Callback = function() 
-					prompt:_close() 
-					v()
-				end,
-				Primary = num == #funclist
-			})
-		end
-	end
-	prompt:updateButtons(funcs or {{
-		Text = "OK",
-		Callback = function() 
-			prompt:_close() 
-		end,
-		Primary = true
-	}}, 'Default')
-	prompt:setParent(gui)
-	prompt:_open(text)
----@diagnostic disable-next-line: undefined-global
-	setidentity(oldidentity)
-end
-
 local sendmessage = function() end
 sendmessage = function(text)
 	if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
@@ -340,36 +303,6 @@ local function InfoNotification(title, text, delay)
 	end)
 	return (suc and res)
 end
-
-local function run(name, func)
-	local ModuleName
-	local ModuleFunction
-	if name then
-		if type(name) == "string" then
-			ModuleName = name
-			if func and type(func) == "function" then ModuleFunction = func end
-		elseif type(name) == "function" then
-			if func then warn("Unknown type of function use done! func specified type: "..type(func)) else
-				ModuleFunction = name
-				ModuleName = "Not specified"
-			end
-		end
-	end
-	if ModuleFunction then
-		local suc, err = pcall(function() ModuleFunction() end)
-		if err then
-			displayErrorPopup("A module failed to load! ModuleName: "..ModuleName.." Error: "..err)
-		end
-	else
-		if ModuleName then
-			displayErrorPopup("Failure trying to load a module! Unknown use of function. Error log: name: "..ModuleName.." Unknown function!")
-		else
-			displayErrorPopup("Failure trying to load a module completely! No name and no function!!!")
-		end
-	end
-end
-
-getgenv().run = run
 
 local function isFriend(plr, recolor)
 	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
@@ -9679,6 +9612,7 @@ task.spawn(function()
     task.wait()
   until not vapeInjected
 end)
+
 local vapeAssert = function(argument, title, text, duration, hault, moduledisable, module) 
 	if not argument then
     local suc, res = pcall(function()

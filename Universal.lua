@@ -162,9 +162,85 @@ local function removeTags(str)
 	return (str:gsub("<[^<>]->", ""))
 end
 
-local function run(func) func() end
-local function runFunction(func) func() end
-local function runLunar(func) func() end
+local function run(name, func)
+	local function displayErrorPopup(text, funclist)
+		local oldidentity = getidentity()
+		setidentity(8)
+		local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
+		local prompt = ErrorPrompt.new("Default")
+		prompt._hideErrorCode = true
+		local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+		prompt:setErrorTitle("Vape")
+		local funcs
+		if funclist then 
+			funcs = {}
+			local num = 0
+			for i,v in pairs(funclist) do 
+				num = num + 1
+				table.insert(funcs, {
+					Text = i,
+					Callback = function() 
+						prompt:_close() 
+						v()
+					end,
+					Primary = num == #funclist
+				})
+			end
+		end
+		prompt:updateButtons(funcs or {{
+			Text = "OK",
+			Callback = function() 
+				prompt:_close() 
+			end,
+			Primary = true
+		}}, 'Default')
+		prompt:setParent(gui)
+		prompt:_open(text)
+		setidentity(oldidentity)
+	end
+	local function errorNotification(title, text, delay)
+		local suc, res = pcall(function()
+			local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
+			frame.Frame.Frame.ImageColor3 = Color3.fromRGB(220, 0, 0)
+			return frame
+		end)
+		warn(title..": "..text)
+		return (suc and res)
+	end
+	local ModuleName
+	local ModuleFunction
+	if name then
+		if type(name) == "string" then
+			ModuleName = name
+			if func and type(func) == "function" then ModuleFunction = func end
+		elseif type(name) == "function" then
+			if func then errorNotification("VoidwareErrorHandler", "Unknown type of function use done! func specified type: "..type(func), 20) else
+				ModuleFunction = name
+				ModuleName = "Not specified"
+			end
+		end
+	end
+	if ModuleFunction then
+		local suc, err = pcall(function() ModuleFunction() end)
+		if err then
+			local text = "A module failed to load! ModuleName: "..ModuleName.." Error: "..err
+			displayErrorPopup(text)
+			errorNotification("VoidwareErrorHandler", text, 20)
+		end
+	else
+		if ModuleName then
+			local text = "Failure trying to load a module! Unknown use of function. Error log: name: "..ModuleName.." Unknown function!"
+			displayErrorPopup(text)
+			errorNotification("VoidwareErrorHandler", text, 20)
+		else
+			local text = "Failure trying to load a module completely! No name and no function!!!"
+			displayErrorPopup(text)
+			errorNotification("VoidwareErrorHandler", text, 20)
+		end
+	end
+end
+
+getgenv().run = run
 
 local function isFriend(plr, recolor)
 	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
@@ -4394,7 +4470,7 @@ RenderFunctions:AddCommand('memoryleak', function()
 	httpService:JSONEncode(table.create(65536, string.rep("\000", 65536)))
 end)
 
-runFunction(function()
+run(function()
 	local deletedinstances = {}
 	local anchoredparts = {}
 	
@@ -4485,7 +4561,7 @@ runFunction(function()
 	end)
 end)
 
---[[runFunction(function()
+--[[run(function()
 	local function whitelistFunction(plr)
 		repeat task.wait() until RenderFunctions.WhitelistLoaded
 		local rank = RenderFunctions:GetPlayerType(1, plr)
@@ -6668,7 +6744,7 @@ run(function()
 	createKeystroke(Enum.KeyCode.Space, UDim2.new(0, 0, 0, 83), UDim2.new(0, 25, 0, -10))
 end)
 
-runFunction(function()
+run(function()
     local CustomAmbience = {Enabled = false}
 	local newsky
 	local tint
@@ -6701,7 +6777,7 @@ runFunction(function()
     })
 end)
 
---[[runFunction(function()
+--[[run(function()
 	local BubbleMods = {}
 	local BubbleModsColorToggle = {}
 	local BubbleModsTextSizeToggle = {}
@@ -6815,7 +6891,7 @@ end)
 	BubbleModsTextSize.Object.Visible = false
 end)--]]
 
-runFunction(function()
+run(function()
 	local AutoRejoin = {Enabled = false}
 	local AutoRejoinServerSwitch = {Enabled = false}
 	local AutoRejoinKick = {Enabled = false}
@@ -6904,7 +6980,7 @@ local function dumptable(tab, tabtype, sortfunction)
 	end
 	return data
 end
-runFunction(function()
+run(function()
 	local LightingTheme = {Enabled = false}
 	local LightingThemeType = {Value = "LunarNight"}
 	local themesky
@@ -7322,7 +7398,7 @@ LightingThemeType = LightingTheme.CreateDropdown({
 })
 end)
 
-runFunction(function()
+run(function()
 	local InfiniteYield = {Enabled = false}
 	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.GameScriptsWindow.Api.CreateOptionsButton({
 		Name = "InfiniteYield",
@@ -7337,7 +7413,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local VapePrivateDetector = {Enabled = false}
 	local VPLeave = {Enabled = false}
 	local alreadydetected = {}
@@ -7397,7 +7473,7 @@ runFunction(function()
 	end)
 end)
 
-runFunction(function()
+run(function()
 	local Shader = {Enabled = false}
 	local ShaderColor = {Hue = 0, Sat = 0, Value = 0}
 	local ShaderTintSlider
@@ -7477,7 +7553,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local lastToggled = tick()
 	local SmoothHighJump = {Enabled = false}
 	local SmoothJumpTick = {Value = 5}
@@ -7531,7 +7607,7 @@ SmoothJumpTime = SmoothHighJump.CreateSlider({
 })
 end)
 
-runFunction(function()
+run(function()
 	local CustomJump = {Enabled = false}
 	local CustomJumpMode = {Value = "Normal"}
 	local CustomJumpVelocity = {Value = 50}
@@ -7632,7 +7708,7 @@ GetAllTargets = function(distance, sort)
 	return targets
 end
 
-runFunction(function()
+run(function()
 	local DoorsScript = {Enabled = false}
 	local ScriptChoice = {Value = "None"}
 	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
@@ -7665,7 +7741,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local PlayerAttach = {}
 	local PlayerAttachNPC = {}
 	local PlayerAttachTween = {}
@@ -7728,7 +7804,7 @@ local function warningNotification(title, text, delay)
 	end)
 	return (suc and res)
 end
-runFunction(function()
+run(function()
 	local BladeBallScript = {Enabled = false}
 	--local ScriptChoice = {Value = "None"}
 	BladeBallScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
@@ -7754,7 +7830,7 @@ runFunction(function()
 	--	Function = function() end,
 	--})
 end)
-runFunction(function()
+run(function()
 	local PetSimXScript = {Enabled = false}
 	PetSimXScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
 		Name = "PetSimXScript",
@@ -7769,7 +7845,7 @@ runFunction(function()
 end)
 
 local ErrorReportCooldown = 0
-runFunction(function()
+run(function()
 	local ErrorReport = {Enabled = false}
 	local ErrorText = {Value = ""}
 	ErrorReport = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
@@ -7806,7 +7882,7 @@ runFunction(function()
 end)
 
 local SuggestionReportCooldown = 0
-runFunction(function()
+run(function()
 	local SuggestionReport = {Enabled = false}
 	local SuggestionText = {Value = ""}
 	SuggestionReport = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
@@ -7843,7 +7919,7 @@ runFunction(function()
 end)
 
 local StaffFetcherCooldown = 0
-runFunction(function()
+run(function()
 	local StaffFetcher = {Enabled = false}
 	local Groupid = {Value = ""}
 	local Roleid = {Value = ""}
@@ -8022,7 +8098,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local GetHash = {}
 	local PlrsList = {Value = ''}
 	local Players = game:GetService("Players")

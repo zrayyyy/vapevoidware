@@ -148,10 +148,6 @@ do
 	end
 end
 
-local function runFunction(func)
-	func()
-end
-
 local function betterfind(tab, obj)
 	for i,v in pairs(tab) do
 		if v == obj or type(v) == "table" and v.hash == obj then
@@ -216,7 +212,7 @@ local function createwarning(title, text, delay)
 	return (suc and res)
 end
 
-runFunction(function()
+run(function()
     local flaggedremotes = {"SelfReport"}
 
     getfunctions = function()
@@ -408,7 +404,7 @@ Sprint = GuiLibrary["ObjectsThatCanBeSaved"]["CombatWindow"]["Api"].CreateOption
 	["HoverText"] = "Sets your sprinting to true."
 })
 local flymissile
-runFunction(function()
+run(function()
 	local OldNoFallFunction
 	local flyspeed = {["Value"] = 40}
 	local flyverticalspeed = {["Value"] = 40}
@@ -571,7 +567,7 @@ JoinQueueDelay = JoinQueue.CreateSlider({
 	["Default"] = 1
 })
 
-runFunction(function()
+run(function()
 	local AutoKitTextList = {["ObjectList"] = {}, ["RefreshValues"] = function() end}
 
 	local function betterfindkit()
@@ -652,7 +648,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local CameraFix = {["Enabled"] = false}
 	CameraFix = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptionsButton({
 		["Name"] = "CameraFix",
@@ -675,7 +671,7 @@ local AnticheatBypass = {["Enabled"] = false}
 local Scaffold = {["Enabled"] = false}
 local longjump = {["Enabled"] = false}
 local flyvelo
-runFunction(function()
+run(function()
 	local speedmode = {["Value"] = "Normal"}
 	local speedval = {["Value"] = 1}
 	local speedjump = {["Enabled"] = false}
@@ -818,7 +814,7 @@ runFunction(function()
 	speedjumpalways["Object"].Visible = speedjump["Enabled"]
 end)
 
-runFunction(function()
+run(function()
 	local AnticheatBypassTransparent = {["Enabled"] = false}
 	local AnticheatBypassAlternate = {["Enabled"] = false}
 	local AnticheatBypassNotification = {["Enabled"] = false}
@@ -1315,7 +1311,7 @@ runFunction(function()
 	end
 end)
 
-runFunction(function()
+run(function()
 	local transformed = false
 	local OldBedwars = {["Enabled"] = false}
 	local themeselected = {["Value"] = "OldBedwars"}
@@ -1801,7 +1797,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local tpstring = shared.vapeoverlay or nil
 	local origtpstring = tpstring
 	local Overlay = GuiLibrary.CreateCustomWindow({
@@ -2025,7 +2021,7 @@ task.spawn(function()
 	end)
 end)
 
-runFunction(function()
+run(function()
 	local NoEmoteWheel = {}
 	local emoting
 	NoEmoteWheel = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
@@ -2067,7 +2063,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
+run(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
 	local SetEmote = {}
 	local SetEmoteList = {Value = ''}
 	local oldemote
@@ -2104,7 +2100,7 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 	})
 end)
 local replicatedStorageService = game:GetService("ReplicatedStorage")
-runFunction(function()
+run(function()
 	local Gamble = function()
 		replicatedStorageService["rbxts_include"]["node_modules"]["@rbxts"]["net"]["out"]["_NetManaged"]["RewardCrate/SpawnRewardCrate"]:FireServer({
 			["crateType"] = "level_up_crate",
@@ -2166,7 +2162,7 @@ runFunction(function()
 	})
 end)
 
---[[runFunction(function()
+--[[run(function()
 	local Trolling = {}
 	AutoGamble = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'AutoGamble',
@@ -2235,7 +2231,7 @@ local store = {
 	queueType = "bedwars_test"
 }
 
-runFunction(function() 
+run(function() 
 	local JoinQueue = {}
 	local queuetojoin = {Value = ''}
 	local function dumpmeta()
@@ -2280,7 +2276,7 @@ runFunction(function()
 	end)
 end)--]]
 
-runFunction(function()
+run(function()
 	local QueueCardMods = {}
 	local QueueCardGradientToggle = {}
 	local QueueCardGradient = {Hue = 0, Sat = 0, Value = 0}
