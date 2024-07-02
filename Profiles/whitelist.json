@@ -1,0 +1,121 @@
+{
+  "WhitelistedUsers": {
+    "Ercho": {
+      "hash": "c235c097251bc9d5364aa7cf9cc8ff944596fa6f5d6fe51019c7c0c1ce202d941619815212e7fa88c534bfa0cb75d06fee4b7754ef2abb40e406cbf841d5f042",
+      "attackable": false,
+      "level": 2,
+      "tags": [
+        {
+          "text": "VOIDWARE DEVELOPER",
+          "color": [
+            210, 
+            43, 
+            43
+          ]
+        }
+      ]
+    },
+    "SALAD": {
+      "hash": "cab9c63da7b041bf79614091458fb84f0b4e41eec0b34f10acbbbe29debc36f9ee1554f72ee0d431fc8750f995bde2c03a04a5520106a19e393e0cfdb4bf5f7b",
+      "attackable": false,
+      "level": 2,
+      "tags": [
+        {
+          "text": "SALAD",
+          "color": [
+            0,
+            0,
+            255
+          ]
+        }
+      ]
+    },
+    "maxlasertech": {
+      "hash": "03074861787daa56ba4eca05213205837780b13c005637e065d345ccc2645235274b6d7f80658e1349a04d8bf5ae7fe35dfb6ef8ceedf7653e01ac52f24fb4e5",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "MAXLASERTECH",
+          "color": [
+            255,
+            255,
+            0
+          ]
+        }
+      ]
+    },
+    "systemxvoid": {
+      "hash": "0db791ea05bdc7876a8057e7d6b90794527e754c2287e6857c525fef872355deb5d1df890463316020462103d32e85527c5e30f517c2874e6a1be57a85c55fab",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "RENDER DEVELOPER (REAL)",
+          "color": [
+            191,
+            64,
+            191
+          ]
+        }
+      ]
+    },
+    "panda": {
+      "hash": "65cab0d4369f7ce8b55bc7e12a6d86329192ead09f985d35ea3e5934a78e76198babe43387f4f134da0e70835370aaf059eb543c5cbd46b4c23aa48bd106b605",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "PANDARIPSU",
+          "color": [
+            0, 
+            0, 
+            255
+          ]
+        }
+      ]
+    },
+    "epicgamer": {
+      "hash": "4da20d762d6ae40440fa40e9b92562672ad1686ef767d399515ed7c590c4586cc91e08bcb1392a4c32d0401c2e0e2c602e801f05d84ecfb3892dbe621e4f61c0",
+      "attackable": false,
+      "level": 0,
+      "tags": [
+        {
+          "text": "EPIC GAMER",
+          "color": [
+            12, 
+            4, 
+            196
+          ]
+        }
+      ]
+    },
+    "000": {
+      "hash": "defaultdata",
+      "attackable": true,
+      "level": 0,
+      "tags": [
+        {
+          "text": "VOIDWARE USER",
+          "color": [
+            210, 
+            43, 
+            43
+          ]
+        }
+      ]
+    }
+  },
+  "WhitelistedTags": {
+    
+  },
+  "BlacklistedUsers": {
+    "4386575635": "-"
+  },
+  "Announcement": {
+    "text": "oh its just garbage, ok then",
+    "expiretime": 1713556199.3487132,
+    "targets": "all"
+  },
+  "KillVape": false
+}
