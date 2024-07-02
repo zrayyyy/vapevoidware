@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.
 local GuiLibrary = shared.GuiLibrary
 local VoidwareFunctions = {WhitelistLoaded = false, WhitelistRefreshEvent = Instance.new("BindableEvent"), WhitelistSucceeded = false, WhitelistLoadTime = tick()}
 local VoidwareLibraries = {}
@@ -83,7 +84,8 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 local replicatedStorageService = replicatedStorage
 local gameCamera = workspace.CurrentCamera
 local lplr = playersService.LocalPlayer
-local vapeConnections = {}
+local vapeConnections
+if shared.vapeConnections and type(shared.vapeConnections) == "table" then vapeConnections = shared.vapeConnections else vapeConnections = {} shared.vapeConnections = vapeConnections end
 local vapeCachedAssets = {}
 local vapeEvents = setmetatable({}, {
 	__index = function(self, index)
@@ -137,6 +139,43 @@ local store = {
 	},
 	zephyrOrb = 0
 }
+
+local function displayErrorPopup(text, funclist)
+	local oldidentity = getidentity()
+	setidentity(8)
+	local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
+	local prompt = ErrorPrompt.new("Default")
+	prompt._hideErrorCode = true
+	local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+	prompt:setErrorTitle("Vape")
+	local funcs
+	if funclist then 
+		funcs = {}
+		local num = 0
+		for i,v in pairs(funclist) do 
+			num = num + 1
+			table.insert(funcs, {
+				Text = i,
+				Callback = function() 
+					prompt:_close() 
+					v()
+				end,
+				Primary = num == #funclist
+			})
+		end
+	end
+	prompt:updateButtons(funcs or {{
+		Text = "OK",
+		Callback = function() 
+			prompt:_close() 
+		end,
+		Primary = true
+	}}, 'Default')
+	prompt:setParent(gui)
+	prompt:_open(text)
+---@diagnostic disable-next-line: undefined-global
+	setidentity(oldidentity)
+end
 
 local sendmessage = function() end
 sendmessage = function(text)
@@ -303,9 +342,35 @@ local function InfoNotification(title, text, delay)
 	return (suc and res)
 end
 
-local function run(func) func() end
-local function runFunction(func) func() end
+local function run(name, func)
+	local ModuleName
+	local ModuleFunction
+	if name then
+		if type(name) == "string" then
+			ModuleName = name
+			if func and type(func) == "function" then ModuleFunction = func end
+		elseif type(name) == "function" then
+			if func then warn("Unknown type of function use done! func specified type: "..type(func)) else
+				ModuleFunction = name
+				ModuleName = "Not specified"
+			end
+		end
+	end
+	if ModuleFunction then
+		local suc, err = pcall(function() ModuleFunction() end)
+		if err then
+			displayErrorPopup("A module failed to load! ModuleName: "..ModuleName.." Error: "..err)
+		end
+	else
+		if ModuleName then
+			displayErrorPopup("Failure trying to load a module! Unknown use of function. Error log: name: "..ModuleName.." Unknown function!")
+		else
+			displayErrorPopup("Failure trying to load a module completely! No name and no function!!!")
+		end
+	end
+end
 
+getgenv().run = run
 
 local function isFriend(plr, recolor)
 	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
@@ -441,6 +506,10 @@ end
 GuiLibrary.SelfDestructEvent.Event:Connect(function()
 	vapeInjected = false
 	for i, v in pairs(vapeConnections) do
+		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
+		if v.disconnect then pcall(function() v:disconnect() end) continue end
+	end
+	for i, v in pairs(shared.vapeConnections) do
 		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
 		if v.disconnect then pcall(function() v:disconnect() end) continue end
 	end
@@ -7630,11 +7699,9 @@ run(function()
 		hecker = 'Scamming',
 		haxker = 'Scamming',
 		hacer = 'Scamming',
-		report = 'Bullying',
 		fat = 'Bullying',
 		black = 'Bullying',
 		getalife = 'Bullying',
-		fatherless = 'Bullying',
 		report = 'Bullying',
 		fatherless = 'Bullying',
 		disco = 'Offsite Links',
@@ -7644,8 +7711,6 @@ run(function()
 		bad = 'Bullying',
 		trash = 'Bullying',
 		nolife = 'Bullying',
-		nolife = 'Bullying',
-		loser = 'Bullying',
 		killyour = 'Bullying',
 		kys = 'Bullying',
 		hacktowin = 'Bullying',
@@ -9445,7 +9510,7 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	return target
 end
 
-runFunction(function()
+run(function()
 	local DoubleHighJump = {Enabled = false}
 	local DoubleHighJumpHeight = {Value = 500}
 	local DoubleHighJumpHeight2 = {Value = 500}
@@ -9522,7 +9587,7 @@ isAlive = function(plr, nohealth)
 	end
 	return alive
 end
-runFunction(function() 
+run(function() 
 	local Invisibility = {}
 	local collideparts = {}
 	local invisvisual = {}
@@ -9795,7 +9860,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
     end
     return entity
 end
-runFunction(function()
+run(function()
 	local Autowin = {Enabled = false}
 	local AutowinNotification = {Enabled = true}
 	local bedtween
@@ -9913,7 +9978,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local PlayerLevelSet = {}
 	local PlayerLevel = {Value = 100}
 	PlayerLevelSet = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
@@ -9986,7 +10051,7 @@ tweenInProgress = function()
 	return false
 end
 
-runFunction(function()  
+run(function()  
 	local BedTP = {Enabled = false}
 	local targetbed
 	local bedtween
@@ -10037,7 +10102,7 @@ function VoidwareFunctions:LoadTime()
 		return 0
 	end
 end
-runFunction(function()
+run(function()
 	local middletween
 	local MiddleTP = {Enabled = false}
 	MiddleTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
@@ -10096,7 +10161,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	if not pcall(GuiLibrary.RemoveObject, "PlayerTPOptionsButton") then 
 		return 
 	end
@@ -10213,7 +10278,7 @@ local function GetClanTag(plr)
 	return atr and res ~= nil and res
 end
 
-runFunction(function()
+run(function()
 	local ClanDetector = {Enabled = false}
 	local alreadyclanchecked = {}
 	local blacklistedclans = {}
@@ -10259,7 +10324,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
+run(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
 	local SetEmote = {}
 	local SetEmoteList = {Value = ''}
 	local oldemote
@@ -10302,7 +10367,7 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 	})
 end)
 
-runFunction(function()
+run(function()
 	local NoEmoteWheel = {}
 	local emoting
 	local credits
@@ -10350,7 +10415,7 @@ runFunction(function()
     })
 end)
 
-runFunction(function()
+run(function()
 	local GetHost = {Enabled = false}
 	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = "GetHost",
@@ -10403,7 +10468,7 @@ local function WinW(title, text, delay)
 	return (suc and res)
 end
 
---[[runFunction(function()
+--[[run(function()
 	local deb
 	local con
 	local client = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("remotes")).default.Client
@@ -10472,7 +10537,7 @@ end
 	})
 end)--]]
 
-runFunction(function() 
+run(function() 
 	local TeleportBed
 	local bedConnection
 	local client = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("remotes")).default.Client
@@ -11087,14 +11152,14 @@ local function initializeNotifications(notifications, lplr)
     end
 end
 
-runFunction(function()
+run(function()
     local lplr = game.Players.LocalPlayer 
     local notifications = {Connections = {}}
     initializeNotifications(notifications, lplr)
 end)
 
 
-runFunction(function()
+run(function()
 	local TweenService = game:GetService("TweenService")
 	local function TweenObject(target, properties, time, easingStyle, direction, callback)
 		local info = TweenInfo.new(time, easingStyle, direction)
@@ -11409,7 +11474,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local HackerDetector = {}
 	local HackerDetectorInfFly = {}
 	local HackerDetectorTeleport = {}
@@ -11647,7 +11712,7 @@ end)
     local highlight = Instance.new("Highlight", store.blocks[i])
 end--]]
 
---[[runFunction(function()
+--[[run(function()
 	local LuckyBlocksESP = {Enabled = false}
 	local EspTransparency = {Value = 0.5}
 	local espParts = {}
@@ -11673,7 +11738,7 @@ end--]]
 end)--]]
 
 local teleportService = game:GetService("TeleportService")
---[[runFunction(function()
+--[[run(function()
 	local StaffDetector = {}
 	local StaffDetectorMode = {Value = 'Lobby'}
 	local legitgamers = {}
@@ -11813,7 +11878,7 @@ local teleportService = game:GetService("TeleportService")
 	})
 end)--]]
 
-runFunction(function() 
+run(function() 
 	local JoinQueue = {}
 	local queuetojoin = {Value = ''}
 	local function dumpmeta()
@@ -11858,7 +11923,7 @@ runFunction(function()
 	end)
 end)
 
-runFunction(function() 
+run(function() 
 	local AutoBedDefense = {}
 	AutoBedDefense = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'AutoBedDefense',
@@ -12022,7 +12087,7 @@ GetAllTargets = function(distance, mobs, raycast, sort)
 	return targets
 end
 
-runFunction(function()
+run(function()
 	local BowExploit = {}
 	local BowExploitMobs = {}
 	local BowExploitTarget = {Value = 'Mouse'}
@@ -12129,7 +12194,7 @@ end)
 
 local httpService = game:GetService("HttpService")
 
-runFunction(function()
+run(function()
 	local ProjectileAura = {}
 	local ProjectileAuraSort = {Value = 'Distance'}
 	local ProjectileAuraMobs = {}
@@ -12312,7 +12377,7 @@ runFunction(function()
 	ProjectileAuraMobs.Object.Visible = false
 end)
 																																																	
-runFunction(function()
+run(function()
 	local lplr = game.Players.LocalPlayer
 	local plrgui = lplr.PlayerGui
 	local deathscounter = 0
@@ -12546,7 +12611,7 @@ local function instawin()
     end
 end
 
-runFunction(function()
+run(function()
     local isEnabled = false
     local credits
     local instaWinExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
@@ -12571,7 +12636,7 @@ runFunction(function()
     })
 end)
 
-runFunction(function()
+run(function()
 	local ShellExploit = {}
 	local shells = {}
 	local function remove_esp(part)
@@ -12629,7 +12694,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local SpawnParts = {}
 	local SpawnPartColor
 	local realspawnpart
@@ -12934,7 +12999,7 @@ run(function()
                 return
             end
 
-            if getHealth() <= antiDeathConfig.Health.Value then
+            if getHealth() <= antiDeathConfig.Health.Value and getHealth() > 0 then
                 if not self.boost then
                     self:activateMode()
                     if not self.hasNotified and antiDeathConfig.Notify.Enabled then
@@ -13170,7 +13235,7 @@ run(function()
     })
 end)
 			
-runFunction(function()
+run(function()
 	local QueueCardMods = {}
 	local QueueCardGradientToggle = {}
 	local QueueCardGradient = {Hue = 0, Sat = 0, Value = 0}
@@ -13222,5 +13287,7 @@ runFunction(function()
         Credits = 'Render'
 	})
 end)
-
+local ProtectedModules
+if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
+ProtectedModules.LoadModules(6872274481)
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
