@@ -8141,6 +8141,7 @@ run(function()
 					if plrName then else print("No plr name found!") end
 					if plrUserId then else print("No plruserid found!") end
 				end
+				GetHash["ToggleButton"](false)
 			end
 		end
 	})
