@@ -197,6 +197,7 @@ local function run(name, func)
 		prompt:setParent(gui)
 		prompt:_open(text)
 		setidentity(oldidentity)
+		shared.VapeOpenGui = false
 	end
 	local function errorNotification(title, text, delay)
 		local suc, res = pcall(function()
