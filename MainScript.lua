@@ -320,6 +320,11 @@ local VoidwareDev = GuiLibrary.CreateWindow({
 	Icon = "vape/assets/HoverArrow2.png", 
 	IconSize = 17
 })
+local MobileSupport = GuiLibrary.CreateWindow({
+	Name = "MobileSupport", 
+	Icon = "vape/assets/HoverArrow2.png", 
+	IconSize = 17
+})
 local Friends = GuiLibrary.CreateWindow2({
 	Name = "Friends", 
 	Icon = "vape/assets/FriendsIcon.png", 
@@ -377,10 +382,14 @@ GUI.CreateButton({
 	Name = "GameScripts", 
 	Function = function(callback) GameScripts.SetVisible(callback) end, 
 })
-GUI.CreateDivider("VoidwareDev")
+GUI.CreateDivider("Other")
 GUI.CreateButton({
 	Name = "VoidwareDev", 
 	Function = function(callback) VoidwareDev.SetVisible(callback) end, 
+})
+GUI.CreateButton({
+	Name = "MobileSupport", 
+	Function = function(callback) MobileSupport.SetVisible(callback) end, 
 })
 GUI.CreateDivider("MISC")
 GUI.CreateButton({

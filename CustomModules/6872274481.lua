@@ -9393,6 +9393,7 @@ function VoidwareFunctions:GetPlayerType(plr)
 		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
 	end
 end
+local playerRaycasted = function() return true end
 local GetTarget = function() return {} end
 GetTarget = function(distance, healthmethod, raycast, npc, team)
 	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
@@ -9984,50 +9985,6 @@ tweenInProgress = function()
 	return false
 end
 
-run(function()  
-	local BedTP = {Enabled = false}
-	local targetbed
-	local bedtween
-	BedTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
-		Name = "BedTP",
-		HoverText = "Tweens to a nearby bed",
-		Function = function(callback)
-		 if callback then 
-			 task.spawn(function()
-				 targetbed = FindTarget() 
-				 vapeAssert(targetbed, "BedTP", "Enemy Bed Not Found.", 8, true, true, "BedTP")
-				 vapeAssert(FindTeamBed(), "BedTP", "Team Bed Not Found.", 10, true, true, "BedTP")
-				 if isAlive(lplr, true) then 
-					 lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
-					 lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
-				 end
-				 table.insert(BedTP.Connections, lplr.CharacterAdded:Connect(function()
-					 repeat task.wait() until isAlive(lplr, true)
-					 if not BedTP.Enabled then 
-						 return 
-					 end 
-					 task.wait(0.2)
-					 targetbed = FindEnemyBed(nil, true)
-					 if not targetbed then 
-						 BedTP.ToggleButton(false)
-						 return 
-					 end
-					 bedtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, targetbed) / 23.4 / 32, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetbed.Position) + Vector3.new(0, 5, 0)})
-					 bedtween:Play()
-					 bedtween.Completed:Wait()
-					 if BedTP.Enabled then 
-						 BedTP.ToggleButton(false)
-					 end
-				 end))
-			 end)
-		 else
-			 pcall(function() bedtween:Cancel() end)
-			 targetbed = nil
-			 bedtween = nil
-		 end
-	 end
-	})
-end)
 function VoidwareFunctions:LoadTime()
 	if shared.VapeFullyLoaded then
 		return (tick() - VoidwareStore.TimeLoaded)
@@ -10095,113 +10052,157 @@ run(function()
 end)
 
 run(function()
-	if not pcall(GuiLibrary.RemoveObject, "PlayerTPOptionsButton") then 
-		return 
+	local GetEnumItems = function() return {} end
+	GetEnumItems = function(enum)
+		local fonts = {}
+		for i,v in next, Enum[enum]:GetEnumItems() do 
+			table.insert(fonts, v.Name) 
+		end
+		return fonts
 	end
-	local PlayerTP = {Enabled = false}
-	local targetTween
-	local PlayerTPMethod = {Value = "Distance"}
-	local playertpextramethods = {
-		can_of_beans = function(item, ent)
-			if not isAlive() then return nil end
-			if GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, ent.RootPart) >= 300 then return nil end
-			bedwars.Client:Get(bedwars.EatRemote):CallServerAsync({
-				item = getItem(item).tool
-			})
-			task.wait(0.2)
-			local speed = GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, ent.RootPart) < 280 and GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, ent.RootPart) / 23.4 / 32 or 0.49
-			targetTween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(speed, Enum.EasingStyle.Linear), {CFrame = CFrame.new(ent.RootPart.Position) + Vector3.new(0, 5, 0)})
-			targetTween:Play()
-			targetTween.Completed:Wait()
-			if PlayerTP.Enabled then
-				PlayerTP.ToggleButton(false)
+	local canRespawn = function() end
+	canRespawn = function()
+		local success, response = pcall(function() 
+			return lplr.leaderstats.Bed.Value == '✅' 
+		end)
+		return success and response 
+	end
+	local PlayerTP = {}
+	local PlayerTPTeleport = {Value = 'Respawn'}
+	local PlayerTPSort = {Value = 'Distance'}
+	local PlayerTPMethod = {Value = 'Linear'}
+	local PlayerTPAutoSpeed = {}
+	local PlayerTPSpeed = {Value = 200}
+	local PlayerTPTarget = {Value = ''}
+	local playertween
+	local oldmovefunc
+	local bypassmethods = {
+		Respawn = function() 
+			if isEnabled('InfiniteFly') then 
+				return 
 			end
-			return true
-		end,
-		jade_hammer = function(item, ent)
-			if not isAlive() then return nil end
-			if GetMagnitudeOf2Objects(lplr.Character.PrimaryPart, ent.RootPart) > 500 then return nil end
-			if not bedwars.AbilityController:canUseAbility("jade_hammer_jump") then
-				repeat task.wait() until bedwars.AbilityController:canUseAbility("jade_hammer_jump") or not PlayerTP.Enabled
-				task.wait(0.1)
+			if not canRespawn() then 
+				return 
 			end
-			if not PlayerTP.Enabled then return end
-			if not bedwars.AbilityController:canUseAbility("jade_hammer_jump") then return nil end
-			item = getItem(item).tool
-			switchItem(item)
-			bedwars.AbilityController:useAbility("jade_hammer_jump")
+			for i = 1, 30 do 
+				if isAlive(lplr, true) and lplr.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+					lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+					lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+				end
+			end
+			lplr.CharacterAdded:Wait()
+			repeat task.wait() until isAlive(lplr, true) 
 			task.wait(0.1)
-			targetTween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = CFrame.new(ent.RootPart.Position) + Vector3.new(0, 5, 0)})
-			targetTween:Play()
-			targetTween.Completed:Wait()
-			if PlayerTP.Enabled then
-				PlayerTP.ToggleButton(false)
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil or not PlayerTP.Enabled then 
+				return
 			end
-			return true
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (PlayerTPAutoSpeed.Enabled and ((target.RootPart.Position - localposition).Magnitude / 470) + 0.001 * 2 or (PlayerTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (PlayerTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[PlayerTPMethod.Value])
+			playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = target.RootPart.CFrame}) 
+			playertween:Play() 
+			playertween.Completed:Wait()
 		end,
-		void_axe = function(item, ent)
-			if not isAlive() then return nil end
-			if GetMagnitudeOf2Objects(lplr.Character.PrimaryPart, ent.RootPart) > 500 then return nil end
-			if not bedwars.AbilityController:canUseAbility("void_axe_jump") then
-				repeat task.wait() until bedwars.AbilityController:canUseAbility("void_axe_jump") or not PlayerTP.Enabled
-				task.wait(0.1)
+		Instant = function() 
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil then 
+				return PlayerTP.ToggleButton()
 			end
-			if not PlayerTP.Enabled then return end
-			if not bedwars.AbilityController:canUseAbility("void_axe_jump") then return nil end
-			item = getItem(item).tool
-			switchItem(tool)
-			bedwars.AbilityController:useAbility("void_axe_jump")
-			task.wait(0.1)
-			targetTween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = CFrame.new(ent.RootPart.Position) + Vector3.new(0, 5, 0)})
-			targetTween:Play()
-			targetTween.Completed:Wait()
-			if PlayerTP.Enabled then
-				PlayerTP.ToggleButton(false)
+			lplr.Character.HumanoidRootPart.CFrame = (target.RootPart.CFrame + Vector3.new(0, 5, 0)) 
+			PlayerTP.ToggleButton()
+		end,
+		Recall = function()
+			if not isAlive(lplr, true) or lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air then 
+				errorNotification('PlayerTP', 'Recall ability not available.', 7)
+				return 
 			end
-			return true
+			if not bedwars.AbilityController:canUseAbility('recall') then 
+				errorNotification('PlayerTP', 'Recall ability not available.', 7)
+				return
+			end
+			pcall(function()
+				oldmovefunc = require(lplr.PlayerScripts.PlayerModule).controls.moveFunction 
+				require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = function() end
+			end)
+			bedwars.AbilityController:useAbility('recall')
+			local teleported
+			table.insert(PlayerTP.Connections, lplr:GetAttributeChangedSignal('LastTeleported'):Connect(function() teleported = true end))
+			repeat task.wait() until teleported or not PlayerTP.Enabled or not isAlive(lplr, true) 
+			task.wait()
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil or not isAlive(lplr, true) or not PlayerTP.Enabled then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (PlayerTPAutoSpeed.Enabled and ((target.RootPart.Position - localposition).Magnitude / 1000) + 0.001 or (PlayerTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (PlayerTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[PlayerTPMethod.Value])
+			playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = target.RootPart.CFrame}) 
+			playertween:Play() 
+			playertween.Completed:Wait()
 		end
 	}
 	PlayerTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
-		Name = "PlayerTP",
-		HoverText = "Tween to the nearest enemy.",
-		Function = function(callback)
-			if callback then
-				task.spawn(function()
-				local ent = FindTarget(false, store.blockRaycast, nil, PlayerTPMethod.Value == "Health")
-				vapeAssert(ent.RootPart, "PlayerTP", "Player Not Found.", 7, true, true, "PlayerTP")
-				local currentmethod = nil
-				for i,v in pairs(store.localInventory.inventory.items) do
-					if playertpextramethods[v.itemType] ~= nil then
-						currentmethod = v.itemType
-					end
+		Name = 'PlayerTP',
+		HoverText = 'Tweens you to a nearby target.',
+		Function = function(calling)
+			if calling then 
+				if isEnabled('FullDisabler') and isAlive(lplr, true) then 
+					return bypassmethods.Instant()
 				end
-				if currentmethod == nil or (currentmethod ~= nil and layertpextramethods[currentmethod](currentmethod, ent) == nil) then
-				vapeAssert(FindTeamBed(), "PlayerTP", "Team Bed Missing.", 7, true, true, "PlayerTP")
-				vapeAssert(not store.queueType:find("skywars"), "PlayerTP", "Skywars noy Supported.", 7, true, true, "PlayerTP")
-				vapeAssert(store.queueType ~= "gun_game", "PlayerTP", "Can't run in gun game.", 7, true, true, "PlayerTP")
-				pcall(function() lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead) end)
-				table.insert(PlayerTP.Connections, lplr.CharacterAdded:Connect(function()
-					if not isAlive() then repeat task.wait() until isAlive() end
-					task.wait(0.2)
-					ent = FindTarget(false, store.blockRaycast, nil, PlayerTPMethod.Value == "Health")
-					if not ent.RootPart then PlayerTP.ToggleButton(false) return end
-					targetTween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, ent.RootPart) / 23.4 / 35, Enum.EasingStyle.Linear), {CFrame = ent.RootPart.CFrame + Vector3.new(0, 3, 0)})
-					targetTween:Play()
-					targetTween.Completed:Wait()
-					PlayerTP.ToggleButton(false)
-				end))
-			end
-			end)
+				if isEnabled('FullDisabler') then 
+					return PlayerTP.ToggleButton()
+				end
+				if GetTarget(nil, PlayerTPSort.Value == 'Health', true).RootPart and shared.VapeFullyLoaded then 
+					bypassmethods[isAlive() and PlayerTPTeleport.Value or 'Respawn']() 
+				end
+				if PlayerTP.Enabled then 
+					PlayerTP.ToggleButton()
+				end
 			else
-				pcall(function() targetTween:Cancel() end)
+				pcall(function() playertween:Disconnect() end)
+				if oldmovefunc then 
+					pcall(function() require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = oldmovefunc end)
+				end
+				oldmovefunc = nil
 			end
 		end
 	})
-	PlayerTPMethod = PlayerTP.CreateDropdown({
-		Name = "Method",
-		List = {"Distance", "Health"},
+	PlayerTPTeleport = PlayerTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = {'Respawn', 'Recall'},
 		Function = function() end
 	})
+	PlayerTPAutoSpeed = PlayerTP.CreateToggle({
+		Name = 'Auto Speed',
+		HoverText = 'Automatically uses a "good" tween speed.',
+		Default = true,
+		Function = function(calling) 
+			if calling then 
+				pcall(function() PlayerTPSpeed.Object.Visible = false end) 
+			else 
+				pcall(function() PlayerTPSpeed.Object.Visible = true end) 
+			end
+		end
+	})
+	PlayerTPSpeed = PlayerTP.CreateSlider({
+		Name = 'Tween Speed',
+		Min = 20, 
+		Max = 350,
+		Default = 200,
+		Function = function() end
+	})
+	PlayerTPMethod = PlayerTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = GetEnumItems('EasingStyle'),
+		Function = function() end
+	})
+	PlayerTPSpeed.Object.Visible = false
+	local Credits
+	Credits = PlayerTP.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
 end)
 
 local function GetClanTag(plr)
@@ -10470,7 +10471,7 @@ end
 	})
 end)--]]
 
-run(function() 
+--[[run(function() 
 	local TeleportBed
 	local bedConnection
 	local client = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("remotes")).default.Client
@@ -10570,7 +10571,7 @@ run(function()
 		end,
 		List = {"DEFAULT"}
 	})
-end)	
+end)--]]	
 
 local WaterMark = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 	Name = "WaterMark",
@@ -13224,3 +13225,98 @@ local ProtectedModules
 if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
 ProtectedModules.LoadModules(6872274481)
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
+
+run(function()
+    local tppos2 = nil
+    local TweenSpeed = 0.7
+    local HeightOffset = 5
+    local BedTP = {}
+
+    local function teleportWithTween(char, destination)
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root then
+            destination = destination + Vector3.new(0, HeightOffset, 0)
+            local currentPosition = root.Position
+            if (destination - currentPosition).Magnitude > 0.5 then
+                local tweenInfo = TweenInfo.new(TweenSpeed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                local goal = {CFrame = CFrame.new(destination)}
+                local tween = TweenService:Create(root, tweenInfo, goal)
+                tween:Play()
+                tween.Completed:Wait()
+            end
+        end
+    end
+
+    local function killPlayer(player)
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.Health = 0
+            end
+        end
+    end
+
+    local function getEnemyBed(range)
+        range = range or math.huge
+        local bed = nil
+        local player = lplr
+
+        if not isAlive(player, true) then 
+            return nil 
+        end
+
+        local localPos = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character.HumanoidRootPart.Position or Vector3.zero
+        local playerTeam = player:GetAttribute('Team')
+        local beds = collectionService:GetTagged('bed')
+
+        for _, v in ipairs(beds) do 
+            if v:GetAttribute('PlacedByUserId') == 0 then
+                local bedTeam = v:GetAttribute('id'):sub(1, 1)
+                if bedTeam ~= playerTeam then 
+                    local bedPosition = v.Position
+                    local bedDistance = (localPos - bedPosition).Magnitude
+                    if bedDistance < range then 
+                        bed = v
+                        range = bedDistance
+                    end
+                end
+            end
+        end
+
+        if not bed then 
+            warningNotification("BedTP", 'No enemy beds found. Total beds: '..#beds, 5)
+        else
+            --warningNotification("BedTP", 'Teleporting to bed at position: '..tostring(bed.Position), 3)
+			warningNotification("BedTP", 'Teleporting to bed at position: '..tostring(bed.Position), 3)
+        end
+
+        return bed
+    end
+
+    BedTP = GuiLibrary["ObjectsThatCanBeSaved"]["WorldWindow"]["Api"].CreateOptionsButton({
+        ["Name"] = "BedTP",
+        ["Function"] = function(callback)
+            if callback then
+				table.insert(BedTP.Connections, lplr.CharacterAdded:Connect(function(char)
+					if tppos2 then 
+						task.spawn(function()
+							local root = char:WaitForChild("HumanoidRootPart", 9e9)
+							if root and tppos2 then 
+								teleportWithTween(char, tppos2)
+								tppos2 = nil
+							end
+						end)
+					end
+				end))
+                local bed = getEnemyBed()
+                if bed then 
+                    tppos2 = bed.Position
+                    killPlayer(lplr)
+                else
+                    BedTP.ToggleButton(false)
+                end
+            end
+        end
+    })
+end)

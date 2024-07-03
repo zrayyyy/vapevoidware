@@ -8166,3 +8166,95 @@ run(function()
 		end
 	})
 end)
+
+local Mode = "Normal"
+local LoggedWindows = {}
+local LoggedSizes = {}
+local temporary_connections = {}
+if not GuiLibrary.ObjectsThatCanBeSaved.MobileSupportButton.Api.Enabled then GuiLibrary.ObjectsThatCanBeSaved.MobileSupportButton.Api.ToggleButton(true) end
+GuiLibrary.SelfDestructEvent.Event:Connect(function()
+	for i,v in pairs(temporary_connections) do
+		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
+		if v.disconnect then pcall(function() v:disconnect() end) continue end
+	end
+end)
+run(function()
+	local ChangeMode = {}
+	local function LogWindow(windowName)
+		table.insert(LoggedWindows, windowName)
+	end
+	local function UnLogWindow(windowName)
+		for i,v in pairs(LoggedWindows) do
+			if LoggedWindows[i] == windowName then table.remove(LoggedWindows, i) end break
+		end
+	end
+	local function LogSize(windowName, size)
+		LoggedSizes[windowName] = size
+	end
+	local function UnLogSize(windowName)
+		LoggedSizes[windowName] = nil
+	end
+	ChangeMode = GuiLibrary.ObjectsThatCanBeSaved.MobileSupportWindow.Api.CreateOptionsButton({
+		Name = 'ChangeMode',
+		Function = function(calling)
+			if calling then
+				ChangeMode["ToggleButton"](false) 
+				if Mode == "Normal" then
+					Mode = "Mobile"
+					GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui"):WaitForChild("MainWindow").Visible = false
+					local Wanted_Buttons = {"Friends", "Targets", "Profiles", "GameScripts", "VoidwareDev"}
+					local Needed_Buttons = {"Combat", "Blatant", "Render", "Utility", "World", "Voidware"}
+					for i,v in pairs(Wanted_Buttons) do
+						if GuiLibrary.ObjectsThatCanBeSaved[Wanted_Buttons[i].."Button"].Api.Enabled then LogWindow(Wanted_Buttons[i]) GuiLibrary.ObjectsThatCanBeSaved[Wanted_Buttons[i].."Button"].Api.ToggleButton(true) end
+					end
+					for i,v in pairs(Needed_Buttons) do
+						if not GuiLibrary.ObjectsThatCanBeSaved[Needed_Buttons[i].."Button"].Api.Enabled then LogWindow(Needed_Buttons[i]) GuiLibrary.ObjectsThatCanBeSaved[Needed_Buttons[i].."Button"].Api.ToggleButton(true) end
+					end
+					local click_gui = GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui")
+					local windows = click_gui:GetChildren()
+					for i,v in pairs(windows) do
+						if windows[i].ClassName == "TextButton" then
+							if not string.find(windows[i].Name, "Window") and not string.find(windows[i].Name, "TextButton") then
+								if windows[i].Size.Y.Offset > 325 then
+									LogSize(windows[i], windows[i].Size)
+									--windows[i].Size.Y.Offset = 325
+									windows[i].Size = windows[i].Size - UDim2.new(0, 0, 0, windows[i].Size.Y.Offset) + UDim2.new(0, 0, 0, 325)
+									table.insert(temporary_connections, windows[i].Changed:Connect(function(property)
+										if property == "Size" then
+											if windows[i].Size.Y.Offset > 325 then windows[i].Size = windows[i].Size - UDim2.new(0, 0, 0, windows[i].Size.Y.Offset) + UDim2.new(0, 0, 0, 325) end
+										end
+									end))
+								end
+							end
+						end
+					end
+				else
+					Mode = "Normal"
+					GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui"):WaitForChild("MainWindow").Visible = true
+					for i,v in pairs(LoggedWindows) do GuiLibrary.ObjectsThatCanBeSaved[LoggedWindows[i].."Button"].Api.ToggleButton(true) UnLogWindow(LoggedWindows[i]) end
+					for i,v in pairs(temporary_connections) do
+						if v.Disconnect then pcall(function() v:Disconnect() end) continue end
+						if v.disconnect then pcall(function() v:disconnect() end) continue end
+					end
+					for i,v in pairs(LoggedSizes) do
+						i.Size = LoggedSizes[i]
+						UnLogSize(i)
+					end
+				end
+			end
+		end
+	})
+end)
+run(function()
+	local RestartVoidware = {}
+	RestartVoidware = GuiLibrary.ObjectsThatCanBeSaved.MobileSupportWindow.Api.CreateOptionsButton({
+		Name = 'RestartVoidware',
+		Function = function(calling)
+			if calling then 
+				RestartVoidware["ToggleButton"](false) 
+				wait(0.1)
+				GuiLibrary.Restart()
+			end
+		end
+	})
+end)
