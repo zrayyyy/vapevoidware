@@ -13408,7 +13408,7 @@ run(function()
 				if csd then
 					local catver = "4.0"
 					DeleteClientSidedAnticheat()
-					warningNotification("Cat "..catver, "Disabled Client", 3)
+					warningNotification("Disabler" "Disabled Client", 3)
 				end
 			else
 				disablerZephyr = false
@@ -13458,13 +13458,13 @@ run(function()
 	ZephyrSpeed = Disabler.CreateSlider({
 		Name = "Speed Multiplier",
 		Min = 0,
-		Max = 2,
+		Max = 30,
 		Function = function(callback)
 			disablerBoost = callback
 			Disabler.ToggleButton(false)
 			Disabler.ToggleButton(false)
 		end,
-		Default = 1
+		Default = 20
 	})
 	local Credits
 	Credits = Disabler.CreateCredits({
