@@ -8201,6 +8201,7 @@ run(function()
 				ChangeMode["ToggleButton"](false) 
 				if Mode == "Normal" then
 					Mode = "Mobile"
+					warningNotification("ChangeMode", "Switched to Mobile mode", 7)
 					GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui"):WaitForChild("MainWindow").Visible = false
 					local Wanted_Buttons = {"Friends", "Targets", "Profiles", "GameScripts", "VoidwareDev"}
 					local Needed_Buttons = {"Combat", "Blatant", "Render", "Utility", "World", "Voidware"}
@@ -8230,6 +8231,7 @@ run(function()
 					end
 				else
 					Mode = "Normal"
+					warningNotification("ChangeMode", "Switched to Normal mode", 7)
 					GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui"):WaitForChild("MainWindow").Visible = true
 					for i,v in pairs(LoggedWindows) do GuiLibrary.ObjectsThatCanBeSaved[LoggedWindows[i].."Button"].Api.ToggleButton(true) UnLogWindow(LoggedWindows[i]) end
 					for i,v in pairs(temporary_connections) do
