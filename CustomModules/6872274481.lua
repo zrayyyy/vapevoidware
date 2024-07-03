@@ -13408,7 +13408,7 @@ run(function()
 				if csd then
 					local catver = "4.0"
 					DeleteClientSidedAnticheat()
-					warningNotification("Disabler" "Disabled Client", 3)
+					warningNotification("Disabler", "Disabled Client", 3)
 				end
 			else
 				disablerZephyr = false
