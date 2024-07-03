@@ -544,29 +544,33 @@ local function attackValue(vec)
 	return {value = vec}
 end
 
+disablerZephyr = false
+disablerBoost = 1
 local function getSpeed()
-	local speed = 0
+	local speed = 1
 	if lplr.Character then
 		local SpeedDamageBoost = lplr.Character:GetAttribute("SpeedBoost")
 		if SpeedDamageBoost and SpeedDamageBoost > 1 then
-			speed = speed + (8 * (SpeedDamageBoost - 1))
+			speed = speed * 1.6
 		end
 		if store.grapple > tick() then
-			speed = speed + 90
+			speed = speed * 3
 		end
 		if store.scythe > tick() then
-			speed = speed + 5
+			speed = speed * (1.6 * disablerBoost)
 		end
 		if lplr.Character:GetAttribute("GrimReaperChannel") then
-			speed = speed + 20
+			speed = speed * 1.9
 		end
 		local armor = store.localInventory.inventory.armor[3]
 		if type(armor) ~= "table" then armor = {itemType = ""} end
 		if armor.itemType == "speed_boots" then
-			speed = speed + 12
+			speed = speed * 1.375
 		end
 		if store.zephyrOrb ~= 0 then
-			speed = speed + 12
+			if disablerZephyr then
+				speed = speed * (1.899 * disablerBoost)
+			end
 		end
 	end
 	return speed
@@ -13319,5 +13323,152 @@ run(function()
                 end
             end
         end
+    })
+end)
+
+--[[local GuiLibrary = shared.GuiLibrary
+run(function()
+	local ScytheDisabler = {}
+	ScytheDisabler = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = 'ScytheDisabler',
+		HoverText = "Works on everymatch (you need forge mechanic).",
+		Function = function(calling)
+			if calling then 
+				repeat
+					task.wait()
+					if killauraNearPlayer then 
+						continue
+					end
+					local scythe = getItemNear('_scythe')
+					if isAlive(lplr, true) and not scythe then 
+						bedwars.Client:Get('ForgePurchaseUpgrade'):SendToServer(bedwars.ForgeConstants.SCYTHE)
+						continue
+					end
+					if isAlive(lplr, true) then 
+						local move = lplr.Character.Humanoid.MoveDirection
+						switchItem(scythe.tool)
+						bedwars.Client:Get('ScytheDash'):SendToServer({direction = move == Vector3.zero and Vector3.new(9e9, 9e9, 9e9) or move * 9e9})
+						if lplr:GetAttribute('ScytheSpinning') then 
+							store.scythe = (tick() + 1) 
+						end
+					end
+				until (not ScytheDisabler.Enabled)
+			end
+		end
+	})
+end)]]
+
+run(function()
+	local Disabler = {Enabled = false}
+	local ZephyrSpeed = {Value = 1}
+	local DisablerMode = {Value = "Scythe"}
+	local mode = "Scythe"
+	local sd = false
+	local csd = false
+	local zd = false
+	local fd = false
+	local function DeleteClientSidedAnticheat()
+		if lplr.PlayerScripts.Modules:FindFirstChild("anticheat") then
+			lplr.PlayerScripts.Modules.anticheat:Destroy()
+		end
+		if lplr.PlayerScripts:FindFirstChild("GameAnalyticsClient") then
+			lplr.PlayerScripts.GameAnalyticsClient:Destroy()
+		end
+		if game:GetService("ReplicatedStorage").Modules:FindFirstChild("anticheat") then
+			game:GetService("ReplicatedStorage").Modules:FindFirstChild("anticheat"):Destroy()
+		end
+	end
+	Disabler = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = "Disabler",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					repeat
+						task.wait()
+						if zd then
+							disablerZephyr = true
+						else
+							disablerZephyr = false
+						end
+						if fd then
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("TridentUnanchor"):InvokeServer()
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("TridentAnchor"):InvokeServer()
+						end
+						if sd then
+							local item = getItemNear("_scythe")
+							if item and lplr.Character.HandInvItem.Value == item.tool and bedwars.CombatController then 
+								bedwars.Client:Get("ScytheDash"):SendToServer({direction = lplr.Character.HumanoidRootPart.CFrame.LookVector*9e9})
+								if entityLibrary.isAlive and entityLibrary.character.Head.Transparency ~= 0 then
+									store.scythe = tick() + 1
+								end
+							end
+						end
+					until (not Disabler.Enabled)
+				end)
+				if csd then
+					local catver = "4.0"
+					DeleteClientSidedAnticheat()
+					warningNotification("Cat "..catver, "Disabled Client", 3)
+				end
+			else
+				disablerZephyr = false
+			end
+		end,
+		HoverText = "Attempts to help bypass the AntiCheat",
+		ExtraText = function()
+			return "Heatseeker"
+		end
+	})
+	ClientS = Disabler.CreateToggle({
+		Name = "Client Sided",
+		Default = true,
+		Function = function(callback)
+			csd = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end
+	})
+	Scythe = Disabler.CreateToggle({
+		Name = "Scythe",
+		Default = true,
+		Function = function(callback)
+			sd = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end
+	})
+	Zephyr = Disabler.CreateToggle({
+		Name = "Zephyr",
+		Default = true,
+		Function = function(callback)
+			zd = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end
+	})
+	--[[Float = Disabler.CreateToggle({
+		Name = "Float (EXPERIMENTAL)",
+		Default = true,
+		Function = function(callback)
+			fd = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end
+	})]]--
+	ZephyrSpeed = Disabler.CreateSlider({
+		Name = "Speed Multiplier",
+		Min = 0,
+		Max = 2,
+		Function = function(callback)
+			disablerBoost = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end,
+		Default = 1
+	})
+	local Credits
+	Credits = Disabler.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Cat V5 (qwertyui)'
     })
 end)
