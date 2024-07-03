@@ -13243,6 +13243,7 @@ run(function()
                 local tween = TweenService:Create(root, tweenInfo, goal)
                 tween:Play()
                 tween.Completed:Wait()
+				BedTP.ToggleButton(false)
             end
         end
     end
