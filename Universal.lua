@@ -8586,3 +8586,55 @@ run(function()
         Credits = 'Render'
     })
 end)
+
+local newcolor = function() return {Hue = 0, Sat = 0, Value = 0} end
+run(function()
+	local CharacterOutline = {}
+	local CharacterOutlineColor = newcolor()
+	local outline = Instance.new('Highlight', GuiLibrary.MainGui)
+	CharacterOutline = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'CharacterOutline',
+		HoverText = 'adds a cool outline to your character.',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					repeat task.wait() until (lplr.Character or not CharacterOutline.Enabled)
+					if CharacterOutline.Enabled then 
+						local oldhighlight = lplr.Character:FindFirstChildWhichIsA('Highlight')
+						if oldhighlight then 
+							oldhighlight.Adornee = nil 
+						end
+						outline.FillTransparency = 1
+						outline.Adornee = lplr.Character
+						table.insert(CharacterOutline.Connections, lplr.Character.DescendantAdded:Connect(function(instance)
+							if instance:IsA('Highlight') then 
+								instance.Adornee = nil
+							end
+						end))
+						table.insert(CharacterOutline.Connections, runService.Heartbeat:Connect(function()
+							outline.Adornee = (CharacterOutline.Enabled and lplr.Character or outline.Adornee)
+						end))
+						table.insert(CharacterOutline.Connections, lplr.CharacterAdded:Connect(function()
+							CharacterOutline.ToggleButton()
+							CharacterOutline.ToggleButton()
+						end))
+					end
+				end)
+			else
+				outline.Adornee = nil
+			end
+		end
+	})
+	
+	CharacterOutlineColor = CharacterOutline.CreateColorSlider({
+		Name = 'Color',
+		Function = function()
+			pcall(function() outline.OutlineColor = Color3.fromHSV(CharacterOutlineColor.Hue, CharacterOutlineColor.Sat, CharacterOutlineColor.Value) end)
+		end
+	})
+	local Credits
+	Credits = CharacterOutline.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
