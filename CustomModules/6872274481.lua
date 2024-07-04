@@ -13555,6 +13555,7 @@ run(function()
 		Name = 'InstantEmeraldArmour',
 		Function = function(calling)
 			if calling then 
+<<<<<<< HEAD
 				task.spawn(function()
 					repeat
 						local args = {
@@ -13568,6 +13569,17 @@ run(function()
 					end
 					until (not InstantEmeraldArmour.Enabled)
 				end)
+=======
+				InstantEmeraldArmour["ToggleButton"](false) 
+				local args = {
+					[1] = {
+						["statusEffectType"] = "fortune_1",
+						["fortuneStacks"] = 9e+9
+					}
+				}
+				
+				game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
+>>>>>>> parent of 22a0671 (Optimised the fast em armour)
 			end
 		end
 	})
