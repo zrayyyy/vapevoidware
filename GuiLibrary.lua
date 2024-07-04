@@ -1,4 +1,5 @@
 if shared.VapeExecuted then
+	local discord_code = "8Z9kxNWd"
 	local VERSION = "4.10"..(shared.VapePrivate and " PRIVATE" or "").." "..readfile("vape/commithash.txt"):sub(1, 6)
 	local baseDirectory = (shared.VapePrivate and "vapeprivate/" or "vape/")
 	local vapeAssetTable = {
@@ -1043,8 +1044,8 @@ if shared.VapeExecuted then
 						local reqbody = {
 							["nonce"] = game:GetService("HttpService"):GenerateGUID(false),
 							["args"] = {
-								["invite"] = {["code"] = "ct4hgcjS87"},
-								["code"] = "ct4hgcjS87",
+								["invite"] = {["code"] = discord_code},
+								["code"] = discord_code,
 							},
 							["cmd"] = "INVITE_BROWSER"
 						}
@@ -1079,7 +1080,7 @@ if shared.VapeExecuted then
 				local hoverround3 = Instance.new("UICorner")
 				hoverround3.CornerRadius = UDim.new(0, 4)
 				hoverround3.Parent = hoverbox3
-				setclipboard("https://discord.gg/ct4hgcjS87")
+				setclipboard("https://discord.gg/"..discord_code)
 				task.wait(1)
 				hoverbox3:Remove()
 			end)
