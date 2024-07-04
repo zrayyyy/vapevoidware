@@ -82,6 +82,7 @@ local collectionService = game:GetService("CollectionService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local replicatedStorageService = replicatedStorage
 local gameCamera = workspace.CurrentCamera
+local cam = gameCamera
 local lplr = playersService.LocalPlayer
 local vapeConnections
 if shared.vapeConnections and type(shared.vapeConnections) == "table" then vapeConnections = shared.vapeConnections else vapeConnections = {} shared.vapeConnections = vapeConnections end
@@ -548,6 +549,8 @@ disablerZephyr = false
 disablerBoost = 1
 local function getSpeed()
 	local speed = 0
+	local item = getItemNear("scythe")
+	if item then speed = 1 end
 	if lplr.Character then
 		local SpeedDamageBoost = lplr.Character:GetAttribute("SpeedBoost")
 		if SpeedDamageBoost and SpeedDamageBoost > 1 then
@@ -1397,6 +1400,7 @@ run(function()
 		QueueMeta = require(replicatedStorage.TS.game["queue-meta"]).QueueMeta,
 		ReportRemote = dumpRemote(debug.getconstants(require(lplr.PlayerScripts.TS.controllers.global.report["report-controller"]).default.reportPlayer)),
 		ResetRemote = dumpRemote(debug.getconstants(debug.getproto(KnitClient.Controllers.ResetController.createBindable, 1))),
+		DinoRemote = dumpRemote(debug.getconstants(debug.getproto(KnitClient.Controllers.DinoTamerController.KnitStart, 3))),
 		Roact = require(replicatedStorage["rbxts_include"]["node_modules"]["@rbxts"]["roact"].src),
 		RuntimeLib = require(replicatedStorage["rbxts_include"].RuntimeLib),
 		Shop = require(replicatedStorage.TS.games.bedwars.shop["bedwars-shop"]).BedwarsShop,
@@ -13395,7 +13399,7 @@ run(function()
 							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("TridentAnchor"):InvokeServer()
 						end
 						if sd then
-							local item = getItemNear("_scythe")
+							local item = getItemNear("scythe")
 							if item and lplr.Character.HandInvItem.Value == item.tool and bedwars.CombatController then 
 								bedwars.Client:Get("ScytheDash"):SendToServer({direction = lplr.Character.HumanoidRootPart.CFrame.LookVector*9e9})
 								if entityLibrary.isAlive and entityLibrary.character.Head.Transparency ~= 0 then
