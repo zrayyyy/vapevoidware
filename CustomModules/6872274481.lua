@@ -547,7 +547,7 @@ end
 disablerZephyr = false
 disablerBoost = 1
 local function getSpeed()
-	local speed = 1
+	local speed = 0
 	if lplr.Character then
 		local SpeedDamageBoost = lplr.Character:GetAttribute("SpeedBoost")
 		if SpeedDamageBoost and SpeedDamageBoost > 1 then
