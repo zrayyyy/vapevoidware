@@ -6899,7 +6899,7 @@ run(function()
 	local AutoRejoinSmallServers = {Enabled = false}
 	local AutoRejoinsPlayersToRejoinOn = {Value = 1}
 	local isfindingserver = false
-	AutoRejoin = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	AutoRejoin = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = "AutoRejoin",
 		HoverText = "Automatically rejoins a server.",
 		Function = function(callback)
@@ -6960,7 +6960,7 @@ end)
 
 pcall(function()
 	local Rejoin = {}
-	Rejoin = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	Rejoin = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'Rejoin',
 		Function = function(callback)
 			if callback then
@@ -8171,7 +8171,6 @@ local Mode = "Normal"
 local LoggedWindows = {}
 local LoggedSizes = {}
 local temporary_connections = {}
-if not GuiLibrary.ObjectsThatCanBeSaved.MobileSupportButton.Api.Enabled then GuiLibrary.ObjectsThatCanBeSaved.MobileSupportButton.Api.ToggleButton(true) end
 GuiLibrary.SelfDestructEvent.Event:Connect(function()
 	for i,v in pairs(temporary_connections) do
 		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
@@ -8255,6 +8254,20 @@ run(function()
 			if calling then 
 				RestartVoidware["ToggleButton"](false) 
 				wait(0.1)
+				GuiLibrary.Restart()
+			end
+		end
+	})
+end)
+run(function()
+	local InstallNewProfiles = {}
+	InstallNewProfiles = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'InstallNewProfiles',
+		Function = function(calling)
+			if calling then 
+				InstallNewProfiles["ToggleButton"](false) 
+				wait(0.1)
+				delfile('vape/Libraries/profilesinstalled.ren')
 				GuiLibrary.Restart()
 			end
 		end

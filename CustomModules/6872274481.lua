@@ -10361,7 +10361,7 @@ end)
 
 run(function()
 	local GetHost = {Enabled = false}
-	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
 		Name = "GetHost",
 		HoverText = ":troll:",
 		Function = function(callback) 
@@ -11834,7 +11834,7 @@ run(function()
 		end 
 		return queuemeta
 	end
-	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
 		Name = 'JoinQueue',
 		NoSave = true,
 		HoverText = 'Starts a match for the provided gamemode.',
