@@ -13549,3 +13549,27 @@ run(function()
         Credits = 'Cat V5 (qwertyui)'
     })
 end)
+run(function()
+	local InstantEmeraldArmour = {}
+	InstantEmeraldArmour = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'InstantEmeraldArmour',
+		Function = function(calling)
+			if calling then 
+				InstantEmeraldArmour["ToggleButton"](false) 
+				local args = {
+					[1] = {
+						["statusEffectType"] = "fortune_1",
+						["fortuneStacks"] = 9e+9
+					}
+				}
+				
+				game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
+			end
+		end
+	})
+	local Credits
+	Credits = InstantEmeraldArmour.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'floppa'
+    })
+end)
