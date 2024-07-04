@@ -3753,17 +3753,19 @@ run(function()
 		Function = function(callback)
 			if callback then
 				--context issues moment
-			--[[	killaurarangecirclepart = Instance.new("MeshPart")
-				killaurarangecirclepart.MeshId = "rbxassetid://3726303797"
-				killaurarangecirclepart.Color = Color3.fromHSV(killauracolor["Hue"], killauracolor["Sat"], killauracolor.Value)
-				killaurarangecirclepart.CanCollide = false
-				killaurarangecirclepart.Anchored = true
-				killaurarangecirclepart.Material = Enum.Material.Neon
-				killaurarangecirclepart.Size = Vector3.new(killaurarange.Value * 0.7, 0.01, killaurarange.Value * 0.7)
-				if Killaura.Enabled then
-					killaurarangecirclepart.Parent = gameCamera
-				end
-				bedwars.QueryUtil:setQueryIgnored(killaurarangecirclepart, true)]]
+				pcall(function()
+					killaurarangecirclepart = Instance.new("MeshPart")
+					killaurarangecirclepart.MeshId = "rbxassetid://3726303797"
+					killaurarangecirclepart.Color = Color3.fromHSV(killauracolor["Hue"], killauracolor["Sat"], killauracolor.Value)
+					killaurarangecirclepart.CanCollide = false
+					killaurarangecirclepart.Anchored = true
+					killaurarangecirclepart.Material = Enum.Material.Neon
+					killaurarangecirclepart.Size = Vector3.new(killaurarange.Value * 0.7, 0.01, killaurarange.Value * 0.7)
+					if Killaura.Enabled then
+						killaurarangecirclepart.Parent = gameCamera
+					end
+					bedwars.QueryUtil:setQueryIgnored(killaurarangecirclepart, true)
+				end)
 			else
 				if killaurarangecirclepart then
 					killaurarangecirclepart:Destroy()
@@ -13502,7 +13504,7 @@ run(function()
 				RunLoops:BindToStepped("enchant",function()
 					et = et + 1
 					if et == 45 then
-						task.delay(1,addEnchants())
+						task.delay(1,addEnchants)
 						et = 0
 					end
 				end)
