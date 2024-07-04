@@ -13555,15 +13555,19 @@ run(function()
 		Name = 'InstantEmeraldArmour',
 		Function = function(calling)
 			if calling then 
-				InstantEmeraldArmour["ToggleButton"](false) 
-				local args = {
-					[1] = {
-						["statusEffectType"] = "fortune_1",
-						["fortuneStacks"] = 9e+9
-					}
-				}
-				
-				game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
+				task.spawn(function()
+					repeat
+						local args = {
+							[1] = {
+								["statusEffectType"] = "fortune_1",
+								["fortuneStacks"] = 9e+9
+							}
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
+					end
+					until not InstantEmeraldArmour.Enabled
+				end)
 			end
 		end
 	})
