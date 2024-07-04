@@ -11050,7 +11050,7 @@ local function handleBedShieldEndEvent()
 end
 
 local function initializeNotifications(notifications, lplr)
-    notifications = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+    notifications = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
         Name = "EventNotifier",
         Function = function(notified)
             if notified then
@@ -13413,7 +13413,7 @@ run(function()
 				if csd then
 					local catver = "4.0"
 					DeleteClientSidedAnticheat()
-					warningNotification("Disabler", "Disabled Client", 3)
+					--warningNotification("Disabler", "Disabled Client", 3)
 				end
 			else
 				disablerZephyr = false
@@ -13575,5 +13575,770 @@ run(function()
 	Credits = InstantEmeraldArmour.CreateCredits({
         Name = 'CreditsButtonInstance',
         Credits = 'floppa'
+    })
+end)
+
+local function getItemDrop(drop)
+	if not isAlive(lplr, true) and not RenderStore.LocalPosition then 
+		return nil
+	end
+	local itemdrop, magnitude = nil, math.huge
+	for i,v in next, collectionService:GetTagged('ItemDrop') do 
+		if v.Name == drop then 
+			local localpos = (isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position or RenderStore.LocalPosition)
+			local newdistance = (localpos - v.Position).Magnitude 
+			if newdistance < magnitude then 
+				magnitude = newdistance 
+				itemdrop = v 
+			end
+		end
+	end
+	return itemdrop
+end
+
+run(function()
+	local canRespawn = function() end
+	canRespawn = function()
+		local success, response = pcall(function() 
+			return lplr.leaderstats.Bed.Value == '✅' 
+		end)
+		return success and response 
+	end
+	local GetEnumItems = function() return {} end
+	GetEnumItems = function(enum)
+		local fonts = {}
+		for i,v in next, Enum[enum]:GetEnumItems() do 
+			table.insert(fonts, v.Name) 
+		end
+		return fonts
+	end
+	local function getItemDrop(drop)
+		if not isAlive(lplr, true) and not RenderStore.LocalPosition then 
+			return nil
+		end
+		local itemdrop, magnitude = nil, math.huge
+		for i,v in next, collectionService:GetTagged('ItemDrop') do 
+			if v.Name == drop then 
+				local localpos = (isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position or RenderStore.LocalPosition)
+				local newdistance = (localpos - v.Position).Magnitude 
+				if newdistance < magnitude then 
+					magnitude = newdistance 
+					itemdrop = v 
+				end
+			end
+		end
+		return itemdrop
+	end
+
+	local DiamondTP = {}
+	local DiamondTPAutoSpeed = {}
+	local DiamondTPSpeed = {Value = 200}
+	local DiamondTPTeleport = {Value = 'Respawn'}
+	local DiamondTPMethod = {Value = 'Linear'}
+	local diamondtween 
+	local oldmovefunc 
+	local bypassmethods = {
+		Respawn = function() 
+			if isEnabled('InfiniteFly') then 
+				return 
+			end
+			if not canRespawn() then 
+				return 
+			end
+			for i = 1, 30 do 
+				if isAlive(lplr, true) and lplr.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+					lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+					lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+				end
+			end
+			lplr.CharacterAdded:Wait()
+			repeat task.wait() until isAlive(lplr, true) 
+			task.wait(0.1)
+			local item = getItemDrop('diamond')
+			if item == nil or not DiamondTP.Enabled then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (DiamondTPAutoSpeed.Enabled and ((item.Position - localposition).Magnitude / 470) + 0.001 * 2 or (DiamondTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (DiamondTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[DiamondTPTeleport.Value])
+			diamondtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = item.CFrame}) 
+			diamondtween:Play() 
+			diamondtween.Completed:Wait()
+		end,
+		Recall = function()
+			if not isAlive(lplr, true) or lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air then 
+				errorNotification('DiamondTP', 'Recall ability not available.', 7)
+				return 
+			end
+			if not bedwars.AbilityController:canUseAbility('recall') then 
+				errorNotification('DiamondTP', 'Recall ability not available.', 7)
+				return
+			end
+			pcall(function()
+				oldmovefunc = require(lplr.PlayerScripts.PlayerModule).controls.moveFunction 
+				require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = function() end
+			end)
+			bedwars.AbilityController:useAbility('recall')
+			local teleported
+			table.insert(DiamondTP.Connections, lplr:GetAttributeChangedSignal('LastTeleported'):Connect(function() teleported = true end))
+			repeat task.wait() until teleported or not DiamondTP.Enabled or not isAlive(lplr, true) 
+			task.wait()
+			local item = getItemDrop('diamond')
+			if item == nil or not isAlive(lplr, true) then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (DiamondTPAutoSpeed.Enabled and ((item.Position - localposition).Magnitude / 470) + 0.001 * 2 or (DiamondTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (DiamondTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[DiamondTPTeleport.Value])
+			diamondtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = item.CFrame}) 
+			diamondtween:Play() 
+			diamondtween.Completed:Wait()
+		end
+	}
+	DiamondTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+		Name = 'DiamondTP',
+		HoverText = 'Tweens you to a nearby diamond drop.',
+		Function = function(calling)
+			if calling then 
+				if getItemDrop('diamond') then 
+					bypassmethods[isAlive() and DiamondTPTeleport.Value or 'Respawn']() 
+				end
+				if DiamondTP.Enabled then 
+					DiamondTP.ToggleButton()
+				end 
+			else
+				pcall(function() diamondtween:Cancel() end) 
+				if oldmovefunc then 
+					pcall(function() require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = oldmovefunc end)
+				end
+				oldmovefunc = nil
+			end
+		end
+	})
+	DiamondTPTeleport = DiamondTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = {'Respawn', 'Recall'},
+		Function = function() end
+	})
+	DiamondTPAutoSpeed = DiamondTP.CreateToggle({
+		Name = 'Auto Speed',
+		HoverText = 'Automatically uses a "good" tween speed.',
+		Default = true,
+		Function = function(calling) 
+			if calling then 
+				pcall(function() DiamondTPSpeed.Object.Visible = false end) 
+			else 
+				pcall(function() DiamondTPSpeed.Object.Visible = true end) 
+			end
+		end
+	})
+	DiamondTPSpeed = DiamondTP.CreateSlider({
+		Name = 'Tween Speed',
+		Min = 20, 
+		Max = 350,
+		Default = 200,
+		Function = function() end
+	})
+	DiamondTPMethod = DiamondTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = GetEnumItems('EasingStyle'),
+		Function = function() end
+	})
+	DiamondTPSpeed.Object.Visible = false
+	local Credits
+	Credits = DiamondTP.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+
+	local EmeraldTP = {}
+	local EmeraldTPAutoSpeed = {}
+	local EmeraldTPSpeed = {Value = 200}
+	local EmeraldTPTeleport = {Value = 'Respawn'}
+	local EmeraldTPMethod = {Value = 'Linear'}
+	local emeraldtween 
+	local bypassmethods = {
+		Respawn = function() 
+			if isEnabled('InfiniteFly') then 
+				return 
+			end
+			if not canRespawn() then 
+				return 
+			end
+			for i = 1, 30 do 
+				if isAlive(lplr, true) and lplr.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+					lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+					lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+				end
+			end
+			lplr.CharacterAdded:Wait()
+			repeat task.wait() until isAlive(lplr, true) 
+			task.wait(0.1)
+			local item = getItemDrop('emerald')
+			if item == nil or not EmeraldTP.Enabled then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (EmeraldTPAutoSpeed.Enabled and ((item.Position - localposition).Magnitude / 470) + 0.001 * 2 or (EmeraldTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (EmeraldTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[EmeraldTPTeleport.Value])
+			emeraldtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = item.CFrame}) 
+			emeraldtween:Play() 
+			emeraldtween.Completed:Wait()
+		end,
+		Recall = function()
+			if not isAlive(lplr, true) or lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air then 
+				errorNotification('EmeraldTP', 'Recall ability not available.', 7)
+				return 
+			end
+			if not bedwars.AbilityController:canUseAbility('recall') then 
+				errorNotification('EmeraldTP', 'Recall ability not available.', 7)
+				return
+			end
+			pcall(function()
+				oldmovefunc = require(lplr.PlayerScripts.PlayerModule).controls.moveFunction 
+				require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = function() end
+			end)
+			bedwars.AbilityController:useAbility('recall')
+			local teleported
+			table.insert(EmeraldTP.Connections, lplr:GetAttributeChangedSignal('LastTeleported'):Connect(function() teleported = true end))
+			repeat task.wait() until teleported or not EmeraldTP.Enabled or not isAlive(lplr, true) 
+			task.wait()
+			local item = getItemDrop('emerald')
+			if item == nil or not isAlive(lplr, true) then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (EmeraldTPAutoSpeed.Enabled and ((item.Position - localposition).Magnitude / 470) + 0.001 * 2 or (EmeraldTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (EmeraldTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[EmeraldTPTeleport.Value])
+			emeraldtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = item.CFrame}) 
+			emeraldtween:Play() 
+			emeraldtween.Completed:Wait()
+		end
+	}
+	EmeraldTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+		Name = 'EmeraldTP',
+		HoverText = 'Tweens you to a nearby diamond drop.',
+		Function = function(calling)
+			if calling then 
+				if getItemDrop('emerald') then 
+					bypassmethods[isAlive() and EmeraldTPTeleport.Value or 'Respawn']() 
+				end
+				if EmeraldTP.Enabled then 
+					EmeraldTP.ToggleButton()
+				end 
+			else
+				pcall(function() emeraldtween:Cancel() end) 
+				if oldmovefunc then 
+					pcall(function() require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = oldmovefunc end)
+				end
+				oldmovefunc = nil
+			end
+		end
+	})
+	EmeraldTPTeleport = EmeraldTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = {'Respawn', 'Recall'},
+		Function = function() end
+	})
+	EmeraldTPAutoSpeed = EmeraldTP.CreateToggle({
+		Name = 'Auto Speed',
+		HoverText = 'Automatically uses a "good" tween speed.',
+		Default = true,
+		Function = function(calling) 
+			if calling then 
+				pcall(function() EmeraldTPSpeed.Object.Visible = false end) 
+			else 
+				pcall(function() EmeraldTPSpeed.Object.Visible = true end) 
+			end
+		end
+	})
+	EmeraldTPSpeed = EmeraldTP.CreateSlider({
+		Name = 'Tween Speed',
+		Min = 20, 
+		Max = 350,
+		Default = 200,
+		Function = function() end
+	})
+	EmeraldTPMethod = EmeraldTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = GetEnumItems('EasingStyle'),
+		Function = function() end
+	})
+	EmeraldTPSpeed.Object.Visible = false
+	local Credits
+	Credits = EmeraldTP.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+local newcolor = function() return {Hue = 0, Sat = 0, Value = 0} end
+
+run(function()
+	local CharacterOutline = {}
+	local CharacterOutlineColor = newcolor()
+	local outline = Instance.new('Highlight', GuiLibrary.MainGui)
+	CharacterOutline = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'CharacterOutline',
+		HoverText = 'adds a cool outline to your character.',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					repeat task.wait() until (lplr.Character or not CharacterOutline.Enabled)
+					if CharacterOutline.Enabled then 
+						local oldhighlight = lplr.Character:FindFirstChildWhichIsA('Highlight')
+						if oldhighlight then 
+							oldhighlight.Adornee = nil 
+						end
+						outline.FillTransparency = 1
+						outline.Adornee = lplr.Character
+						table.insert(CharacterOutline.Connections, lplr.Character.DescendantAdded:Connect(function(instance)
+							if instance:IsA('Highlight') then 
+								instance.Adornee = nil
+							end
+						end))
+						table.insert(CharacterOutline.Connections, runService.Heartbeat:Connect(function()
+							outline.Adornee = (CharacterOutline.Enabled and lplr.Character or outline.Adornee)
+						end))
+						table.insert(CharacterOutline.Connections, lplr.CharacterAdded:Connect(function()
+							CharacterOutline.ToggleButton()
+							CharacterOutline.ToggleButton()
+						end))
+					end
+				end)
+			else
+				outline.Adornee = nil
+			end
+		end
+	})
+	
+	CharacterOutlineColor = CharacterOutline.CreateColorSlider({
+		Name = 'Color',
+		Function = function()
+			pcall(function() outline.OutlineColor = Color3.fromHSV(CharacterOutlineColor.Hue, CharacterOutlineColor.Sat, CharacterOutlineColor.Value) end)
+		end
+	})
+	local Credits
+	Credits = CharacterOutline.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+
+local GetEnumItems = function() return {} end
+GetEnumItems = function(enum)
+	local fonts = {}
+	for i,v in next, Enum[enum]:GetEnumItems() do 
+		table.insert(fonts, v.Name) 
+	end
+	return fonts
+end
+
+run(function()
+	local ArmorMods = {}
+	local armorobjects = {}
+	local oldtextures = {}
+	local armorhighlights = {}
+	local ArmorModsMaterial = {Value = 'SmoothPlastic'}
+	local ArmorModsRender = {Value = 'Highlight'}
+	local ArmorHighlightTrans = {Value = 0}
+	local ArmorModsColor = newcolor()
+	local armorFunction = function()
+		for i,v in next, armorobjects do 
+			pcall(function()
+				oldtextures[v] = v.Handle.TextureID
+				v.Handle.TextureID = ''
+				if ArmorModsRender.Value == 'Highlight' then 
+					local highlight = (armorhighlights[v.Handle] or Instance.new('Highlight', game))
+					highlight.Adornee = v.Handle
+					highlight.FillColor = Color3.fromHSV(ArmorModsColor.Hue, ArmorModsColor.Sat, ArmorModsColor.Value)
+					highlight.FillTransparency = (0.7 / (ArmorHighlightTrans.Value + 0.1))
+					highlight.OutlineTransparency = 1
+					armorhighlights[v.Handle] = highlight
+				else
+					v.Handle.Color = Color3.fromHSV(ArmorModsColor.Hue, ArmorModsColor.Sat, ArmorModsColor.Value)
+				end
+				v.Handle.Material = ArmorModsMaterial.Value
+			end)
+		end
+	end
+	ArmorMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'ArmorMods',
+		HoverText = 'Make your armor look better!',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					repeat task.wait() until (isAlive(lplr, true) or not ArmorMods.Enabled)
+					if not ArmorMods.Enabled then 
+						return 
+					end
+					for i,v in next, lplr.Character:GetChildren() do 
+						if v:GetAttribute('ArmorSlot') then 
+							armorFunction()
+							table.insert(armorobjects, v)
+						end
+					end
+					table.insert(ArmorMods.Connections, lplr.Character.ChildAdded:Connect(function(instance)
+						if instance:GetAttribute('ArmorSlot') then 
+							armorFunction()
+							table.insert(armorobjects, instance)
+						end
+					end))
+					table.insert(ArmorMods.Connections, lplr.CharacterAdded:Connect(function()
+						for i = 1, 2 do 
+							ArmorMods.ToggleButton()
+						end
+					end))
+				end)
+			else
+				for i,v in next, armorhighlights do 
+					pcall(function() v:Destroy() end)
+				end
+				for i,v in next, oldtextures do 
+					pcall(function() i.Handle.TextureID = v end)
+				end
+				table.clear(oldtextures)
+				table.clear(armorobjects)
+				table.clear(armorhighlights)
+			end
+		end
+	})
+	ArmorModsColor = ArmorMods.CreateColorSlider({
+		Name = 'Color',
+		Function = armorFunction
+	})
+	ArmorModsMaterial = ArmorMods.CreateDropdown({
+		Name = 'Material',
+		List = GetEnumItems('Material'),
+		Function = armorFunction
+	})
+	ArmorHighlightTrans = ArmorMods.CreateSlider({
+		Name = 'Visibility',
+		Min = 0,
+		Max = 100,
+		Default = 100,
+		Function = armorFunction
+	})
+	ArmorModsRender = ArmorMods.CreateDropdown({
+		Name = 'Render Mode',
+		List = {'Part', 'Highlight'},
+		Function = function(mode)
+			pcall(function() ArmorHighlightTrans.Object.Visible = (mode == 'Highlight') end)
+			for i = 1, 2 do 
+				ArmorMods.ToggleButton()
+			end
+		end
+	})
+	local Credits
+	Credits = ArmorMods.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+task.spawn(function()
+	local old = bedwars.EntityHighlightController.highlight
+	bedwars.EntityHighlightController.highlight = function(...)
+		if isEnabled('ArmorMods') or isEnabled('CharacterOutline') then 
+			return 
+		end
+		return old(...)
+	end
+end)
+
+local getTweenSpeed = function() return 0.49 end
+getTweenSpeed = function(part)
+	if not isAlive(lplr, true) then 
+		return 0.49 
+	end
+	local localpos = (isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position or Vector3.zero) 
+	return ((part.Position - localpos).Magnitude / 690) + 0.001
+end
+run(function()
+	------ DEV NOTE: THIS MODULE WILL MAKE THE USER NEED TO PRESS THE RESTART/UNINJECT BUTTON TWICE
+	local AutoRewind = {}
+	local AutoRewindMode = {Value = 'Position'}
+	local deathtween
+	local deathposition 
+	local caldelay = tick()
+	AutoRewind = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'AutoRewind',
+		HoverText = 'Automatically teleports you to\nthe position you died whenever you respawn.',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					table.insert(AutoRewind.Connections, lplr.CharacterAdded:Connect(function()
+						local speed, position = (getTweenSpeed({Position = deathposition}) + 0.3), deathposition
+						repeat task.wait() until isAlive(lplr, true) 
+						task.wait(0.15)
+						if tweenInProgress() or not position then return end
+						if AutoRewindMode.Value == 'Target' then 
+							local target = GetTarget()
+							if target.RootPart then 
+								speed, position = getTweenSpeed(target.RootPart), target.RootPart.Position
+							end
+						end
+						deathtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(speed + 0.5 % 0.4, Enum.EasingStyle.Linear), {CFrame = CFrame.new(position)}) 
+						deathtween:Play()
+						deathtween.Completed:Wait()
+						deathtween = nil
+					end))
+					table.insert(AutoRewind.Connections, runService.Heartbeat:Connect(function()
+						if caldelay > tick() then 
+							return 
+						end
+						if isAlive() and store.matchState ~= 0 and not deathtween then 
+							local block = (gethighestblock(lplr.Character.HumanoidRootPart.Position, true) or playerRaycasted() or {}).Instance
+							if block then 
+								deathposition = (block.Position + Vector3.new(0, 5, 0))
+							end 
+							caldelay = (tick() + 0.5)
+						end
+					end))
+				end)
+			else
+				deathtween:Cancel()
+				deathtween = nil
+			end
+		end
+	})
+	AutoRewindMode = AutoRewind.CreateDropdown({
+		Name = 'Rewind Mode',
+		List = {'Position', 'Target'},
+		Function = function() end
+	})
+	local Credits
+	Credits = AutoRewind.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+run(function()
+	local KillFeedHider = {}
+	KillFeedHider = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'KillFeedHider',
+		HoverText = 'Hides the kill feed frames.',
+		Function = function(calling)
+			if calling then 
+				local killfeedgui = lplr.PlayerGui:WaitForChild('KillFeedGui')
+				if not KillFeedHider.Enabled then 
+					return 
+				end
+				for i,v in next, killfeedgui:GetChildren() do 
+					pcall(function() v.Visible = false end) 
+				end
+				table.insert(KillFeedHider.Connections, killfeedgui.ChildAdded:Connect(function(gui)
+					pcall(function() gui.Visible = false end) 
+				end))
+			end
+		end
+	})
+	local Credits
+	Credits = KillFeedHider.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+run(function()
+	local HotbarMods = {}
+	local HotbarRounding = {}
+	local HotbarHighlight = {}
+	local HotbarColorToggle = {}
+	local HotbarHideSlotIcons = {}
+	local HotbarSlotNumberColorToggle = {}
+	local HotbarRoundRadius = {Value = 8}
+	local HotbarColor = {Hue = 0, Sat = 0, Value = 0}
+	local HotbarHighlightColor = {Hue = 0, Sat = 0, Value = 0}
+	local HotbarSlotNumberColor = {Hue = 0, Sat = 0, Value = 0}
+	local hotbarsloticons = {}
+	local hotbarobjects = {}
+	local hotbarcoloricons = {}
+	local HotbarModsGradient = {}
+	local hotbarslotgradients = {}
+	local HotbarModsGradientColor = {Hue = 0, Sat = 0, Value = 0}
+	local HotbarModsGradientColor2 = {Hue = 0, Sat = 0, Value = 0}
+	local function hotbarFunction()
+		local inventoryicons = ({pcall(function() return lplr.PlayerGui.hotbar['1'].ItemsHotbar end)})[2]
+		if inventoryicons and type(inventoryicons) == 'userdata' then
+			for i,v in next, inventoryicons:GetChildren() do 
+				local sloticon = ({pcall(function() return v:FindFirstChildWhichIsA('ImageButton'):FindFirstChildWhichIsA('TextLabel') end)})[2]
+				if type(sloticon) ~= 'userdata' then 
+					continue
+				end
+				if HotbarColorToggle.Enabled and not HotbarModsGradient.Enabled then 
+					sloticon.Parent.BackgroundColor3 = Color3.fromHSV(HotbarColor.Hue, HotbarColor.Sat, HotbarColor.Value)
+					table.insert(hotbarcoloricons, sloticon.Parent) 
+				end
+				if HotbarModsGradient.Enabled then 
+					sloticon.Parent.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					if sloticon.Parent:FindFirstChildWhichIsA('UIGradient') == nil then 
+						local gradient = Instance.new('UIGradient') 
+						local color = Color3.fromHSV(HotbarModsGradientColor.Hue, HotbarModsGradientColor.Sat, HotbarModsGradientColor.Value)
+						local color2 = Color3.fromHSV(HotbarModsGradientColor2.Hue, HotbarModsGradientColor2.Sat, HotbarModsGradientColor2.Value)
+						gradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, color), ColorSequenceKeypoint.new(1, color2)})
+						gradient.Parent = sloticon.Parent
+						table.insert(hotbarslotgradients, gradient)
+						table.insert(hotbarcoloricons, sloticon.Parent) 
+					end
+				end
+				if HotbarRounding.Enabled then 
+					local uicorner = Instance.new('UICorner')
+					uicorner.Parent = sloticon.Parent
+					uicorner.CornerRadius = UDim.new(0, HotbarRoundRadius.Value)
+					table.insert(hotbarobjects, uicorner)
+				end
+				if HotbarHighlight.Enabled then
+					local highlight = Instance.new('UIStroke')
+					highlight.Color = Color3.fromHSV(HotbarHighlightColor.Hue, HotbarHighlightColor.Sat, HotbarHighlightColor.Value)
+					highlight.Thickness = 1.3 
+					highlight.Parent = sloticon.Parent
+					table.insert(hotbarobjects, highlight)
+				end
+				if HotbarHideSlotIcons.Enabled then 
+					sloticon.Visible = false 
+				end
+				table.insert(hotbarsloticons, sloticon)
+			end 
+		end
+	end
+	HotbarMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'HotbarMods',
+		HoverText = 'Add customization to your hotbar.',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					table.insert(HotbarMods.Connections, lplr.PlayerGui.DescendantAdded:Connect(function(v)
+						if v.Name == 'hotbar' then
+							hotbarFunction()
+						end
+					end))
+					hotbarFunction()
+				end)
+			else
+				for i,v in hotbarsloticons do 
+					pcall(function() v.Visible = true end)
+				end
+				for i,v in hotbarcoloricons do 
+					pcall(function() v.BackgroundColor3 = Color3.fromRGB(29, 36, 46) end)
+				end
+				for i,v in hotbarobjects do
+					pcall(function() v:Destroy() end)
+				end
+				for i,v in next, hotbarslotgradients do 
+					pcall(function() v:Destroy() end)
+				end
+				table.clear(hotbarobjects)
+				table.clear(hotbarsloticons)
+				table.clear(hotbarcoloricons)
+			end
+		end
+	})
+	HotbarColorToggle = HotbarMods.CreateToggle({
+		Name = 'Slot Color',
+		Function = function(calling)
+			pcall(function() HotbarColor.Object.Visible = calling end)
+			pcall(function() HotbarColorToggle.Object.Visible = calling end)
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarModsGradient = HotbarMods.CreateToggle({
+		Name = 'Gradient Slot Color',
+		Function = function(calling)
+			pcall(function() HotbarModsGradientColor.Object.Visible = calling end)
+			pcall(function() HotbarModsGradientColor2.Object.Visible = calling end)
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarModsGradientColor = HotbarMods.CreateColorSlider({
+		Name = 'Gradient Color',
+		Function = function(h, s, v)
+			for i,v in next, hotbarslotgradients do 
+				pcall(function() v.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(HotbarModsGradientColor.Hue, HotbarModsGradientColor.Sat, HotbarModsGradientColor.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(HotbarModsGradientColor2.Hue, HotbarModsGradientColor2.Sat, HotbarModsGradientColor2.Value))}) end)
+			end
+		end
+	})
+	HotbarModsGradientColor2 = HotbarMods.CreateColorSlider({
+		Name = 'Gradient Color 2',
+		Function = function(h, s, v)
+			for i,v in next, hotbarslotgradients do 
+				pcall(function() v.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(HotbarModsGradientColor.Hue, HotbarModsGradientColor.Sat, HotbarModsGradientColor.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(HotbarModsGradientColor2.Hue, HotbarModsGradientColor2.Sat, HotbarModsGradientColor2.Value))}) end)
+			end
+		end
+	})
+	HotbarColor = HotbarMods.CreateColorSlider({
+		Name = 'Slot Color',
+		Function = function(h, s, v)
+			for i,v in next, hotbarcoloricons do
+				if HotbarColorToggle.Enabled then
+					pcall(function() v.BackgroundColor3 = Color3.fromHSV(HotbarColor.Hue, HotbarColor.Sat, HotbarColor.Value) end) -- for some reason the 'h, s, v' didn't work :(
+				end
+			end
+		end
+	})
+	HotbarRounding = HotbarMods.CreateToggle({
+		Name = 'Rounding',
+		Function = function(calling)
+			pcall(function() HotbarRoundRadius.Object.Visible = calling end)
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarRoundRadius = HotbarMods.CreateSlider({
+		Name = 'Corner Radius',
+		Min = 1,
+		Max = 20,
+		Function = function(calling)
+			for i,v in next, hotbarobjects do 
+				pcall(function() v.CornerRadius = UDim.new(0, calling) end)
+			end
+		end
+	})
+	HotbarHighlight = HotbarMods.CreateToggle({
+		Name = 'Outline Highlight',
+		Function = function(calling)
+			pcall(function() HotbarHighlightColor.Object.Visible = calling end)
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarHighlightColor = HotbarMods.CreateColorSlider({
+		Name = 'Highlight Color',
+		Function = function(h, s, v)
+			for i,v in next, hotbarobjects do 
+				if v:IsA('UIStroke') and HotbarHighlight.Enabled then 
+					pcall(function() v.Color = Color3.fromHSV(HotbarHighlightColor.Hue, HotbarHighlightColor.Sat, HotbarHighlightColor.Value) end)
+				end
+			end
+		end
+	})
+	HotbarHideSlotIcons = HotbarMods.CreateToggle({
+		Name = 'No Slot Numbers',
+		Function = function()
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarColor.Object.Visible = false
+	HotbarRoundRadius.Object.Visible = false
+	HotbarHighlightColor.Object.Visible = false
+	local Credits
+	Credits = HotbarMods.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
     })
 end)
