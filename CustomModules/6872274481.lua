@@ -3753,7 +3753,7 @@ run(function()
 		Function = function(callback)
 			if callback then
 				--context issues moment
-				pcall(function()
+				--[[pcall(function()
 					killaurarangecirclepart = Instance.new("MeshPart")
 					killaurarangecirclepart.MeshId = "rbxassetid://3726303797"
 					killaurarangecirclepart.Color = Color3.fromHSV(killauracolor["Hue"], killauracolor["Sat"], killauracolor.Value)
@@ -3765,7 +3765,8 @@ run(function()
 						killaurarangecirclepart.Parent = gameCamera
 					end
 					bedwars.QueryUtil:setQueryIgnored(killaurarangecirclepart, true)
-				end)
+				end)--]]
+				warningNotification("KillAuraRangeVisualiser", "Due to it being buggy this is disabled", 5)
 			else
 				if killaurarangecirclepart then
 					killaurarangecirclepart:Destroy()
