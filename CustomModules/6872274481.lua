@@ -13566,7 +13566,7 @@ run(function()
 						
 						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
 					end
-					until not InstantEmeraldArmour.Enabled
+					until (not InstantEmeraldArmour.Enabled)
 				end)
 			end
 		end
