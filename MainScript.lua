@@ -2060,9 +2060,9 @@ local function loadVape()
 		shared.VapeOpenGui = nil
 	end
 
-	if shared.GuiLibrary.ObjectsThatCanBeSaved["Changes DetectorToggle"].Enabled then else
+	--[[if shared.GuiLibrary.ObjectsThatCanBeSaved["Changes DetectorToggle"].Enabled then else
 		shared.GuiLibrary.ObjectsThatCanBeSaved["Changes DetectorToggle"].Api.ToggleButton(true)
-   end
+   end--]]
 
 	if ChangesDetectorToggle.Enabled then
 		task.spawn(function()
