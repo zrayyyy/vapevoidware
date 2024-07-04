@@ -13472,3 +13472,74 @@ run(function()
         Credits = 'Cat V5 (qwertyui)'
     })
 end)
+
+run(function()
+    local enchantexploit = {};
+	local enchantnum = 0
+	local et = 0
+    local effects = {
+        'fire_3', 'forest_3', 'void_3', 'static_3', 'updraft_2', 
+        'shield_gen_3', 'anti_knockback_2', 'rapid_regen_3', 'execute_3', 
+        'wind_3', 'plunder_2', 'critical_strike_3', 'volley_3', 
+        'grounded_3', 'clingy_3', 'life_steal_3', 'fortune_1'
+    };
+	local function addEnchants()
+		for i,v in effects do 
+			bedwars.Client:Get('RequestFortuneDoubleDown').instance:FireServer({statusEffectType = v});
+			et = 0
+		end
+	end
+    enchantexploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+        Name = 'EnchantExploit',
+        HoverText = 'Gives you most enchants.',
+        Function = function(calling)
+            if calling then 
+				et = 0
+				RunLoops:BindToStepped("enchant",function()
+					et = et + 1
+					if et == 45 then
+						task.delay(1,addEnchants())
+						et = 0
+					end
+				end)
+			else
+				RunLoops:UnbindFromStepped("enchant")
+            end
+        end
+    })
+	local Credits
+	Credits = enchantexploit.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Cat V5 (qwertyui)'
+    })
+end)
+
+run(function()
+	local MelodyExploit = {Enabled = false}
+
+	MelodyExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({ -- how does this work? idk honestly
+		Name = "MelodyExploit",
+		Function = function(callback)
+			if callback then
+				RunLoops:BindToHeartbeat("melody",function()
+					if getItem("guitar") then
+						if lplr.Character.Humanoid.Health < lplr.Character.Humanoid.MaxHealth then
+							bedwars.Client:Get(bedwars.GuitarHealRemote):SendToServer({healTarget = lplr})
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("StopPlayingGuitar"):FireServer()
+						else
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("StopPlayingGuitar"):FireServer()
+						end
+					end
+				end)
+			else
+				RunLoops:UnbindFromHeartbeat("melody")
+			end
+		end
+	})
+
+	local Credits
+	Credits = MelodyExploit.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Cat V5 (qwertyui)'
+    })
+end)
