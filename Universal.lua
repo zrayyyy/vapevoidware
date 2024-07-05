@@ -8248,7 +8248,7 @@ run(function()
 end)
 run(function()
 	local RestartVoidware = {}
-	RestartVoidware = GuiLibrary.ObjectsThatCanBeSaved.MobileSupportWindow.Api.CreateOptionsButton({
+	RestartVoidware = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'RestartVoidware',
 		Function = function(calling)
 			if calling then 
