@@ -8262,13 +8262,32 @@ end)
 run(function()
 	local InstallNewProfiles = {}
 	InstallNewProfiles = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = 'InstallNewProfiles',
+		Name = 'ReinstallProfiles',
 		Function = function(calling)
 			if calling then 
 				InstallNewProfiles["ToggleButton"](false) 
 				wait(0.1)
 				delfile('vape/Libraries/profilesinstalled.ren')
 				GuiLibrary.Restart()
+			end
+		end
+	})
+end)
+run(function()
+	local ReinstallVoidware = {}
+	ReinstallVoidware = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'ReinstallVoidware',
+		Function = function(calling)
+			if calling then 
+				GuiLibrary.SelfDestruct()
+				if isfile('vape/Libraries/ModulesData.txt') then
+					writefile('ModulesData.txt', readfile('vape/Libraries/ModulesData.txt'))
+				end
+				delfolder('vape')
+				makefolder('vape')
+				makefolder('vape/Libraries')
+				writefile('vape/Libraries/ModulesData.txt', readfile('ModulesData.txt'))
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/main/NewMainScript.lua", true))()
 			end
 		end
 	})
