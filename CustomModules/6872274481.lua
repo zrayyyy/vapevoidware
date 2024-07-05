@@ -1851,6 +1851,18 @@ do
 	textlabel.Parent = GuiLibrary.MainGui.ScaledGui.ClickGui
 end
 
+--[[if store.matchState == 0 and shared.GuiLibrary.ObjectsThatCanBeSaved["AntiCrash modeToggle"].Api.Enabled then
+	if shared.GuiLibrary.ObjectsThatCanBeSaved["AntiCrash modeToggle"].Api.Enabled then
+		warningNotification("VoidwareAntiCrash", "Waiting for the game to load...", 5)
+		repeat task.wait() until store.matchState ~= 0
+	else
+		wait(1)
+	end
+	warningNotification("VoidwareAntiCrash", "Game Loaded. Loading Voidware now...", 3)
+else
+	--repeat task.wait() until game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+end--]]
+
 if store.matchState == 0 then
 	warningNotification("VoidwareAntiCrash", "Waiting for the game to load...", 5)
 	repeat task.wait() until store.matchState ~= 0
@@ -2266,7 +2278,7 @@ run(function()
 			if getRole(plr) >= 100 then
 				if AutoLeaveStaff.Enabled then
 					if #bedwars.ClientStoreHandler:getState().Party.members > 0 then
-						bedwars.QueueController.leaveParty()
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("leaveParty"):FireServer()
 					end
 					if AutoLeaveStaff2.Enabled then
 						warningNotification("Vape", "Staff Detected : "..(plr.DisplayName and plr.DisplayName.." ("..plr.Name..")" or plr.Name).." : Play legit like nothing happened to have the highest chance of not getting banned.", 60)
@@ -2330,9 +2342,19 @@ run(function()
 										for i,v in pairs(bedwars.QueueMeta) do
 											if not v.disabled and not v.voiceChatOnly and not v.rankCategory then table.insert(listofmodes, i) end
 										end
-										bedwars.QueueController:joinQueue(listofmodes[math.random(1, #listofmodes)])
+										local args = {
+											[1] = {
+												["queueType"] = listofmodes[math.random(1, #listofmodes)]
+											}
+										}
+										game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("joinQueue"):FireServer(unpack(args))
 									else
-										bedwars.QueueController:joinQueue(store.queueType)
+										local args = {
+											[1] = {
+												["queueType"] = store.queueType
+											}
+										}
+										game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("joinQueue"):FireServer(unpack(args))
 									end
 								end
 							end
@@ -2351,12 +2373,23 @@ run(function()
 							if bedwars.ClientStoreHandler:getState().Party.queueState == 0 then
 								if AutoLeaveRandom.Enabled then
 									local listofmodes = {}
-									for i,v in pairs(bedwars.QueueMeta) do
-										if not v.disabled and not v.voiceChatOnly and not v.rankCategory then table.insert(listofmodes, i) end
+										for i,v in pairs(bedwars.QueueMeta) do
+											if not v.disabled and not v.voiceChatOnly and not v.rankCategory then table.insert(listofmodes, i) end
+										end
+										local args = {
+											[1] = {
+												["queueType"] = listofmodes[math.random(1, #listofmodes)]
+											}
+										}
+										game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("joinQueue"):FireServer(unpack(args))
+									else
+										local args = {
+											[1] = {
+												["queueType"] = store.queueType
+											}
+										}
+										game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("joinQueue"):FireServer(unpack(args))
 									end
-									bedwars.QueueController:joinQueue(listofmodes[math.random(1, #listofmodes)])
-								else
-									bedwars.QueueController:joinQueue(store.queueType)
 								end
 							end
 						end
@@ -11843,9 +11876,18 @@ run(function()
 			if calling then 
 				for i,v in next, bedwars.QueueMeta do 
 					if v.title == queuetojoin.Value then 
-						replicatedStorageService['events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events'].leaveQueue:FireServer()
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("leaveQueue"):FireServer()
 						task.wait(0.1)
-						bedwars.LobbyClientEvents:joinQueue(i) 
+						local args = {
+							[1] = {
+								["queueType"] = i
+							}
+						}
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("joinQueue"):FireServer(unpack(args))
+						local listofmodes = {}
+						for i,v in pairs(bedwars.QueueMeta) do
+						if not v.disabled and not v.voiceChatOnly and not v.rankCategory then table.insert(listofmodes, i) end
+						end
 						break
 					end
 				end
@@ -13480,7 +13522,7 @@ run(function()
     })
 end)
 
---[[run(function()
+run(function()
     local enchantexploit = {};
 	local enchantnum = 0
 	local et = 0
@@ -13519,7 +13561,7 @@ end)
         Name = 'CreditsButtonInstance',
         Credits = 'Cat V5 (qwertyui)'
     })
-end)--]]
+end)
 
 run(function()
 	local MelodyExploit = {Enabled = false}
@@ -13551,7 +13593,7 @@ run(function()
         Credits = 'Cat V5 (qwertyui)'
     })
 end)
---[[run(function()
+run(function()
 	local InstantEmeraldArmour = {}
 	InstantEmeraldArmour = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'InstantEmeraldArmour',
@@ -13579,7 +13621,7 @@ end)
         Name = 'CreditsButtonInstance',
         Credits = 'floppa'
     })
-end)--]]
+end)
 
 local function getItemDrop(drop)
 	if not isAlive(lplr, true) and not RenderStore.LocalPosition then 
