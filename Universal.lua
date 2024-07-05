@@ -8273,6 +8273,17 @@ run(function()
 		end
 	})
 end)
+shared.ReinstallVoidware = function()
+	shared.GuiLibrary.SelfDestruct()
+	if isfile('vape/Libraries/ModulesData.txt') then
+		writefile('ModulesData.txt', readfile('vape/Libraries/ModulesData.txt'))
+	end
+	delfolder('vape')
+	makefolder('vape')
+	makefolder('vape/Libraries')
+	writefile('vape/Libraries/ModulesData.txt', readfile('ModulesData.txt'))
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/main/NewMainScript.lua", true))()
+end
 run(function()
 	local ReinstallVoidware = {}
 	ReinstallVoidware = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
