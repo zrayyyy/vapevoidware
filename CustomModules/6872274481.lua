@@ -9920,10 +9920,11 @@ run(function()
 	local PlayerLevelSet = {}
 	local PlayerLevel = {Value = 100}
 	PlayerLevelSet = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-		Name = 'PlayerLevelSet',
+		Name = 'SetPlayerLevel',
 		HoverText = 'Sets your player level to 100 (client sided)',
 		Function = function(calling)
 			if calling then 
+				warningNotification("SetPlayerLevel", "This is client sided (only u will see the new level)", 3)
 				game.Players.LocalPlayer:SetAttribute("PlayerLevel", PlayerLevel.Value)
 			end
 		end
