@@ -490,59 +490,82 @@ run(function()
 	})
 end)
 
-run(function() 
-	local JoinQueue = {}
-	local queuetojoin = {Value = ''}
-	local function dumpmeta()
-		local queuemeta = {}
-		for i,v in next, bedwars.QueueMeta do 
-			if v.title ~= 'Sandbox' and not v.disabled then 
-				table.insert(queuemeta, v.title) 
-			end 
-		end 
-		return queuemeta
+local function findfrom(name)
+	for i,v in pairs(bedwars["QueueMeta"]) do 
+		if v.title == name and i:find("voice") == nil then
+			return i
+		end
 	end
-	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
-		Name = 'JoinQueue',
-		NoSave = true,
-		HoverText = 'Starts a match for the provided gamemode.',
-		Function = function(calling)
-			if calling then 
-				for i,v in next, bedwars.QueueMeta do 
-					if v.title == queuetojoin.Value then 
-						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("leaveQueue"):FireServer()
-						task.wait(0.1)
-						local args = {
-							[1] = {
-								["queueType"] = i
-							}
-						}
-						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("joinQueue"):FireServer(unpack(args))
-						local listofmodes = {}
-						for i,v in pairs(bedwars.QueueMeta) do
-						if not v.disabled and not v.voiceChatOnly and not v.rankCategory then table.insert(listofmodes, i) end
-						end
-						break
+	return "bedwars_to1"
+end
+
+local QueueTypes = {}
+for i,v in pairs(bedwars["QueueMeta"]) do 
+	if v.title:find("Test") == nil then
+		table.insert(QueueTypes, v.title..(i:find("voice") and " (VOICE)" or "")) 
+	end
+end
+local JoinQueue = {["Enabled"] = false}
+local JoinQueueTypes = {["Value"] = ""}
+local JoinQueueDelay = {["Value"] = 1}
+local firstqueue = true
+JoinQueue = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
+	["Name"] = "AutoQueue",
+	["Function"] = function(callback)
+		if callback then
+			spawn(function()
+				repeat
+					task.wait(JoinQueueDelay["Value"])
+					firstqueue = false
+					if shared.vapeteammembers and bedwars["ClientStoreHandler"]:getState().Party then
+						repeat task.wait() until #bedwars["ClientStoreHandler"]:getState().Party.members >= shared.vapeteammembers or JoinQueue["Enabled"] == false
 					end
-				end
-				JoinQueue.ToggleButton()
+					if JoinQueue["Enabled"] and JoinQueueTypes["Value"] ~= "" then
+						if bedwars["ClientStoreHandler"]:getState().Party.queueState > 0 then
+							bedwars["LobbyClientEvents"]:leaveQueue()
+						end
+						if bedwars["ClientStoreHandler"]:getState().Party.leader.userId == lplr.UserId and bedwars["LobbyClientEvents"]:joinQueue(findfrom(JoinQueueTypes["Value"])) then
+							bedwars["LobbyClientEvents"]:leaveQueue()
+						end
+						repeat task.wait() until bedwars["ClientStoreHandler"]:getState().Party.queueState == 3 or JoinQueue["Enabled"] == false
+						for i = 1, 10 do
+							if JoinQueue["Enabled"] == false then
+								break
+							end
+							task.wait(1)
+						end
+						if bedwars["ClientStoreHandler"]:getState().Party.queueState > 0 then
+							bedwars["LobbyClientEvents"]:leaveQueue()
+						end
+					end
+				until JoinQueue["Enabled"] == false
+			end)
+		else
+			firstqueue = false
+			shared.vapeteammembers = nil
+			if bedwars["ClientStoreHandler"]:getState().Party.queueState > 0 then
+				bedwars["LobbyClientEvents"]:leaveQueue()
 			end
 		end
-	})
-	queuetojoin = JoinQueue.CreateDropdown({
-		Name = 'QueueType',
-		List = dumpmeta(),
-		Function = function() end
-	})
-	task.spawn(function()
-		repeat task.wait() until shared.VapeFullyLoaded 
-		for i,v in next, bedwars.QueueMeta do 
-			if i == store.queueType then 
-				queuetojoin.SetValue(v.title) 
-			end
+	end
+})
+JoinQueueTypes = JoinQueue.CreateDropdown({
+	["Name"] = "Mode",
+	["List"] = QueueTypes,
+	["Function"] = function(val) 
+		if JoinQueue["Enabled"] and firstqueue == false then
+			JoinQueue["ToggleButton"](false)
+			JoinQueue["ToggleButton"](true)
 		end
-	end)
-end)
+	end
+})
+JoinQueueDelay = JoinQueue.CreateSlider({
+	["Name"] = "Delay",
+	["Min"] = 1,
+	["Max"] = 10,
+	["Function"] = function(val) end,
+	["Default"] = 1
+})
 
 run(function()
 	local AutoKitTextList = {["ObjectList"] = {}, ["RefreshValues"] = function() end}
