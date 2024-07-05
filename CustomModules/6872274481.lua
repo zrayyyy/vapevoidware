@@ -3753,7 +3753,7 @@ run(function()
 		Function = function(callback)
 			if callback then
 				--context issues moment
-				pcall(function()
+				--[[pcall(function()
 					killaurarangecirclepart = Instance.new("MeshPart")
 					killaurarangecirclepart.MeshId = "rbxassetid://3726303797"
 					killaurarangecirclepart.Color = Color3.fromHSV(killauracolor["Hue"], killauracolor["Sat"], killauracolor.Value)
@@ -3766,7 +3766,7 @@ run(function()
 					end
 					bedwars.QueryUtil:setQueryIgnored(killaurarangecirclepart, true)
 				end)
-				warningNotification("KillAuraRangeVisualiser", "It might be buggy so turn it off if it doesnt properly work", 5)
+				warningNotification("KillAuraRangeVisualiser", "It might be buggy so turn it off if it doesnt properly work", 5)--]]
 			else
 				if killaurarangecirclepart then
 					killaurarangecirclepart:Destroy()
@@ -11843,9 +11843,18 @@ run(function()
 			if calling then 
 				for i,v in next, bedwars.QueueMeta do 
 					if v.title == queuetojoin.Value then 
-						replicatedStorageService['events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events'].leaveQueue:FireServer()
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("leaveQueue"):FireServer()
 						task.wait(0.1)
-						bedwars.LobbyClientEvents:joinQueue(i) 
+						local args = {
+							[1] = {
+								["queueType"] = i
+							}
+						}
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("joinQueue"):FireServer(unpack(args))
+						local listofmodes = {}
+						for i,v in pairs(bedwars.QueueMeta) do
+						if not v.disabled and not v.voiceChatOnly and not v.rankCategory then table.insert(listofmodes, i) end
+						end
 						break
 					end
 				end
