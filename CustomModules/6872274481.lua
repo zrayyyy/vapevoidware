@@ -149,6 +149,8 @@ sendmessage = function(text)
 	end
 end
 
+local newcolor = function() return {Hue = 0, Sat = 0, Value = 0} end
+
 void = {}
 
 void.round = function(x : Number)
@@ -13478,7 +13480,7 @@ run(function()
     })
 end)
 
-run(function()
+--[[run(function()
     local enchantexploit = {};
 	local enchantnum = 0
 	local et = 0
@@ -13517,7 +13519,7 @@ run(function()
         Name = 'CreditsButtonInstance',
         Credits = 'Cat V5 (qwertyui)'
     })
-end)
+end)--]]
 
 run(function()
 	local MelodyExploit = {Enabled = false}
@@ -13526,6 +13528,7 @@ run(function()
 		Name = "MelodyExploit",
 		Function = function(callback)
 			if callback then
+				warningNotification("MelodyExploit", "Requires a guitar! Recommended lucky blocks or melody kit", 3)
 				RunLoops:BindToHeartbeat("melody",function()
 					if getItem("guitar") then
 						if lplr.Character.Humanoid.Health < lplr.Character.Humanoid.MaxHealth then
@@ -13548,7 +13551,7 @@ run(function()
         Credits = 'Cat V5 (qwertyui)'
     })
 end)
-run(function()
+--[[run(function()
 	local InstantEmeraldArmour = {}
 	InstantEmeraldArmour = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'InstantEmeraldArmour',
@@ -13576,7 +13579,7 @@ run(function()
         Name = 'CreditsButtonInstance',
         Credits = 'floppa'
     })
-end)
+end)--]]
 
 local function getItemDrop(drop)
 	if not isAlive(lplr, true) and not RenderStore.LocalPosition then 
