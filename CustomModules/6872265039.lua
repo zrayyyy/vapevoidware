@@ -7,6 +7,7 @@ local GuiLibrary = shared.GuiLibrary
 local players = game:GetService("Players")
 local textservice = game:GetService("TextService")
 local repstorage = game:GetService("ReplicatedStorage")
+local replicatedStorage = repstorage
 local lplr = players.LocalPlayer
 local workspace = game:GetService("Workspace")
 local lighting = game:GetService("Lighting")
@@ -147,10 +148,6 @@ do
 	end
 end
 
-local function runFunction(func)
-	func()
-end
-
 local function betterfind(tab, obj)
 	for i,v in pairs(tab) do
 		if v == obj or type(v) == "table" and v.hash == obj then
@@ -215,7 +212,7 @@ local function createwarning(title, text, delay)
 	return (suc and res)
 end
 
-runFunction(function()
+run(function()
     local flaggedremotes = {"SelfReport"}
 
     getfunctions = function()
@@ -357,17 +354,27 @@ task.spawn(function()
 	players.PlayerAdded:Connect(renderNametag)
 end)
 
-GuiLibrary["RemoveObject"]("SilentAimOptionsButton")
-GuiLibrary["RemoveObject"]("AutoClickerOptionsButton")
-GuiLibrary["RemoveObject"]("MouseTPOptionsButton")
-GuiLibrary["RemoveObject"]("ReachOptionsButton")
-GuiLibrary["RemoveObject"]("HitBoxesOptionsButton")
-GuiLibrary["RemoveObject"]("KillauraOptionsButton")
-GuiLibrary["RemoveObject"]("LongJumpOptionsButton")
-GuiLibrary["RemoveObject"]("HighJumpOptionsButton")
-GuiLibrary["RemoveObject"]("SafeWalkOptionsButton")
-GuiLibrary["RemoveObject"]("TriggerBotOptionsButton")
-GuiLibrary["RemoveObject"]("ClientKickDisablerOptionsButton")
+task.spawn(function()
+	for i,v in next, (
+		{
+			'SafeWalkOptionsButton', 
+			'HighJumpOptionsButton',
+			'ClientKickDisablerOptionsButton', 
+			'TriggerBotOptionsButton', 
+			'KillauraOptionsButton', 
+			'HitBoxesOptionsButton', 
+			'LongJumpOptionsButton', 
+			'AutoClickerOptionsButton',
+			--'MouseTPOptionsButton',
+			'ReachOptionsButton',
+			'SilentAimOptionsButton',
+			'SpeedOptionsButton',
+			'FlyOptionsButton'
+		}
+	) do 
+		pcall(GuiLibrary.RemoveObject, v) 
+	end
+end)
 
 local teleportedServers = false
 teleportfunc = lplr.OnTeleport:Connect(function(State)
@@ -396,10 +403,8 @@ Sprint = GuiLibrary["ObjectsThatCanBeSaved"]["CombatWindow"]["Api"].CreateOption
 	end, 
 	["HoverText"] = "Sets your sprinting to true."
 })
-
-GuiLibrary["RemoveObject"]("FlyOptionsButton")
 local flymissile
-runFunction(function()
+run(function()
 	local OldNoFallFunction
 	local flyspeed = {["Value"] = 40}
 	local flyverticalspeed = {["Value"] = 40}
@@ -562,7 +567,7 @@ JoinQueueDelay = JoinQueue.CreateSlider({
 	["Default"] = 1
 })
 
-runFunction(function()
+run(function()
 	local AutoKitTextList = {["ObjectList"] = {}, ["RefreshValues"] = function() end}
 
 	local function betterfindkit()
@@ -643,7 +648,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local CameraFix = {["Enabled"] = false}
 	CameraFix = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptionsButton({
 		["Name"] = "CameraFix",
@@ -666,8 +671,7 @@ local AnticheatBypass = {["Enabled"] = false}
 local Scaffold = {["Enabled"] = false}
 local longjump = {["Enabled"] = false}
 local flyvelo
-GuiLibrary["RemoveObject"]("SpeedOptionsButton")
-runFunction(function()
+run(function()
 	local speedmode = {["Value"] = "Normal"}
 	local speedval = {["Value"] = 1}
 	local speedjump = {["Enabled"] = false}
@@ -810,7 +814,7 @@ runFunction(function()
 	speedjumpalways["Object"].Visible = speedjump["Enabled"]
 end)
 
-runFunction(function()
+run(function()
 	local AnticheatBypassTransparent = {["Enabled"] = false}
 	local AnticheatBypassAlternate = {["Enabled"] = false}
 	local AnticheatBypassNotification = {["Enabled"] = false}
@@ -1307,7 +1311,7 @@ runFunction(function()
 	end
 end)
 
-runFunction(function()
+run(function()
 	local transformed = false
 	local OldBedwars = {["Enabled"] = false}
 	local themeselected = {["Value"] = "OldBedwars"}
@@ -1793,7 +1797,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local tpstring = shared.vapeoverlay or nil
 	local origtpstring = tpstring
 	local Overlay = GuiLibrary.CreateCustomWindow({
@@ -2017,7 +2021,7 @@ task.spawn(function()
 	end)
 end)
 
-runFunction(function()
+run(function()
 	local NoEmoteWheel = {}
 	local emoting
 	NoEmoteWheel = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
@@ -2059,7 +2063,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
+run(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
 	local SetEmote = {}
 	local SetEmoteList = {Value = ''}
 	local oldemote
@@ -2095,17 +2099,51 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 		end
 	})
 end)
-
-runFunction(function()
+local replicatedStorageService = game:GetService("ReplicatedStorage")
+run(function()
 	local Gamble = function()
 		replicatedStorageService["rbxts_include"]["node_modules"]["@rbxts"]["net"]["out"]["_NetManaged"]["RewardCrate/SpawnRewardCrate"]:FireServer({
-			["crateType"] = "level_up_create",
+			["crateType"] = "level_up_crate",
 			["altarId"] = 0
 		})
 		replicatedStorageService["rbxts_include"]["node_modules"]["@rbxts"]["net"]["out"]["_NetManaged"]["RewardCrate/SpawnRewardCrate"]:FireServer({
-			["crateType"] = "level_up_create",
+			["crateType"] = "level_up_crate",
 			["altarId"] = 1
 		})
+		wait(1)
+		local crate1folder = game:GetService("Workspace"):WaitForChild("CrateAltar_1")
+		local crate0folder = game:GetService("Workspace"):WaitForChild("CrateAltar_0")
+
+		local children1 = crate1folder:GetChildren()
+		local children2 = crate0folder:GetChildren()
+
+		function getRandomNumber()
+			local numbers = {1, 2, 3}
+			local index = math.random(1, #numbers)
+			return numbers[index]
+		end
+
+		if #children1 > 0 then
+			local num = getRandomNumber
+			if children1[1]:GetAttribute("owner") == game:GetService("Players").LocalPlayer.UserId then
+				local crateuuid = children1[num]:GetAttribute("crateId")
+				if type(crateuuid) == "string" then else crateuuid = tostring(crateuuid) end
+				replicatedStorageService:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RewardCrate/OpenRewardCrate"):FireServer({
+					["crateId"] = tostring(crateuuid)
+				})
+			end
+		end
+
+		if #children2 > 0 then
+			local num = getRandomNumber
+			if children2[1]:GetAttribute("owner") == game:GetService("Players").LocalPlayer.UserId then
+				local crateuuid = children2[num]:GetAttribute("crateId")
+				if type(crateuuid) == "string" then else crateuuid = tostring(crateuuid) end
+				replicatedStorageService:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RewardCrate/OpenRewardCrate"):FireServer({
+					["crateId"] = tostring(crateuuid)
+				})
+			end
+		end
 	end
 	local AutoGamble = {Enabled = false}
 	AutoGamble = GuiLibrary['ObjectsThatCanBeSaved']['VoidwareWindow']['Api'].CreateOptionsButton({
@@ -2124,7 +2162,7 @@ runFunction(function()
 	})
 end)
 
---[[runFunction(function()
+--[[run(function()
 	local Trolling = {}
 	AutoGamble = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'AutoGamble',
@@ -2187,7 +2225,13 @@ end)
 	})
 end)--]]
 
-runFunction(function() 
+--[[local bedwars = {}
+
+local store = {
+	queueType = "bedwars_test"
+}
+
+run(function() 
 	local JoinQueue = {}
 	local queuetojoin = {Value = ''}
 	local function dumpmeta()
@@ -2230,4 +2274,58 @@ runFunction(function()
 			end
 		end
 	end)
+end)--]]
+
+run(function()
+	local QueueCardMods = {}
+	local QueueCardGradientToggle = {}
+	local QueueCardGradient = {Hue = 0, Sat = 0, Value = 0}
+	local QueueCardGradient2 = {Hue = 0, Sat = 0, Value = 0}
+	local queuemodsgradients = {}
+	local function patchQueueCard()
+		if lplr.PlayerGui:FindFirstChild('QueueApp') then 
+			if lplr.PlayerGui.QueueApp:WaitForChild('1'):IsA('Frame') then 
+				lplr.PlayerGui.QueueApp['1'].BackgroundColor3 = Color3.fromHSV(QueueCardGradient.Hue, QueueCardGradient.Sat, QueueCardGradient.Value)
+			end
+			if QueueCardGradientToggle.Enabled then 
+				lplr.PlayerGui.QueueApp['1'].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				local gradient = (lplr.PlayerGui.QueueApp['1']:FindFirstChildWhichIsA('UIGradient') or Instance.new('UIGradient', lplr.PlayerGui.QueueApp['1']))
+				gradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(QueueCardGradient.Hue, QueueCardGradient.Sat, QueueCardGradient.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(QueueCardGradient2.Hue, QueueCardGradient2.Sat, QueueCardGradient2.Value))})
+				table.insert(queuemodsgradients, gradient)
+			end
+		end
+	end
+	QueueCardMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'QueueCardMods',
+		HoverText = 'Mods the QueueApp at the end of the game.',
+		Function = function(calling) 
+			if calling then 
+				patchQueueCard()
+				table.insert(QueueCardMods.Connections, lplr.PlayerGui.ChildAdded:Connect(patchQueueCard))
+			end
+		end
+	})
+	QueueCardGradientToggle = QueueCardMods.CreateToggle({
+		Name = 'Gradient',
+		Function = function(calling)
+			pcall(function() QueueCardGradient2.Object.Visible = calling end) 
+		end
+	})
+	QueueCardGradient = QueueCardMods.CreateColorSlider({
+		Name = 'Color',
+		Function = function()
+			pcall(patchQueueCard)
+		end
+	})
+	QueueCardGradient2 = QueueCardMods.CreateColorSlider({
+		Name = 'Color 2',
+		Function = function()
+			pcall(patchQueueCard)
+		end
+	})
+
+	Credits = QueueCardMods.CreateCredits({
+		Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+	})
 end)

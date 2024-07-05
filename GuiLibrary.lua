@@ -1,4 +1,5 @@
 if shared.VapeExecuted then
+	local discord_code = "8Z9kxNWd"
 	local VERSION = "4.10"..(shared.VapePrivate and " PRIVATE" or "").." "..readfile("vape/commithash.txt"):sub(1, 6)
 	local baseDirectory = (shared.VapePrivate and "vapeprivate/" or "vape/")
 	local vapeAssetTable = {
@@ -104,13 +105,108 @@ if shared.VapeExecuted then
 	local translations = shared.VapeTranslation or {}
 	local translatedlogo = false
 
-	local Platform = inputService:GetPlatform()
-
-	GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
-		local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
-		for i, v in pairs(GuiLibrary.RainbowSliders) do 
-			v.SetValue(col)
+	local function vapeGithubRequest(scripturl)
+		if not isfile("vape/"..scripturl) then
+			local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+			assert(suc, res)
+			assert(res ~= "404: Not Found", res)
+			if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
+			writefile("vape/"..scripturl, res)
 		end
+		return readfile("vape/"..scripturl)
+	end
+
+	local function warningNotification(title, text, delay)
+		local suc, res = pcall(function()
+			local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
+			frame.Frame.Frame.ImageColor3 = Color3.fromRGB(236, 129, 44)
+			return frame
+		end)
+		return (suc and res)
+	end
+
+	local function errorNotification(title, text, delay)
+		local suc, res = pcall(function()
+			local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
+			frame.Frame.Frame.ImageColor3 = Color3.fromRGB(255, 0, 0)
+			return frame
+		end)
+		return (suc and res)
+	end
+
+	GuiLibrary.ReportBug = function(text, delay)
+		--[[game.GetService(game, 'StarterGui'):SetCore('SendNotification', ({
+			Title = 'VoidwareError', 
+			Text = "Error found! Error Data: "..text, 
+			Icon = 'rbxassetid://17357670040',
+			Duration = 20
+		}))--]]
+		errorNotification("VoidwareBugReport", text, delay or 10)
+	end
+
+	--[[GuiLibrary.CustomWS = function(player, type, text)
+		local WHService = loadstring(vapeGithubRequest("Libraries/WebhookService.lua"))
+		local req = WHService:new()
+		local url = "https://webhook.lewisakura.moe/api/webhooks/1222907015903580180/PXBhTvvgP4sXWnsvYunea5P5ZaDSmZAnPOCJpTw8cU62KL7_k_t4yeTq4DBEgcUOBSoS"
+		if type == 404 then
+			req.Title = "Bug Report"
+			if player == nil then
+				req.Description = "Voidware Auto Bug Report Systems has reported an error"
+			end
+			req.Description = player.DisplayName.."(@"..player.Name..") has reported an error"
+			req.Content = "Error Report"
+			text = tostring(text)
+			req.Fields = {
+				{
+					['name'] = "Bug Report",
+					['value'] = "Error code: "..text,
+					['inline'] = false
+				}
+			}
+		end
+		if type == 1 then
+			req.Title = "Suggestion"
+			req.Description = player.DisplayName.."(@"..player.Name..") has made a suggestion."
+			req.Content = "Suggestion"
+			text = tostring(text)
+			req.Fields = {
+				{
+					['name'] = "Suggestion",
+					['value'] = "Suggestion: "..text,
+					['inline'] = false
+				}
+			}
+		end
+		req.Color = WHService.colors.black
+		req.Thumbnail = "https://webhook.lewisakura.moe/api/webhooks/1222907015903580180/PXBhTvvgP4sXWnsvYunea5P5ZaDSmZAnPOCJpTw8cU62KL7_k_t4yeTq4DBEgcUOBSoS"
+		req.Footer = "Voidware Reporting Systems"
+		req.TimeStamp = DateTime.now():ToIsoDate()
+	
+		req:sendEmbed(url)
+	end--]]
+
+	GuiLibrary.WLReport = function(text, delay)
+		warningNotification("VoidwareWL", text, delay or 10)
+	end
+
+	local Platform = inputService:GetPlatform()
+	task.spawn(function()
+		GuiLibrary.ColorStepped = runService.RenderStepped:Connect(function()
+			local suc, err = pcall(function()
+				local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
+				for i, v in pairs(GuiLibrary.RainbowSliders) do 
+					v.SetValue(col)
+				end
+			end)
+			if err then
+				GuiLibrary.ReportBug("On Error 1")
+			else
+				local col = (tick() * 0.25 * GuiLibrary.RainbowSpeed) % 1 
+				for i, v in pairs(GuiLibrary.RainbowSliders) do 
+					v.SetValue(col)
+				end
+			end
+		end)
 	end)
 
 	local function randomString()
@@ -144,16 +240,6 @@ if shared.VapeExecuted then
 	GuiLibrary["MainGui"] = gui
 
 	local vapeCachedAssets = {}
-	local function vapeGithubRequest(scripturl)
-		if not isfile("vape/"..scripturl) then
-			local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
-			assert(suc, res)
-			assert(res ~= "404: Not Found", res)
-			if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
-			writefile("vape/"..scripturl, res)
-		end
-		return readfile("vape/"..scripturl)
-	end
 	
 	local function downloadVapeAsset(path)
 		if customassetcheck then
@@ -848,10 +934,12 @@ if shared.VapeExecuted then
 	end
 
 	GuiLibrary["RemoveObject"] = function(objname)
-		GuiLibrary.ObjectsThatCanBeSaved[objname]["Object"]:Remove()
-		if GuiLibrary.ObjectsThatCanBeSaved[objname]["Type"] == "OptionsButton" then 
-			GuiLibrary.ObjectsThatCanBeSaved[objname]["ChildrenObject"].Name = "RemovedChildren"
-		end
+		pcall(function()
+			GuiLibrary.ObjectsThatCanBeSaved[objname]["Object"]:Remove()
+			if GuiLibrary.ObjectsThatCanBeSaved[objname]["Type"] == "OptionsButton" then 
+				GuiLibrary.ObjectsThatCanBeSaved[objname]["ChildrenObject"].Name = "RemovedChildren"
+			end
+		end)
 		GuiLibrary.ObjectsThatCanBeSaved[objname] = nil
 	end
 
@@ -956,8 +1044,8 @@ if shared.VapeExecuted then
 						local reqbody = {
 							["nonce"] = game:GetService("HttpService"):GenerateGUID(false),
 							["args"] = {
-								["invite"] = {["code"] = "ct4hgcjS87"},
-								["code"] = "ct4hgcjS87",
+								["invite"] = {["code"] = discord_code},
+								["code"] = discord_code,
 							},
 							["cmd"] = "INVITE_BROWSER"
 						}
@@ -992,7 +1080,7 @@ if shared.VapeExecuted then
 				local hoverround3 = Instance.new("UICorner")
 				hoverround3.CornerRadius = UDim.new(0, 4)
 				hoverround3.Parent = hoverbox3
-				setclipboard("https://discord.gg/ct4hgcjS87")
+				setclipboard("https://discord.gg/"..discord_code)
 				task.wait(1)
 				hoverbox3:Remove()
 			end)
@@ -2782,6 +2870,45 @@ if shared.VapeExecuted then
 			return textGuiLibrary
 		end
 
+		windowapi["CreateCredits"] = function(argstable)
+			local windowGuiLibrary = {}
+			local amount2 = #children2:GetChildren()
+			local frame = Instance.new("Frame")
+			frame.Size = UDim2.new(0, 220, 0, 40)
+			frame.BackgroundTransparency = 1
+			frame.ClipsDescendants = true
+			frame.LayoutOrder = amount2
+			frame.Name = argstable["Name"].." Test"
+			frame.Parent = children2
+		
+			local creditLabel = Instance.new("TextLabel")
+			creditLabel.Font = Enum.Font.SourceSans
+			creditLabel.TextSize = 16
+			creditLabel.Size = UDim2.new(1, 0, 0, 18)
+			creditLabel.Position = UDim2.new(0, 0, 0, -3)
+			creditLabel.BackgroundTransparency = 1
+			creditLabel.TextXAlignment = Enum.TextXAlignment.Left
+			creditLabel.TextYAlignment = Enum.TextYAlignment.Top
+			creditLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+			creditLabel.Text = "   Credits: " .. (argstable["Credits"] or "")
+			creditLabel.Parent = frame
+		
+			windowGuiLibrary["Object"] = frame
+			windowGuiLibrary["SetCredits"] = function(credits)
+				creditLabel.Text = "   Credits: " .. credits
+			end
+
+			GuiLibrary["UpdateHudEvent"]:Fire()
+		
+			GuiLibrary.ObjectsThatCanBeSaved[argstablemain["Name"]..argstable["Name"].."CreditsBox"] = {
+				["Type"] = "CreditsMain",
+				["Api"] = windowGuiLibrary,
+				["Object"] = frame
+			}
+		
+			return windowGuiLibrary
+		end		
+
 		windowapi["CreateCircleWindow"] = function(argstablemain3)
 			local buttonapi = {}
 			local buttonreturned = {}
@@ -3733,7 +3860,7 @@ if shared.VapeExecuted then
 		windowcorner.CornerRadius = UDim.new(0, 4)
 		windowcorner.Parent = windowtitle
 		local uilistlayout = Instance.new("UIListLayout")
-		uilistlayout.SortOrder = Enum.SortOrder.LayoutOrder
+		uilistlayout.SortOrder = Enum.SortOrder.Name
 		uilistlayout.Parent = children
 		uilistlayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 			if children.Visible then
@@ -4183,6 +4310,43 @@ if shared.VapeExecuted then
 				return textGuiLibrary
 			end
 
+			buttonapi["CreateCredits"] = function(argstable)
+				local buttonGuiLibrary = {}
+				local amount = #children2:GetChildren()
+				local frame = Instance.new("Frame")
+				frame.Size = UDim2.new(0, 220, 0, 20)
+				frame.BackgroundTransparency = 1
+				frame.ClipsDescendants = true
+				frame.LayoutOrder = amount
+				frame.Name = argstable["Name"]
+				frame.Parent = children2
+			
+				local creditLabel = Instance.new("TextLabel")
+				creditLabel.Font = Enum.Font.SourceSans
+				creditLabel.TextSize = 16
+				creditLabel.Size = UDim2.new(1, 0, 0, 1)
+				creditLabel.Position = UDim2.new(0, 0, 0.1, 0)
+				creditLabel.BackgroundTransparency = 1
+				creditLabel.TextXAlignment = Enum.TextXAlignment.Left
+				creditLabel.TextYAlignment = Enum.TextYAlignment.Top
+				creditLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+				creditLabel.Text = "   Credits: " .. (argstable["Credits"] or "")
+				creditLabel.Parent = frame
+			
+				buttonGuiLibrary["Object"] = frame
+				buttonGuiLibrary["SetCredits"] = function(credits)
+					creditLabel.Text = "   Credits: " .. credits
+				end
+			
+				GuiLibrary.ObjectsThatCanBeSaved[argstablemain["Name"]..argstable["Name"].."CreditsBox"] = {
+					["Type"] = "CreditsMain",
+					["Api"] = buttonGuiLibrary,
+					["Object"] = frame
+				}
+				
+				return buttonGuiLibrary
+			end
+			
 			buttonapi["CreateTargetWindow"] = function(argstablemain3)
 				local buttonapi = {}
 				local buttonreturned = {}

@@ -90,8 +90,7 @@ local vapeAssetTable = {
 }
 local Platform = inputService:GetPlatform()
 
-if Platform ~= Enum.Platform.Windows then 
-	--mobile exploit fix
+if Platform ~= Enum.Platform.Windows then
 	getgenv().getsynasset = nil
 	getgenv().getcustomasset = nil
 	-- why is this needed
@@ -187,6 +186,9 @@ local function downloadVapeAsset(path)
 	return getcustomasset(path) 
 end
 
+local ProtectedFunctions = loadstring(vapeGithubRequest("Libraries/funything.lua"))()
+shared.ProtectedFunctions = ProtectedFunctions
+
 assert(not shared.VapeExecuted, "Vape Already Injected")
 shared.VapeExecuted = true
 
@@ -278,11 +280,6 @@ task.spawn(function()
 end)
 
 local GUI = GuiLibrary.CreateMainWindow()
-local Voidware = GuiLibrary.CreateWindow({
-	Name = "Voidware", 
-	Icon = "vape/assets/UtilityIcon.png", 
-	IconSize = 17
-})
 local Combat = GuiLibrary.CreateWindow({
 	Name = "Combat", 
 	Icon = "vape/assets/CombatIcon.png", 
@@ -308,8 +305,23 @@ local World = GuiLibrary.CreateWindow({
 	Icon = "vape/assets/WorldIcon.png", 
 	IconSize = 16
 })
+local Voidware = GuiLibrary.CreateWindow({
+	Name = "Voidware", 
+	Icon = "vape/assets/UtilityIcon.png", 
+	IconSize = 17
+})
 local GameScripts = GuiLibrary.CreateWindow({
 	Name = "GameScripts", 
+	Icon = "vape/assets/HoverArrow2.png", 
+	IconSize = 17
+})
+local VoidwareDev = GuiLibrary.CreateWindow({
+	Name = "VoidwareDev", 
+	Icon = "vape/assets/HoverArrow2.png", 
+	IconSize = 17
+})
+local MobileSupport = GuiLibrary.CreateWindow({
+	Name = "MobileSupport", 
 	Icon = "vape/assets/HoverArrow2.png", 
 	IconSize = 17
 })
@@ -329,12 +341,6 @@ local Profiles = GuiLibrary.CreateWindow2({
 	IconSize = 19
 })
 GUI.CreateDivider()
-GUI.CreateButton({
-	Name = "Voidware", 
-	Function = function(callback) Voidware.SetVisible(callback) end, 
-	Icon = "vape/assets/UtilityIcon.png", 
-	IconSize = 17
-})
 GUI.CreateButton({
 	Name = "Combat", 
 	Function = function(callback) Combat.SetVisible(callback) end, 
@@ -365,10 +371,25 @@ GUI.CreateButton({
 	Icon = "vape/assets/WorldIcon.png", 
 	IconSize = 16
 })
+GUI.CreateButton({
+	Name = "Voidware", 
+	Function = function(callback) Voidware.SetVisible(callback) end, 
+	Icon = "vape/assets/UtilityIcon.png", 
+	IconSize = 17
+})
 GUI.CreateDivider("CustomScripts")
 GUI.CreateButton({
 	Name = "GameScripts", 
 	Function = function(callback) GameScripts.SetVisible(callback) end, 
+})
+GUI.CreateDivider("Other")
+GUI.CreateButton({
+	Name = "VoidwareDev", 
+	Function = function(callback) VoidwareDev.SetVisible(callback) end, 
+})
+GUI.CreateButton({
+	Name = "MobileSupport", 
+	Function = function(callback) MobileSupport.SetVisible(callback) end, 
 })
 GUI.CreateDivider("MISC")
 GUI.CreateButton({
@@ -739,13 +760,13 @@ OnlineProfilesButton.MouseButton1Click:Connect(function()
 		local onlineprofiles = {}
 		local saveplaceid = tostring(shared.CustomSaveVape or game.PlaceId)
         local success, result = pcall(function()
-            return game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Erchobg/VapeProfiles/main/Profiles/"..saveplaceid.."/profilelist.txt", true))
+            return game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/7GrandDadPGN/VapeProfiles/main/Profiles/"..saveplaceid.."/profilelist.txt", true))
         end)
 		for i,v in pairs(success and result or {}) do 
 			onlineprofiles[i] = v
 		end
 		for i2,v2 in pairs(onlineprofiles) do
-			local profileurl = "https://raw.githubusercontent.com/Erchobg/VapeProfiles/main/Profiles/"..saveplaceid.."/"..v2.OnlineProfileName
+			local profileurl = "https://raw.githubusercontent.com/7GrandDadPGN/VapeProfiles/main/Profiles/"..saveplaceid.."/"..v2.OnlineProfileName
 			local profilebox = Instance.new("Frame")
 			profilebox.BackgroundColor3 = Color3.fromRGB(31, 30, 31)
 			profilebox.Parent = OnlineProfilesList
@@ -1008,7 +1029,7 @@ local function TextGUIUpdate()
 		VapeTextExtra.Text = formattedText
         VapeText.Size = UDim2.fromOffset(154, (formattedText ~= "" and textService:GetTextSize(formattedText, VapeText.TextSize, VapeText.Font, Vector2.new(1000000, 1000000)) or Vector2.zero).Y)
 
-		local offsets = TextGUIOffsets[Platform] or {
+		local offsets = {
 			5,
 			1,
 			23,
@@ -1593,6 +1614,12 @@ local BlatantModeToggle = GUI.CreateToggle({
 	Function = function() end,
 	HoverText = "Required for certain features."
 })
+
+local ChangesDetectorToggle = GUI.CreateToggle({
+	Name = "Changes Detector",
+	Function = function() end,
+	HoverText = "Notifies you if anything gets added/removed in Voidware."
+})
 local windowSortOrder = {
 	CombatButton = 1,
 	BlatantButton = 2,
@@ -1600,11 +1627,12 @@ local windowSortOrder = {
 	UtilityButton = 4,
 	WorldButton = 5,
 	VoidwareButton = 6,
-	FriendsButton = 7,
-	TargetsButton = 8,
-	ProfilesButton = 9
+	CustomScriptsButton = 7,
+	FriendsButton = 8,
+	TargetsButton = 9,
+	ProfilesButton = 10
 }
-local windowSortOrder2 = {"Combat", "Blatant", "Render", "Utility", "World", "Voidware"}
+local windowSortOrder2 = {"Combat", "Blatant", "Render", "Utility", "World", "Voidware", "CustomScripts"}
 
 local function getVapeSaturation(val)
 	local sat = 0.9
@@ -1818,7 +1846,12 @@ local teleportConnection = playersService.LocalPlayer.OnTeleport:Connect(functio
     if (not teleportedServers) and (not shared.VapeIndependent) then
 		teleportedServers = true
 		local teleportScript = [[
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/NewMainScript.lua", true))() 
+			shared.VapeSwitchServers = true 
+			if shared.VapeDeveloper then 
+				loadstring(readfile("vape/NewMainScript.lua"))() 
+			else 
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/NewMainScript.lua", true))() 
+			end
 		]]
 		if shared.VapeDeveloper then
 			teleportScript = 'shared.VapeDeveloper = true\n'..teleportScript
@@ -1867,6 +1900,7 @@ GuiLibrary.SelfDestruct = function()
 	shared.VapeExecuted = nil
 	shared.VapePrivate = nil
 	shared.VapeFullyLoaded = nil
+	shared.VapeSwitchServers = nil
 	shared.GuiLibrary = nil
 	shared.VapeIndependent = nil
 	shared.VapeManualLoad = nil
@@ -1881,6 +1915,15 @@ GuiLibrary.SelfDestruct = function()
 	--game:GetService("RunService"):SetRobloxGuiFocused(false)	
 end
 
+GuiLibrary.Restart = function()
+	GuiLibrary.SelfDestruct()
+	local vapePrivateCheck = shared.VapePrivate
+	shared.VapeSwitchServers = true
+	shared.VapeOpenGui = true
+	shared.VapePrivate = vapePrivateCheck
+	loadstring(vapeGithubRequest("NewMainScript.lua"))()
+end
+
 GeneralSettings.CreateButton2({
 	Name = "RESET CURRENT PROFILE", 
 	Function = function()
@@ -1891,6 +1934,7 @@ GeneralSettings.CreateButton2({
 		else
 			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
 		end
+		shared.VapeSwitchServers = true
 		shared.VapeOpenGui = true
 		shared.VapePrivate = vapePrivateCheck
 		loadstring(vapeGithubRequest("NewMainScript.lua"))()
@@ -1919,12 +1963,13 @@ GUISettings.CreateButton2({
 			UtilityWindow = 5,
 			WorldWindow = 6,
 			VoidwareWindow = 7,
-			FriendsWindow = 8,
-			TargetsWindow = 9,
-			ProfilesWindow = 10,
-			["Text GUICustomWindow"] = 11,
-			TargetInfoCustomWindow = 12,
-			RadarCustomWindow = 13
+			CustomScriptsWindow = 8,
+			FriendsWindow = 9,
+			TargetsWindow = 10,
+			ProfilesWindow = 11,
+			["Text GUICustomWindow"] = 12,
+			TargetInfoCustomWindow = 13,
+			RadarCustomWindow = 14
 		}
 		local storedpos = {}
 		local num = 6
@@ -1957,7 +2002,10 @@ GeneralSettings.CreateButton2({
 	Name = "UNINJECT",
 	Function = GuiLibrary.SelfDestruct
 })
-
+GeneralSettings.CreateButton2({
+	Name = "RESTART",
+	Function = GuiLibrary.Restart
+})
 local function loadVape()
 	if not shared.VapeIndependent then
 		loadstring(vapeGithubRequest("Universal.lua"))()
@@ -1994,6 +2042,7 @@ local function loadVape()
 	GUIbind.Reload()
 	TextGUIUpdate()
 	GuiLibrary.UpdateUI(GUIColorSlider.Hue, GUIColorSlider.Sat, GUIColorSlider.Value, true)
+	if not shared.VapeSwitchServers then
 		if BlatantModeToggle.Enabled then
 			pcall(function()
 				local frame = GuiLibrary.CreateNotification("Blatant Enabled", "Vape is now in Blatant Mode.", 5.5, "assets/WarningNotification.png")
@@ -2001,11 +2050,218 @@ local function loadVape()
 			end)
 		end
 		GuiLibrary.LoadedAnimation(welcomeMessage.Enabled)
+	else
+		shared.VapeSwitchServers = nil
+	end
 	if shared.VapeOpenGui then
 		GuiLibrary.MainGui.ScaledGui.ClickGui.Visible = true
 		GuiLibrary.MainGui.ScaledGui.LegitGui.Visible = false
 		--game:GetService("RunService"):SetRobloxGuiFocused(GuiLibrary.MainBlur.Size ~= 0) 
 		shared.VapeOpenGui = nil
+	end
+
+	--[[if shared.GuiLibrary.ObjectsThatCanBeSaved["Changes DetectorToggle"].Enabled then else
+		shared.GuiLibrary.ObjectsThatCanBeSaved["Changes DetectorToggle"].Api.ToggleButton(true)
+   end--]]
+
+	if ChangesDetectorToggle.Enabled then
+		task.spawn(function()
+			task.wait(1)
+			local GuiLibrary = shared.GuiLibrary
+			local httpService = game:GetService("HttpService")
+
+			local function getAllModules()
+				local clickgui = GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui")
+				local windows = {}
+				local all_children = {}
+
+				local function isBlacklisted(window)
+					local blacklisted_windows = {"AimAssistTargetWindow", "CircleWindow", "KillauraTargetWindow", "Profiles", "TextButton", "Targets", "Friends"}
+					for _, v in pairs(blacklisted_windows) do
+						if string.find(window.Name, v) then return true end
+					end
+					return false
+				end
+
+				for _, v in pairs(clickgui:GetChildren()) do
+					if v.ClassName == "TextButton" and not isBlacklisted(v) then
+						table.insert(windows, v)
+					end
+				end
+
+				for _, v in pairs(windows) do
+					all_children[v.Name] = {}
+					local window_children = v:WaitForChild("ScrollingFrame"):GetChildren()
+					for _, v2 in pairs(window_children) do
+						if v2.ClassName == "TextButton" and string.find(v2.Name, "Button") then
+							table.insert(all_children[v.Name], v2.Name)
+						end
+					end
+				end
+
+				return all_children
+			end
+
+			local function getWindow(wanted_module)
+				local found_window = "Default"
+				local all_children = getAllModules()
+				
+				for window, buttons in pairs(all_children) do
+					for _, button in pairs(buttons) do
+						if string.find(button, wanted_module) then
+							found_window = window
+							break
+						end
+					end
+				end
+				
+				return found_window
+			end
+
+			local function LogModules()
+				local all_children = getAllModules()
+				local data = httpService:JSONEncode(all_children)
+				if isfolder('vape') then else makefolder('vape') end
+				if isfolder('vape/Libraries') then else makefolder('vape/Libraries') end
+				writefile('vape/Libraries/ModulesData.txt', data)
+			end
+
+			local function UnLogModules()
+				if isfolder('vape') then else makefolder('vape') end
+				if isfolder('vape/Libraries') then else makefolder('vape/Libraries') end
+				if isfile('vape/Libraries/ModulesData.txt') then
+					local suc, result = pcall(function()
+						return httpService:JSONDecode(readfile('vape/Libraries/ModulesData.txt'))
+					end)
+					if suc and type(result) == "table" then
+						return result
+					end
+				end
+				return {}
+			end
+
+			local function warningNotification(title, text, delay)
+				local title = "Changes-"..title
+				local suc, res = pcall(function()
+					local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
+					frame.Frame.Frame.ImageColor3 = Color3.fromRGB(236, 129, 44)
+					return frame
+				end)
+				return (suc and res)
+			end
+
+			local function compareModules()
+				local currentModules = getAllModules()
+				local loggedModules = UnLogModules()
+
+				local differences = {
+					added = {},
+					removed = {},
+					moved = {}
+				}
+
+				local function isModulePresent(moduleTable, moduleName)
+					for _, name in ipairs(moduleTable) do
+						if name == moduleName then
+							return true
+						end
+					end
+					return false
+				end
+
+				for windowName, currentButtons in pairs(currentModules) do
+					if not loggedModules[windowName] then
+						differences.added[windowName] = currentButtons
+					else
+						for _, button in ipairs(currentButtons) do
+							if not isModulePresent(loggedModules[windowName], button) then
+								differences.added[windowName] = differences.added[windowName] or {}
+								table.insert(differences.added[windowName], button)
+							end
+						end
+					end
+				end
+
+				for windowName, loggedButtons in pairs(loggedModules) do
+					if not currentModules[windowName] then
+						differences.removed[windowName] = loggedButtons
+					else
+						for _, button in ipairs(loggedButtons) do
+							if not isModulePresent(currentModules[windowName], button) then
+								-- Check if the module has moved to another window
+								local movedToWindow = nil
+								for currWindowName, currButtons in pairs(currentModules) do
+									if currWindowName ~= windowName and isModulePresent(currButtons, button) then
+										movedToWindow = currWindowName
+										break
+									end
+								end
+								if movedToWindow then
+									differences.moved[button] = {from = windowName, to = movedToWindow}
+								else
+									differences.removed[windowName] = differences.removed[windowName] or {}
+									table.insert(differences.removed[windowName], button)
+								end
+							end
+						end
+					end
+				end
+
+				local noDifferences = true
+				for _, diff in pairs(differences) do
+					if next(diff) then
+						noDifferences = false
+						break
+					end
+				end
+
+				if noDifferences then
+					--warningNotification("No Changes", "No differences found between current and logged modules.", 5)
+					return "No differences found between current and logged modules."
+				else
+					for window, buttons in pairs(differences.added) do
+						local buttonList = table.concat(buttons, ", \n")
+						warningNotification("Modules Added", "In " .. window .. ": " .. buttonList, 10)
+					end
+
+					for window, buttons in pairs(differences.removed) do
+						local buttonList = table.concat(buttons, ", \n")
+						warningNotification("Modules Removed", "From " .. window .. ": " .. buttonList, 10)
+					end
+
+					for button, moveInfo in pairs(differences.moved) do
+						local message = "Moved from " .. moveInfo.from .. " to " .. moveInfo.to
+						warningNotification("Module Moved", button .. ": " .. message, 10)
+					end
+
+					return differences
+				end
+			end
+
+			local differences = compareModules()
+			if type(differences) == "string" then
+				print(differences)
+			else
+				print("Added Modules:")
+				for window, buttons in pairs(differences.added) do
+					print(window .. ": " .. table.concat(buttons, ", "))
+				end
+
+				print("Removed Modules:")
+				for window, buttons in pairs(differences.removed) do
+					print(window .. ": " .. table.concat(buttons, ", "))
+				end
+
+				print("Moved Modules:")
+				for button, moveInfo in pairs(differences.moved) do
+					print(button .. ": Moved from " .. moveInfo.from .. " to " .. moveInfo.to)
+				end
+			end
+
+			GuiLibrary.SelfDestructEvent.Event:Connect(function()
+				LogModules()
+			end)
+		end)
 	end
 
 	coroutine.resume(saveSettingsLoop)

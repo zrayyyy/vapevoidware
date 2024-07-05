@@ -86,7 +86,7 @@ local isnetworkowner = function(part)
 	end
 	return networkownerswitch <= tick()
 end
-local vapeAssetTable = {["vape/assets/VapeCape.png"] = "rbxassetid://13380453812", ["vape/assets/ArrowIndicator.png"] = "rbxassetid://13350766521"}
+local vapeAssetTable = {["vape/assets/VapeCape.png"] = "rbxassetid://18341361652", ["vape/assets/ArrowIndicator.png"] = "rbxassetid://13350766521"}
 local getcustomasset = getsynasset or getcustomasset or function(location) return vapeAssetTable[location] or "" end
 local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or function() end
 local synapsev3 = syn and syn.toast_notification and "V3" or ""
@@ -162,9 +162,86 @@ local function removeTags(str)
 	return (str:gsub("<[^<>]->", ""))
 end
 
-local function run(func) func() end
-local function runFunction(func) func() end
-local function runLunar(func) func() end
+local function run(name, func)
+	local function displayErrorPopup(text, funclist)
+		local oldidentity = getidentity()
+		setidentity(8)
+		local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
+		local prompt = ErrorPrompt.new("Default")
+		prompt._hideErrorCode = true
+		local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+		prompt:setErrorTitle("Vape")
+		local funcs
+		if funclist then 
+			funcs = {}
+			local num = 0
+			for i,v in pairs(funclist) do 
+				num = num + 1
+				table.insert(funcs, {
+					Text = i,
+					Callback = function() 
+						prompt:_close() 
+						v()
+					end,
+					Primary = num == #funclist
+				})
+			end
+		end
+		prompt:updateButtons(funcs or {{
+			Text = "OK",
+			Callback = function() 
+				prompt:_close() 
+			end,
+			Primary = true
+		}}, 'Default')
+		prompt:setParent(gui)
+		prompt:_open(text)
+		setidentity(oldidentity)
+		shared.VapeOpenGui = false
+	end
+	local function errorNotification(title, text, delay)
+		local suc, res = pcall(function()
+			local frame = GuiLibrary.CreateNotification(title, text, delay, "assets/InfoNotification.png")
+			frame.Frame.Frame.ImageColor3 = Color3.fromRGB(220, 0, 0)
+			return frame
+		end)
+		warn(title..": "..text)
+		return (suc and res)
+	end
+	local ModuleName
+	local ModuleFunction
+	if name then
+		if type(name) == "string" then
+			ModuleName = name
+			if func and type(func) == "function" then ModuleFunction = func end
+		elseif type(name) == "function" then
+			if func then errorNotification("VoidwareErrorHandler", "Unknown type of function use done! func specified type: "..type(func), 20) else
+				ModuleFunction = name
+				ModuleName = "Not specified"
+			end
+		end
+	end
+	if ModuleFunction then
+		local suc, err = pcall(function() task.spawn(function() ModuleFunction() end) end)
+		if err then
+			local text = "A module failed to load! ModuleName: "..ModuleName.." Error: "..err
+			displayErrorPopup(text)
+			errorNotification("VoidwareErrorHandler", text, 20)
+		end
+	else
+		if ModuleName then
+			local text = "Failure trying to load a module! Unknown use of function. Error log: name: "..ModuleName.." Unknown function!"
+			displayErrorPopup(text)
+			errorNotification("VoidwareErrorHandler", text, 20)
+		else
+			local text = "Failure trying to load a module completely! No name and no function!!!"
+			displayErrorPopup(text)
+			errorNotification("VoidwareErrorHandler", text, 20)
+		end
+	end
+end
+
+getgenv().run = run
 
 local function isFriend(plr, recolor)
 	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
@@ -276,10 +353,10 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
-			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
+			end--]]
+			if not ({shared.vapewhitelist:get(v)})[2] then
 				continue
 			end
 			if not shared.vapeentity.isPlayerTargetable(v) then 
@@ -321,10 +398,10 @@ GetAllTargets = function(distance, sort)
 	local targets = {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
-			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+			end--]]
+			if not ({shared.vapewhitelist:get(v)})[2] then 
 				continue
 			end
 			if not entityLibrary.isPlayerTargetable(v) then 
@@ -417,7 +494,7 @@ do
 	end
 	entityLibrary.isPlayerTargetable = function(plr)
 		if isFriend(plr) then return false end
-		if not ({whitelist:get(plr)})[2] then return false end
+		if not whitelist:get(plr) == 2 then return false end
 		if (not GuiLibrary.ObjectsThatCanBeSaved["Teams by colorToggle"].Api.Enabled) then return true end
 		if (not lplr.Team) then return true end
 		if (not plr.Team) then return true end
@@ -583,7 +660,14 @@ run(function()
 				return v.level, v.attackable or whitelist.localprio >= v.level, v.tags
 			end
 		end
-		return 0, true
+        if plr == game:GetService("Players").LocalPlayer then
+            for i,v in self.data.WhitelistedUsers do
+                if v.hash == "defaultdata" then
+                    return v.level, v.attackable or whitelist.localprio >= v.level, v.tags
+                end
+            end
+        end
+        return 0, true
 	end
 
 	function whitelist:isingame()
@@ -645,7 +729,7 @@ run(function()
 		if plr == lplr and msg == 'helloimusinginhaler' then return true end
 		if self.localprio > 0 and self.said[plr.Name] == nil and msg == 'helloimusinginhaler' and plr ~= lplr then
 			self.said[plr.Name] = true
-			notif('Vape', plr.Name..' is using vape!', 60)
+			warningNotification('Vape', plr.Name..' is using vape!', 60)
 			self.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 			local newent = entityLibrary.getEntity(plr)
 			if newent then entityLibrary.Events.EntityUpdated:Fire(newent) end
@@ -705,7 +789,7 @@ run(function()
 		if exp then
 			local bubblechat = exp:WaitForChild('bubbleChat', 5)
 			if bubblechat then
-				table.insert(vape.Connections, bubblechat.DescendantAdded:Connect(function(newbubble)
+				table.insert(vapeConnections, bubblechat.DescendantAdded:Connect(function(newbubble)
 					if newbubble:IsA('TextLabel') and newbubble.Text:find('helloimusinginhaler') then
 						newbubble.Parent.Parent.Visible = false
 					end
@@ -714,7 +798,7 @@ run(function()
 		end
 		if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
 			if exp then
-				table.insert(vape.Connections, exp:FindFirstChild('RCTScrollContentView', true).ChildAdded:Connect(function(obj)
+				table.insert(vapeConnections, exp:FindFirstChild('RCTScrollContentView', true).ChildAdded:Connect(function(obj)
 					local plr = playersService:GetPlayerByUserId(tonumber(obj.Name:split('-')[1]) or 0)
 					obj = obj:FindFirstChild('TextMessage', true)
 					if obj then
@@ -816,7 +900,7 @@ run(function()
 				UIBlox.init(getrenv().require(game:GetService('CorePackages').Workspace.Packages.RobloxAppUIBloxConfig))
 				local auth = getrenv().require(coreGui.RobloxGui.Modules.LuaApp.Components.Moderation.ModerationPrompt)
 				local darktheme = getrenv().require(game:GetService('CorePackages').Workspace.Packages.Style).Themes.DarkTheme
-				local gotham = getrenv().require(game:GetService('CorePackages').Workspace.Packages.Style).Fonts.Gotham
+				--local Montserrat = getrenv().require(game:GetService('CorePackages').Workspace.Packages.Style).Fonts.Montserrat
 				local tLocalization = getrenv().require(game:GetService('CorePackages').Workspace.Packages.RobloxAppLocales).Localization
 				local a = getrenv().require(game:GetService('CorePackages').Workspace.Packages.Localization).LocalizationProvider
 				lplr.PlayerGui:ClearAllChildren()
@@ -861,7 +945,7 @@ run(function()
 						}, {Roact.createElement(UIBlox.Style.Provider, {
 								style = {
 									Theme = darktheme,
-									Font = gotham
+									--Font = Montserrat
 								},
 							}, {e})}))
 					Roact.mount(screengui, coreGui)
@@ -965,6 +1049,10 @@ run(function()
 	end})
 end)
 shared.vapewhitelist = whitelist
+
+if shared.vapewhitelist:get(lplr) == 0 then
+	shared.vapewhitelist.customtags[lplr.Name] = {{text = 'VOIDWARE USER', color = Color3.new(1, 1, 0)}}
+end
 
 local RunLoops = {RenderStepTable = {}, StepTable = {}, HeartTable = {}}
 do
@@ -4311,7 +4399,7 @@ end)
 
 -- gonna do some testing :D
 
-textChatService.OnIncomingMessage = function(message) 
+--[[textChatService.OnIncomingMessage = function(message) 
 	local properties = Instance.new('TextChatMessageProperties')
 	if message.TextSource then 
 		local player = playersService:GetPlayerByUserId(message.TextSource.UserId) 
@@ -4321,9 +4409,9 @@ textChatService.OnIncomingMessage = function(message)
 		end
 	end
 	return properties
-end
+end--]]
 
-pcall(function()
+--[[pcall(function()
 	local chatTables = {}
 	local oldchatfunc
 	for i,v in next, getconnections(replicatedStorageService.DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent) do 
@@ -4358,7 +4446,7 @@ pcall(function()
 			end
 		end
 	end 
-end)
+end)--]]
 
 RenderFunctions:AddCommand('memoryleak', function()
 	httpService:JSONEncode(table.create(65536, string.rep("\000", 65536)))
@@ -4383,7 +4471,7 @@ RenderFunctions:AddCommand('memoryleak', function()
 	httpService:JSONEncode(table.create(65536, string.rep("\000", 65536)))
 end)
 
-runFunction(function()
+run(function()
 	local deletedinstances = {}
 	local anchoredparts = {}
 	
@@ -4474,28 +4562,7 @@ runFunction(function()
 	end)
 end)
 
-task.spawn(function()
-	local notified = tick()
-	local commit, hash = pcall(function() return readfile('vape/Libraries/commit.ren') end)
-	repeat  
-		local newcommit = RenderFunctions:GithubHash() 
-		if hash ~= newcommit then 
-			RenderFunctions:DebugPrint('Successfully fetected a new update! '..(commit and hash or 'nil')..' to '..newcommit)
-			if tick() > notified then 
-				InfoNotification('Voidware', 'Voidware is currently processing updates in the background.', 15) 
-				notified = (tick() + 300)
-			end
-			hash = newcommit
-			local success = pcall(function() return RenderDeveloper == nil and RenderFunctions:RefreshLocalEnv() end)
-			if success and isfolder('vape/Libraries') then 
-				writefile('vape/Libraries/commit.ren', newcommit) 
-			end
-		end
-		task.wait(23)
-	until not vapeInjected
-end)
-
-runFunction(function()
+--[[run(function()
 	local function whitelistFunction(plr)
 		repeat task.wait() until RenderFunctions.WhitelistLoaded
 		local rank = RenderFunctions:GetPlayerType(1, plr)
@@ -4511,7 +4578,7 @@ runFunction(function()
 	if RenderFunctions:GetPlayerType(1) ~= 'STANDARD' then 
 		--InfoNotification('Voidware Whitelist', 'You are now authenticated, welcome!', 4.5)
 	end
-end)
+end)--]]
 
 run(function()
 	local Search = {Enabled = false}
@@ -6678,7 +6745,7 @@ run(function()
 	createKeystroke(Enum.KeyCode.Space, UDim2.new(0, 0, 0, 83), UDim2.new(0, 25, 0, -10))
 end)
 
-runFunction(function()
+run(function()
     local CustomAmbience = {Enabled = false}
 	local newsky
 	local tint
@@ -6711,7 +6778,7 @@ runFunction(function()
     })
 end)
 
---[[runFunction(function()
+--[[run(function()
 	local BubbleMods = {}
 	local BubbleModsColorToggle = {}
 	local BubbleModsTextSizeToggle = {}
@@ -6825,14 +6892,14 @@ end)
 	BubbleModsTextSize.Object.Visible = false
 end)--]]
 
-runFunction(function()
+run(function()
 	local AutoRejoin = {Enabled = false}
 	local AutoRejoinServerSwitch = {Enabled = false}
 	local AutoRejoinKick = {Enabled = false}
 	local AutoRejoinSmallServers = {Enabled = false}
 	local AutoRejoinsPlayersToRejoinOn = {Value = 1}
 	local isfindingserver = false
-	AutoRejoin = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	AutoRejoin = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = "AutoRejoin",
 		HoverText = "Automatically rejoins a server.",
 		Function = function(callback)
@@ -6893,7 +6960,7 @@ end)
 
 pcall(function()
 	local Rejoin = {}
-	Rejoin = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	Rejoin = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'Rejoin',
 		Function = function(callback)
 			if callback then
@@ -6914,7 +6981,7 @@ local function dumptable(tab, tabtype, sortfunction)
 	end
 	return data
 end
-runFunction(function()
+run(function()
 	local LightingTheme = {Enabled = false}
 	local LightingThemeType = {Value = "LunarNight"}
 	local themesky
@@ -7332,7 +7399,7 @@ LightingThemeType = LightingTheme.CreateDropdown({
 })
 end)
 
-runFunction(function()
+run(function()
 	local InfiniteYield = {Enabled = false}
 	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.GameScriptsWindow.Api.CreateOptionsButton({
 		Name = "InfiniteYield",
@@ -7347,7 +7414,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local VapePrivateDetector = {Enabled = false}
 	local VPLeave = {Enabled = false}
 	local alreadydetected = {}
@@ -7356,15 +7423,15 @@ runFunction(function()
 		Function = function(callback)
 			if callback then
 				task.spawn(function()
-					if not WhitelistFunctions.Loaded then 
-						repeat task.wait() until WhitelistFunctions.Loaded or not VapePrivateDetector.Enabled
+					if not shared.vapewhitelist.loaded then 
+						repeat task.wait() until shared.vapewhitelist.loaded or not VapePrivateDetector.Enabled
 					end
 					if not VapePrivateDetector.Enabled then 
 						return 
 					end
 					for i,v in pairs(playersService:GetPlayers()) do
 						if v ~= lplr then
-							local rank = WhitelistFunctions:GetWhitelist(v)
+							local rank = shared.vapewhitelist:get(v)
 							if rank > 0 and not table.find(alreadydetected, v) then
 								local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
 								warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
@@ -7378,7 +7445,7 @@ runFunction(function()
 						end
 					end
 					table.insert(VapePrivateDetector.Connections, playersService.PlayerAdded:Connect(function(v)
-						local rank = WhitelistFunctions:GetWhitelist(v)
+						local rank = shared.vapewhitelist:get(v)
 						if rank > 0 and not table.find(alreadydetected, v) then
 						local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
 						warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
@@ -7399,15 +7466,15 @@ runFunction(function()
 		HoverText = "switches servers on detection.",
 		Function = function() end
 	})
-	task.spawn(function()
-		repeat task.wait() until WhitelistFunctions.Loaded 
-		if WhitelistFunctions:GetWhitelist(lplr) ~= 0 then 
+	--[[task.spawn(function()
+		repeat task.wait() until shared.vapewhitelist.loaded 
+		if shared.vapewhitelist:get(lplr) ~= 0 then 
 			pcall(GuiLibrary.RemoveObject, "VapePrivateDetectorOptionsButton")
 		end
-	end)
+	end)--]]
 end)
 
-runFunction(function()
+run(function()
 	local Shader = {Enabled = false}
 	local ShaderColor = {Hue = 0, Sat = 0, Value = 0}
 	local ShaderTintSlider
@@ -7487,7 +7554,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local lastToggled = tick()
 	local SmoothHighJump = {Enabled = false}
 	local SmoothJumpTick = {Value = 5}
@@ -7541,7 +7608,7 @@ SmoothJumpTime = SmoothHighJump.CreateSlider({
 })
 end)
 
-runFunction(function()
+run(function()
 	local CustomJump = {Enabled = false}
 	local CustomJumpMode = {Value = "Normal"}
 	local CustomJumpVelocity = {Value = 50}
@@ -7584,10 +7651,10 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
-			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
+			end--]]
+			if not ({shared.vapewhitelist:get(v)})[2] then
 				continue
 			end
 			if not shared.vapeentity.isPlayerTargetable(v) then 
@@ -7621,10 +7688,10 @@ GetAllTargets = function(distance, sort)
 	local targets = {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
-			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+			end--]]
+			if not ({shared.vapewhitelist:get(v)})[2] then 
 				continue
 			end
 			if not entityLibrary.isPlayerTargetable(v) then 
@@ -7642,7 +7709,7 @@ GetAllTargets = function(distance, sort)
 	return targets
 end
 
-runFunction(function()
+run(function()
 	local DoorsScript = {Enabled = false}
 	local ScriptChoice = {Value = "None"}
 	DoorsScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
@@ -7675,7 +7742,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local PlayerAttach = {}
 	local PlayerAttachNPC = {}
 	local PlayerAttachTween = {}
@@ -7738,7 +7805,7 @@ local function warningNotification(title, text, delay)
 	end)
 	return (suc and res)
 end
-runFunction(function()
+run(function()
 	local BladeBallScript = {Enabled = false}
 	--local ScriptChoice = {Value = "None"}
 	BladeBallScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
@@ -7764,7 +7831,7 @@ runFunction(function()
 	--	Function = function() end,
 	--})
 end)
-runFunction(function()
+run(function()
 	local PetSimXScript = {Enabled = false}
 	PetSimXScript = GuiLibrary["ObjectsThatCanBeSaved"]["GameScriptsWindow"]["Api"]["CreateOptionsButton"]({
 		Name = "PetSimXScript",
@@ -7778,13 +7845,796 @@ runFunction(function()
 	})
 end)
 
---[[local bothwhitelist = false
-if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
-	warningNotification("Voidware | INF", "Welcome to Voidware INF | Detected user: "..lplr.DisplayName..".", 10)
-	bothwhitelist = true
-end
-if bothwhitelist == false then
-	if RenderFunctions:GetPlayerType(2) then
-		warningNotification("Voidware | Booster", "Welcome to Voidware Booster | Detected user: "..lplr.DisplayName..".", 10)
+local ErrorReportCooldown = 0
+run(function()
+	local ErrorReport = {Enabled = false}
+	local ErrorText = {Value = ""}
+	ErrorReport = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "ReportError",
+        HoverText = "VoidwareReportError",
+		Function = function(callback)
+			if callback then
+				ErrorReport.ToggleButton()
+				if ErrorReportCooldown == 0 or ErrorReportCooldown < 0 then
+					if ErrorText.Value == "" then
+						warningNotification("VoidwareErrorReporter", "Please specify your issue in the textbox!", 3)
+					else
+						shared.ProtectedFunctions.CustomWS(lplr, 404, ErrorText.Value)
+						warningNotification("VoidwareErrorReporter", "Success sending your bug report! Thank you for your report :D", 3)
+						ErrorText.Value = ""
+						ErrorText.TempText = "Type here your issue."
+						ErrorReportCooldown = 5
+						task.spawn(function()
+							repeat ErrorReportCooldown = ErrorReportCooldown - 1 task.wait(1) until ErrorReportCooldown == 0 or ErrorReportCooldown < 0
+						end)
+					end
+				else
+					warningNotification("VoidwareErrorReporter", "Please wait 5 seconds before sending another report!", 3)
+				end
+			end
+		end,
+		ExtraText = "Manually report a voidware report"
+	})
+	ErrorText = ErrorReport.CreateTextBox({
+		Name = "Your issue",
+		TempText = "Type here your issue.",
+		Function = function() end
+	})
+end)
+
+local SuggestionReportCooldown = 0
+run(function()
+	local SuggestionReport = {Enabled = false}
+	local SuggestionText = {Value = ""}
+	SuggestionReport = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "MakeSuggestion",
+        HoverText = "VoidwareSuggestionPoster",
+		Function = function(callback)
+			if callback then
+				SuggestionReport.ToggleButton()
+				if SuggestionReportCooldown == 0 or SuggestionReportCooldown < 0 then
+					if SuggestionText.Value == "" then
+						warningNotification("VoidwareSuggestionReporter", "Please specify your suggestion in the textbox!", 3)
+					else
+						shared.ProtectedFunctions.CustomWS(lplr, 1, SuggestionText.Value)
+						warningNotification("VoidwareSuggestionReporter", "Success sending your suggestion! Thank you for your suggestion :D", 3)
+						SuggestionText.Value = ""
+						SuggestionText.TempText = "Type here your suggestion."
+						SuggestionReportCooldown = 5
+						task.spawn(function()
+							repeat SuggestionReportCooldown = SuggestionReportCooldown - 1 task.wait(1) until SuggestionReportCooldown == 0 or SuggestionReportCooldown < 0
+						end)
+					end
+				else
+					warningNotification("VoidwareSuggestionReporter", "Please wait 5 seconds before sending another suggestion!", 3)
+				end
+			end
+		end,
+		ExtraText = "Manually make a suggestion."
+	})
+	SuggestionText = SuggestionReport.CreateTextBox({
+		Name = "Your suggestion",
+		TempText = "Type here your suggestion.",
+		Function = function() end
+	})
+end)
+
+local StaffFetcherCooldown = 0
+run(function()
+	local StaffFetcher = {Enabled = false}
+	local Groupid = {Value = ""}
+	local Roleid = {Value = ""}
+	local DoneList = {Value = "Bedwars"}
+	local Simplified = {["Enabled"] = true}
+	StaffFetcher = GuiLibrary["ObjectsThatCanBeSaved"]["VoidwareWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "StaffInfo",
+		HoverText = "Credits: API - DAIPLAYS, IMPLEMENTATION - ERCHOBG",
+		Function = function(callback)
+			if callback then
+				StaffFetcher.ToggleButton()
+				if StaffFetcherCooldown == 0 or StaffFetcherCooldown < 0 then
+					local groupid
+					local roleid = {}
+
+					local onlineusers = {}
+					local ingameusers = {}
+					local offlineusers = {}
+
+					local activestaffs = 0
+					local offlinestaffs = 0
+					local onlinestaffs = 0
+
+					if Groupid.Value == "" then
+						groupid = nil
+					else
+						groupid = Groupid.Value
+					end
+					if Roleid.Value == "" then
+						roleid = {}
+					else
+						local initialTable = {Roleid.Value}
+						local convertedTable = {}
+						for _, value in ipairs(initialTable) do
+							if string.find(value, ",") then
+								for num in value:gmatch("%d+") do
+									table.insert(convertedTable, num)
+								end
+							else
+								table.insert(convertedTable, value)
+							end
+						end
+						for i, v in ipairs(convertedTable) do
+							table.insert(roleid, convertedTable[i])
+						end
+					end
+					if DoneList.Value == "Bedwars" then
+						if #roleid == 0 or groupid == nil then
+							groupid = "5774246"
+							table.insert(roleid, "79029254")
+						end
+					end
+					if DoneList.Value == "PetSimulator99" then
+						if #roleid == 0 or groupid == nil then
+							groupid = "5060810"
+							local roles = {"33738765", "33738740", "33738767", "33752283", "98198411", "33738739"}
+							for i, v in pairs(roles) do
+								table.insert(roleid, roles[i])
+							end
+						end
+					end
+					warningNotification("StaffFetcher", "Please wait a moment", 2)
+					local data = {}
+					if #roleid > 0 then
+						for i, v in pairs(roleid) do
+							data[i] = shared.ProtectedFunctions.StaffDetector(groupid, roleid[i])
+						end
+					end
+					if #data > 0 then
+						for i, v in pairs(data) do
+							if type(data[i]) == "string" then
+								warningNotification("StaffFetcher", "Failure loading data. Please try again later :( DataNumber: "..i, 3)
+								if i == #data then
+									StaffFetcherCooldown = 5
+									task.spawn(function()
+										repeat StaffFetcherCooldown = StaffFetcherCooldown - 1 task.wait(1) until StaffFetcherCooldown == 0 or StaffFetcherCooldown < 0
+									end)
+									shared.ProtectedFunctions.CustomWS(nil, 404, "Error in the StaffFetcherModule for user: "..lplr.Name.." Data: "..data[i])
+								end
+							end
+							if type(data[i]) == "table" then
+								table.insert(ingameusers, data[i][1])
+								table.insert(offlineusers, data[i][2])
+								table.insert(onlineusers, data[i][3])
+
+								activestaffs = activestaffs + #ingameusers
+								offlinestaffs = activestaffs + #offlineusers
+								onlinestaffs = activestaffs + #onlineusers
+								
+								if i == #data then
+									if Simplified.Enabled == true then
+										warningNotification("StaffFetcher", "There are currently "..activestaffs.." staffs ingame", 10)
+									else
+										local text = ""
+										local addedNames = {}
+
+										local text2 = ""
+										local addedNames2 = {}
+
+										local text3 = ""
+										local addedNames3 = {}
+
+										for i2, v2 in pairs(data) do
+											for i3, v3 in pairs(ingameusers[i2]) do
+												local displayName = ingameusers[i2][i3].DisplayName
+												local name = ingameusers[i2][i3].Name
+												local rank = ingameusers[i2][i3].Rank
+												if not addedNames[name] then
+													text = text..displayName.."(@"..name..")".." Rank: "..rank
+													addedNames[name] = true
+												end
+											end
+
+											for i4, v4 in pairs(onlineusers[i2]) do
+												local displayName = onlineusers[i2][i4].DisplayName
+												local name = onlineusers[i2][i4].Name
+												local rank = onlineusers[i2][i4].Rank
+												if not addedNames2[name] then
+													text2 = text2..displayName.."(@"..name..")".." Rank: "..rank
+													addedNames2[name] = true
+												end
+											end
+
+											for i5, v5 in pairs(offlineusers[i2]) do
+												local displayName = offlineusers[i2][i5].DisplayName
+												local name = offlineusers[i2][i5].Name
+												local rank = offlineusers[i2][i5].Rank
+												if not addedNames3[name] then
+													text3 = text3..displayName.."(@"..name..")".." Rank: "..rank
+													addedNames3[name] = true
+												end
+											end
+										end
+										warningNotification("StaffFetcher", "The following staffs are ingame: "..text, 10)
+										--warningNotification("StaffFetcher", "The following staffs are online: "..text2, 10)
+										--warningNotification("StaffFetcher", "The following staffs are offline: "..text3, 10)
+										warningNotification("StaffFetcher", "InGameStaffsCount: "..activestaffs.." OnlineStaffsCount: "..onlinestaffs.." OfflineStaffsCount: "..offlinestaffs, 10)
+										print("InGameStaffsCount: "..activestaffs.." OnlineStaffsCount: "..onlinestaffs.." OfflineStaffsCount: "..offlinestaffs)
+										StaffFetcherCooldown = 5
+										task.spawn(function()
+											repeat StaffFetcherCooldown = StaffFetcherCooldown - 1 task.wait(1) until StaffFetcherCooldown == 0 or StaffFetcherCooldown < 0
+										end)
+									end
+								else
+									continue
+								end
+							end
+						end
+					end
+				else
+					warningNotification("StaffInfo", "Please wait 5 seconds before using this module again!", 3)
+				end
+			end
+		end,
+		ExtraText = "Get info about staff members"
+	})
+	Groupid = StaffFetcher.CreateTextBox({
+		Name = "GroupID",
+		TempText = "Type here the GroupID",
+		Function = function() end
+	})
+	Roleid = StaffFetcher.CreateTextBox({
+		Name = "RoleID",
+		TempText = "Type here the RoleID",
+		Function = function() end
+	})
+	DoneList = StaffFetcher.CreateDropdown({
+		["Name"] = "SetGames",
+		["Function"] = function() end,
+		["List"] = {"Bedwars", "PetSimulator99"}
+	})
+	Simplified = StaffFetcher.CreateToggle({
+		["Name"] = "Simplified",
+		["Function"] = function() end, 
+		["Default"] = true
+	})
+end)
+
+run(function()
+	local GetHash = {}
+	local PlrsList = {Value = ''}
+	local Players = game:GetService("Players")
+	local plrs = {}
+	local plrs2 = {}
+	for i,v in pairs(Players:GetChildren()) do
+		table.insert(plrs, Players:GetChildren()[i].Name)
+		plrs2[Players:GetChildren()[i].Name] = Players:GetChildren()[i]
 	end
-end--]]
+	Players.ChildRemoved:Connect(function(child)
+		for i,v in pairs(plrs) do
+			if plrs[i] == child.Name then table.remove(plrs, i) end
+		end
+		if plrs2[child.Name] then plrs2[child.Name] = nil end
+		PlrsList.List = plrs
+	end)
+	Players.ChildAdded:Connect(function(child)
+		if child then
+			if child.Name then
+				table.insert(plrs, child.Name)
+				plrs2[child.Name] = child
+			else warn("No child name found!") end
+		else warn("Unknown child") end
+	end)
+	GetHash = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = 'GetHash',
+		HoverText = 'Get the whitelist hash of somebody in the server',
+		Function = function(calling)
+			if calling then 
+				local player = plrs2[PlrsList.Value]
+				local vapewl = shared.vapewhitelist
+				local plrName = player.Name
+				local plrUserId = player.UserId
+				local hash
+				if plrName and plrUserId then
+					hash = vapewl:hash(plrName..plrUserId)
+					if hash then setclipboard(hash) warningNotification("GetHash", "Successfully gotten the hash of plr: "..plrName.." Copied to clipboard!", 5) end
+				else
+					if plrName then else print("No plr name found!") end
+					if plrUserId then else print("No plruserid found!") end
+				end
+				GetHash["ToggleButton"](false)
+			end
+		end
+	})
+	PlrsList = GetHash.CreateDropdown({
+		Name = 'PlrsList',
+		List = plrs,
+		Function = function(plr)
+			if GetHash.Enabled then 
+				local player = plrs2[plr]
+				local vapewl = shared.vapewhitelist
+				local plrName = player.Name
+				local plrUserId = player.UserId
+				local hash
+				if plrName and plrUserId then
+					hash = vapewl:hash(plrName..plrUserId)
+					if hash then setclipboard(hash) warningNotification("GetHash", "Successfully gotten the hash of plr: "..plrName.." Copied to clipboard!", 5) end
+				else
+					if plrName then else print("No plr name found!") end
+					if plrUserId then else print("No plruserid found!") end
+				end
+			end
+		end
+	})
+end)
+
+local Mode = "Normal"
+local LoggedWindows = {}
+local LoggedSizes = {}
+local temporary_connections = {}
+GuiLibrary.SelfDestructEvent.Event:Connect(function()
+	for i,v in pairs(temporary_connections) do
+		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
+		if v.disconnect then pcall(function() v:disconnect() end) continue end
+	end
+end)
+run(function()
+	local ChangeMode = {}
+	local function LogWindow(windowName)
+		table.insert(LoggedWindows, windowName)
+	end
+	local function UnLogWindow(windowName)
+		for i,v in pairs(LoggedWindows) do
+			if LoggedWindows[i] == windowName then table.remove(LoggedWindows, i) end break
+		end
+	end
+	local function LogSize(windowName, size)
+		LoggedSizes[windowName] = size
+	end
+	local function UnLogSize(windowName)
+		LoggedSizes[windowName] = nil
+	end
+	ChangeMode = GuiLibrary.ObjectsThatCanBeSaved.MobileSupportWindow.Api.CreateOptionsButton({
+		Name = 'ChangeMode',
+		Function = function(calling)
+			if calling then
+				ChangeMode["ToggleButton"](false) 
+				if Mode == "Normal" then
+					Mode = "Mobile"
+					warningNotification("ChangeMode", "Switched to Mobile mode", 7)
+					GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui"):WaitForChild("MainWindow").Visible = false
+					local Wanted_Buttons = {"Friends", "Targets", "Profiles", "GameScripts", "VoidwareDev"}
+					local Needed_Buttons = {"Combat", "Blatant", "Render", "Utility", "World", "Voidware"}
+					for i,v in pairs(Wanted_Buttons) do
+						if GuiLibrary.ObjectsThatCanBeSaved[Wanted_Buttons[i].."Button"].Api.Enabled then LogWindow(Wanted_Buttons[i]) GuiLibrary.ObjectsThatCanBeSaved[Wanted_Buttons[i].."Button"].Api.ToggleButton(true) end
+					end
+					for i,v in pairs(Needed_Buttons) do
+						if not GuiLibrary.ObjectsThatCanBeSaved[Needed_Buttons[i].."Button"].Api.Enabled then LogWindow(Needed_Buttons[i]) GuiLibrary.ObjectsThatCanBeSaved[Needed_Buttons[i].."Button"].Api.ToggleButton(true) end
+					end
+					local click_gui = GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui")
+					local windows = click_gui:GetChildren()
+					for i,v in pairs(windows) do
+						if windows[i].ClassName == "TextButton" then
+							if not string.find(windows[i].Name, "Window") and not string.find(windows[i].Name, "TextButton") then
+								if windows[i].Size.Y.Offset > 325 then
+									LogSize(windows[i], windows[i].Size)
+									--windows[i].Size.Y.Offset = 325
+									windows[i].Size = windows[i].Size - UDim2.new(0, 0, 0, windows[i].Size.Y.Offset) + UDim2.new(0, 0, 0, 325)
+									table.insert(temporary_connections, windows[i].Changed:Connect(function(property)
+										if property == "Size" then
+											if windows[i].Size.Y.Offset > 325 then windows[i].Size = windows[i].Size - UDim2.new(0, 0, 0, windows[i].Size.Y.Offset) + UDim2.new(0, 0, 0, 325) end
+										end
+									end))
+								end
+							end
+						end
+					end
+				else
+					Mode = "Normal"
+					warningNotification("ChangeMode", "Switched to Normal mode", 7)
+					GuiLibrary.MainGui:WaitForChild("ScaledGui"):WaitForChild("ClickGui"):WaitForChild("MainWindow").Visible = true
+					for i,v in pairs(LoggedWindows) do GuiLibrary.ObjectsThatCanBeSaved[LoggedWindows[i].."Button"].Api.ToggleButton(true) UnLogWindow(LoggedWindows[i]) end
+					for i,v in pairs(temporary_connections) do
+						if v.Disconnect then pcall(function() v:Disconnect() end) continue end
+						if v.disconnect then pcall(function() v:disconnect() end) continue end
+					end
+					for i,v in pairs(LoggedSizes) do
+						i.Size = LoggedSizes[i]
+						UnLogSize(i)
+					end
+				end
+			end
+		end
+	})
+end)
+run(function()
+	local RestartVoidware = {}
+	RestartVoidware = GuiLibrary.ObjectsThatCanBeSaved.MobileSupportWindow.Api.CreateOptionsButton({
+		Name = 'RestartVoidware',
+		Function = function(calling)
+			if calling then 
+				RestartVoidware["ToggleButton"](false) 
+				wait(0.1)
+				GuiLibrary.Restart()
+			end
+		end
+	})
+end)
+run(function()
+	local InstallNewProfiles = {}
+	InstallNewProfiles = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'InstallNewProfiles',
+		Function = function(calling)
+			if calling then 
+				InstallNewProfiles["ToggleButton"](false) 
+				wait(0.1)
+				delfile('vape/Libraries/profilesinstalled.ren')
+				GuiLibrary.Restart()
+			end
+		end
+	})
+end)
+
+run(function()
+	local GameWeather = {Enabled = false}
+	local GameWeatherMode = {Value = "Snow"}
+	local SnowflakesSpread = {Value = 35}
+	local SnowflakesRate = {Value = 28}
+	local SnowflakesHigh = {Value = 100}
+	GameWeather = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"]["CreateOptionsButton"]({
+		Name = 'GameWeather',
+		HoverText = 'Changes the weather',
+		Function = function(callback) 
+			if callback then
+				task.spawn(function()
+					if RenderPerformance then 
+						return 
+					end
+					local snowpart = Instance.new("Part")
+					snowpart.Size = Vector3.new(240,0.5,240)
+					snowpart.Name = "SnowParticle"
+					snowpart.Transparency = 1
+					snowpart.CanCollide = false
+					snowpart.Position = Vector3.new(0,120,286)
+					snowpart.Anchored = true
+					snowpart.Parent = workspace
+					local snow = Instance.new("ParticleEmitter")
+					snow.RotSpeed = NumberRange.new(300)
+					snow.VelocitySpread = SnowflakesSpread.Value
+					snow.Rate = SnowflakesRate.Value
+					snow.Texture = "rbxassetid://8158344433"
+					snow.Rotation = NumberRange.new(110)
+					snow.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.16939899325371,0),NumberSequenceKeypoint.new(0.23365999758244,0.62841498851776,0.37158501148224),NumberSequenceKeypoint.new(0.56209099292755,0.38797798752785,0.2771390080452),NumberSequenceKeypoint.new(0.90577298402786,0.51912599802017,0),NumberSequenceKeypoint.new(1,1,0)})
+					snow.Lifetime = NumberRange.new(8,14)
+					snow.Speed = NumberRange.new(8,18)
+					snow.EmissionDirection = Enum.NormalId.Bottom
+					snow.SpreadAngle = Vector2.new(35,35)
+					snow.Size = NumberSequence.new({NumberSequenceKeypoint.new(0,0,0),NumberSequenceKeypoint.new(0.039760299026966,1.3114800453186,0.32786899805069),NumberSequenceKeypoint.new(0.7554469704628,0.98360699415207,0.44038599729538),NumberSequenceKeypoint.new(1,0,0)})
+					snow.Parent = snowpart
+					local windsnow = Instance.new("ParticleEmitter")
+					windsnow.Acceleration = Vector3.new(0,0,1)
+					windsnow.RotSpeed = NumberRange.new(100)
+					windsnow.VelocitySpread = SnowflakesSpread.Value
+					windsnow.Rate = SnowflakesRate.Value
+					windsnow.Texture = "rbxassetid://8158344433"
+					windsnow.EmissionDirection = Enum.NormalId.Bottom
+					windsnow.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.16939899325371,0),NumberSequenceKeypoint.new(0.23365999758244,0.62841498851776,0.37158501148224),NumberSequenceKeypoint.new(0.56209099292755,0.38797798752785,0.2771390080452),NumberSequenceKeypoint.new(0.90577298402786,0.51912599802017,0),NumberSequenceKeypoint.new(1,1,0)})
+					windsnow.Lifetime = NumberRange.new(8,14)
+					windsnow.Speed = NumberRange.new(8,18)
+					windsnow.Rotation = NumberRange.new(110)
+					windsnow.SpreadAngle = Vector2.new(35,35)
+					windsnow.Size = NumberSequence.new({NumberSequenceKeypoint.new(0,0,0),NumberSequenceKeypoint.new(0.039760299026966,1.3114800453186,0.32786899805069),NumberSequenceKeypoint.new(0.7554469704628,0.98360699415207,0.44038599729538),NumberSequenceKeypoint.new(1,0,0)})
+					windsnow.Parent = snowpart
+					repeat
+						task.wait()
+						if isAlive(lplr, true) then 
+							snowpart.Position = lplr.Character.HumanoidRootPart.Position + vec3(0,SnowflakesHigh.Value,0)
+						end
+					until not vapeInjected
+				end)
+			else
+				for _, v in next, workspace:GetChildren() do
+					if v.Name == "SnowParticle" then
+						v:Remove()
+					end
+				end
+			end
+		end
+	})
+	SnowflakesSpread = GameWeather.CreateSlider({
+		Name = "Snow Spread",
+		Min = 1,
+		Max = 100,
+		Function = function() end,
+		Default = 35
+	})
+	SnowflakesRate = GameWeather.CreateSlider({
+		Name = "Snow Rate",
+		Min = 1,
+		Max = 100,
+		Function = function() end,
+		Default = 28
+	})
+	SnowflakesHigh = GameWeather.CreateSlider({
+		Name = "Snow High",
+		Min = 1,
+		Max = 200,
+		Function = function() end,
+		Default = 100
+	})
+	local Credits
+	Credits = GameWeather.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+local newcolor = function() return {Hue = 0, Sat = 0, Value = 0} end
+run(function()
+	local CloudMods = {}
+	local CloudNeon = {}
+	local clouds = {}
+	local CloudColor = newcolor()
+	local cloudFunction = function(cloud)
+		pcall(function()
+			cloud.Color = Color3.fromHSV(CloudColor.Hue, CloudColor.Sat, CloudColor.Value)
+			cloud.Material = (CloudNeon.Enabled and Enum.Material.Neon or Enum.Material.SmoothPlastic)
+		end)
+	end
+	CloudMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'CloudMods',
+		HoverText = 'Recolorizes the clouds to your liking.',
+		Function = function(calling)
+			if calling then 
+				clouds = workspace:WaitForChild('Clouds'):GetChildren()
+				if not CloudMods.Enabled then 
+					return 
+				end
+				for i,v in next, clouds do 
+					cloudFunction(v)
+				end
+				table.insert(CloudMods.Connections, workspace.Clouds.ChildAdded:Connect(function(cloud)
+					cloudFunction(cloud)
+					table.insert(clouds, cloud)
+				end))
+			else 
+				for i,v in next, clouds do 
+					pcall(function() 
+						v.Color = Color3.fromRGB(255, 255, 255)
+						v.Material = Enum.Material.SmoothPlastic
+					end) 
+				end
+			end
+		end
+	})
+	CloudColor = CloudMods.CreateColorSlider({
+		Name = 'Color',
+		Function = function()
+			for i,v in next, clouds do 
+				cloudFunction(v)
+			end
+		end
+	})
+	CloudNeon = CloudMods.CreateToggle({
+		Name = 'Neon',
+		Function = function() 
+			for i,v in next, clouds do 
+				cloudFunction(v)
+			end
+		end
+	})
+	local Credits
+	Credits = CloudMods.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+run(function()
+	local chatDisable = {Enabled = false}
+	local chatVersion = function()
+		if game.Chat:GetChildren()[1] then return true else return false end
+	end
+	chatDisable = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"]["CreateOptionsButton"]({
+		Name = "ChatDisable",
+		HoverText = "Disables the chat",
+		Function = function(callback)
+			if callback then
+				if chatVersion() then
+					lplr.PlayerGui.Chat.Enabled = false
+					game:GetService("CoreGui").TopBarApp.TopBarFrame.LeftFrame.ChatIcon.Visible = false
+				elseif (not chatVersion()) then
+					game.CoreGui.ExperienceChat.Enabled = false
+					game:GetService("CoreGui").TopBarApp.TopBarFrame.LeftFrame.ChatIcon.Visible = false
+					textChatService.ChatInputBarConfiguration.Enabled = false
+					textChatService.BubbleChatConfiguration.Enabled = false
+				end
+			else
+				if chatVersion() then
+					lplr.PlayerGui.Chat.Enabled = true
+					core.TopBarApp.TopBarFrame.LeftFrame.ChatIcon.Visible = true
+				else
+					gcore.ExperienceChat.Enabled = true
+					core.TopBarApp.TopBarFrame.LeftFrame.ChatIcon.Visible = true
+					textChatService.ChatInputBarConfiguration.Enabled = true
+					textChatService.BubbleChatConfiguration.Enabled = true
+				end
+			end
+		end
+	})
+	local Credits
+	Credits = chatDisable.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+run(function()
+	local BubbleMods = {}
+	local BubbleModsColorToggle = {}
+	local BubbleModsTextSizeToggle = {}
+	local BubbleModsTextColorToggle = {}
+	local BubbleModsTextSize = {Value = 16}
+	local BubbleModsTextColor = newcolor()
+	local BubbleModsColor = newcolor()
+	local chatbubbles = {}
+	local function bubbleFunction(bubble)
+		pcall(function() 
+			local name = 'ChatBubbleFrame'
+			if core:FindFirstChild('BubbleChat') then 
+				name = 'Frame' 
+			end
+			if tostring(bubble) ~= name and tostring(bubble) ~= 'RoundedFrame' then 
+				return 
+			end
+			if BubbleModsColorToggle.Enabled then 
+				bubble.BackgroundColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value)
+				pcall(function() bubble.Parent.Caret.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+				pcall(function() bubble.Parent.Carat.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+			end
+			if BubbleModsTextColorToggle.Enabled then 
+				pcall(function() bubble.Text.TextColor3 = Color3.fromHSV(BubbleModsTextColor.Hue, BubbleModsTextColor.Sat, BubbleModsTextColor.Value) end)
+				pcall(function() bubble.Contents.Ellipsis.TextColor3 = Color3.fromHSV(BubbleModsTextColor.Hue, BubbleModsTextColor.Sat, BubbleModsTextColor.Value) end)
+			end
+			if BubbleModsTextSizeToggle.Enabled then 
+				pcall(function() bubble.Text.TextSize = BubbleModsTextSize.Value end)
+				pcall(function() bubble.Contents.Ellipsis.TextSize = BubbleModsTextSize.Value end)
+			end
+			table.insert(chatbubbles, bubble)
+		end)
+	end
+	BubbleMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'BubbleMods',
+		HoverText = 'Mods the bubble chat experience.',
+		Function = function(calling) 
+			if calling then 
+				local bubblechat = (core:FindFirstChild('ExperienceChat') and core.ExperienceChat.bubbleChat or core:FindFirstChild('BubbleChat') or Instance.new('ScreenGui'))
+				for i,v in next, bubblechat:GetDescendants() do 
+					bubbleFunction(v)
+				end
+				table.insert(BubbleMods.Connections, bubblechat.DescendantAdded:Connect(bubbleFunction))
+			else 
+				for i,v in next, chatbubbles do 
+					pcall(function() v.Text.TextColor3 = Color3.fromRGB(57, 59, 61) end)
+					pcall(function() v.Text.TextSize = 16 end)
+					pcall(function() v.Parent.Carat.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+				end
+			end
+		end
+	})
+	BubbleModsColorToggle = BubbleMods.CreateToggle({
+		Name = 'Background Color',
+		Function = function(calling)
+			pcall(function() BubbleModsColor.Object.Visible = calling end)
+		end
+	})
+	BubbleModsTextColorToggle = BubbleMods.CreateToggle({
+		Name = 'Text Color',
+		Function = function(calling)
+			pcall(function() BubbleModsTextColor.Object.Visible = calling end)
+		end
+	})
+	BubbleModsTextSizeToggle = BubbleMods.CreateToggle({
+		Name = 'Text Size',
+		Function = function(calling)
+			pcall(function() BubbleModsTextSize.Object.Visible = calling end)
+		end
+	})
+	BubbleModsColor = BubbleMods.CreateColorSlider({
+		Name = 'Background Color',
+		Function = function()
+			if BubbleModsColorToggle.Enabled then 
+				for i,v in next, chatbubbles do 
+					pcall(function() 
+						v.BackgroundColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) 
+						pcall(function() v.Parent.Caret.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+						pcall(function() v.Parent.Carat.ImageColor3 = Color3.fromHSV(BubbleModsColor.Hue, BubbleModsColor.Sat, BubbleModsColor.Value) end)
+					end)
+				end  
+			end
+		end
+	})
+	BubbleModsTextColor = BubbleMods.CreateColorSlider({
+		Name = 'Text Color',
+		Function = function()
+			if BubbleModsTextColorToggle.Enabled then   
+				for i,v in next, chatbubbles do 
+					pcall(function() v.Text.TextColor3 = Color3.fromHSV(BubbleModsTextColor.Hue, BubbleModsTextColor.Sat, BubbleModsTextColor.Value) end)
+					pcall(function() v.Contents.Ellipsis.TextColor3 =  Color3.fromHSV(BubbleModsTextColor.Hue, BubbleModsTextColor.Sat, BubbleModsTextColor.Value) end) 
+				end 
+			end
+		end
+	})
+	BubbleModsTextSize = BubbleMods.CreateSlider({
+		Name = 'Text Size',
+		Min = 10,
+		Max = 23,
+		Function = function(size)
+			if BubbleModsTextSizeToggle.Enabled then 
+				for i,v in next, chatbubbles do 
+					pcall(function() v.Text.TextSize = 16 end)
+					pcall(function() v.Contents.Ellipsis.TextSize = BubbleModsTextSize.Value end)
+				end 
+			end
+		end
+	})
+	BubbleModsColor.Object.Visible = false 
+	BubbleModsTextColor.Object.Visible = false
+	BubbleModsTextSize.Object.Visible = false
+	local Credits
+	Credits = BubbleMods.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+local newcolor = function() return {Hue = 0, Sat = 0, Value = 0} end
+run(function()
+	local CharacterOutline = {}
+	local CharacterOutlineColor = newcolor()
+	local outline = Instance.new('Highlight', GuiLibrary.MainGui)
+	CharacterOutline = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'CharacterOutline',
+		HoverText = 'adds a cool outline to your character.',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					repeat task.wait() until (lplr.Character or not CharacterOutline.Enabled)
+					if CharacterOutline.Enabled then 
+						local oldhighlight = lplr.Character:FindFirstChildWhichIsA('Highlight')
+						if oldhighlight then 
+							oldhighlight.Adornee = nil 
+						end
+						outline.FillTransparency = 1
+						outline.Adornee = lplr.Character
+						table.insert(CharacterOutline.Connections, lplr.Character.DescendantAdded:Connect(function(instance)
+							if instance:IsA('Highlight') then 
+								instance.Adornee = nil
+							end
+						end))
+						table.insert(CharacterOutline.Connections, runService.Heartbeat:Connect(function()
+							outline.Adornee = (CharacterOutline.Enabled and lplr.Character or outline.Adornee)
+						end))
+						table.insert(CharacterOutline.Connections, lplr.CharacterAdded:Connect(function()
+							CharacterOutline.ToggleButton()
+							CharacterOutline.ToggleButton()
+						end))
+					end
+				end)
+			else
+				outline.Adornee = nil
+			end
+		end
+	})
+	
+	CharacterOutlineColor = CharacterOutline.CreateColorSlider({
+		Name = 'Color',
+		Function = function()
+			pcall(function() outline.OutlineColor = Color3.fromHSV(CharacterOutlineColor.Hue, CharacterOutlineColor.Sat, CharacterOutlineColor.Value) end)
+		end
+	})
+	local Credits
+	Credits = CharacterOutline.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)

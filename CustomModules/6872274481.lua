@@ -1,3 +1,5 @@
+--im nuking voidware real!!!!!!1111
+
 local GuiLibrary = shared.GuiLibrary
 local VoidwareFunctions = {WhitelistLoaded = false, WhitelistRefreshEvent = Instance.new("BindableEvent"), WhitelistSucceeded = false, WhitelistLoadTime = tick()}
 local VoidwareLibraries = {}
@@ -80,9 +82,12 @@ local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
 local collectionService = game:GetService("CollectionService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local replicatedStorageService = replicatedStorage
 local gameCamera = workspace.CurrentCamera
+local cam = gameCamera
 local lplr = playersService.LocalPlayer
-local vapeConnections = {}
+local vapeConnections
+if shared.vapeConnections and type(shared.vapeConnections) == "table" then vapeConnections = shared.vapeConnections else vapeConnections = {} shared.vapeConnections = vapeConnections end
 local vapeCachedAssets = {}
 local vapeEvents = setmetatable({}, {
 	__index = function(self, index)
@@ -136,6 +141,17 @@ local store = {
 	},
 	zephyrOrb = 0
 }
+
+local sendmessage = function() end
+sendmessage = function(text)
+	if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(text)
+	else
+		replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(text, 'All')
+	end
+end
+
+local newcolor = function() return {Hue = 0, Sat = 0, Value = 0} end
 
 void = {}
 
@@ -293,10 +309,6 @@ local function InfoNotification(title, text, delay)
 	return (suc and res)
 end
 
-local function run(func) func() end
-local function runFunction(func) func() end
-
-
 local function isFriend(plr, recolor)
 	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
 		local friend = table.find(GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectList, plr.Name)
@@ -434,6 +446,10 @@ GuiLibrary.SelfDestructEvent.Event:Connect(function()
 		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
 		if v.disconnect then pcall(function() v:disconnect() end) continue end
 	end
+	for i, v in pairs(shared.vapeConnections) do
+		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
+		if v.disconnect then pcall(function() v:disconnect() end) continue end
+	end
 end)
 
 local function getItem(itemName, inv)
@@ -533,29 +549,33 @@ local function attackValue(vec)
 	return {value = vec}
 end
 
+disablerZephyr = false
+disablerBoost = 1
 local function getSpeed()
 	local speed = 0
 	if lplr.Character then
 		local SpeedDamageBoost = lplr.Character:GetAttribute("SpeedBoost")
 		if SpeedDamageBoost and SpeedDamageBoost > 1 then
-			speed = speed + (8 * (SpeedDamageBoost - 1))
+			speed = speed * 1.6
 		end
 		if store.grapple > tick() then
-			speed = speed + 90
+			speed = speed * 3
 		end
 		if store.scythe > tick() then
-			speed = speed + 5
+			speed = speed * (1.6 * disablerBoost)
 		end
 		if lplr.Character:GetAttribute("GrimReaperChannel") then
-			speed = speed + 20
+			speed = speed * 1.9
 		end
 		local armor = store.localInventory.inventory.armor[3]
 		if type(armor) ~= "table" then armor = {itemType = ""} end
 		if armor.itemType == "speed_boots" then
-			speed = speed + 12
+			speed = speed * 1.375
 		end
 		if store.zephyrOrb ~= 0 then
-			speed = speed + 12
+			if disablerZephyr then
+				speed = speed * (1.899 * disablerBoost)
+			end
 		end
 	end
 	return speed
@@ -1382,6 +1402,7 @@ run(function()
 		QueueMeta = require(replicatedStorage.TS.game["queue-meta"]).QueueMeta,
 		ReportRemote = dumpRemote(debug.getconstants(require(lplr.PlayerScripts.TS.controllers.global.report["report-controller"]).default.reportPlayer)),
 		ResetRemote = dumpRemote(debug.getconstants(debug.getproto(KnitClient.Controllers.ResetController.createBindable, 1))),
+		DinoRemote = dumpRemote(debug.getconstants(debug.getproto(KnitClient.Controllers.DinoTamerController.KnitStart, 3))),
 		Roact = require(replicatedStorage["rbxts_include"]["node_modules"]["@rbxts"]["roact"].src),
 		RuntimeLib = require(replicatedStorage["rbxts_include"].RuntimeLib),
 		Shop = require(replicatedStorage.TS.games.bedwars.shop["bedwars-shop"]).BedwarsShop,
@@ -1820,15 +1841,15 @@ do
 		until not vapeInjected
 	end)
 	local textlabel = Instance.new("TextLabel")
-	textlabel.Size = UDim2.new(1, 0, 0, 36)
-	textlabel.Text = "Ty for using Voidware :D -erchobg"
+	textlabel.Size = UDim2.new(0.302310646, 0, 0.062656641, 0)
+	textlabel.Text = "Thanks for using Voidware :D -erchobg"
 	textlabel.BackgroundTransparency = 1
 	textlabel.ZIndex = 10
 	textlabel.TextStrokeTransparency = 0
 	textlabel.TextScaled = true
 	textlabel.Font = Enum.Font.SourceSans
 	textlabel.TextColor3 = Color3.new(1, 1, 1)
-	textlabel.Position = UDim2.new(0, 0, 1, -36)
+	textlabel.Position = UDim2.new(0.348523736, 0, 0.937343359, 0)
 	textlabel.Parent = GuiLibrary.MainGui.ScaledGui.ClickGui
 end
 
@@ -1897,27 +1918,34 @@ run(function()
 	end
 end)
 
-GuiLibrary.RemoveObject("SilentAimOptionsButton")
-GuiLibrary.RemoveObject("ReachOptionsButton")
-GuiLibrary.RemoveObject("MouseTPOptionsButton")
-GuiLibrary.RemoveObject("PhaseOptionsButton")
-GuiLibrary.RemoveObject("AutoClickerOptionsButton")
-GuiLibrary.RemoveObject("SpiderOptionsButton")
-GuiLibrary.RemoveObject("LongJumpOptionsButton")
-GuiLibrary.RemoveObject("HitBoxesOptionsButton")
-GuiLibrary.RemoveObject("KillauraOptionsButton")
-GuiLibrary.RemoveObject("TriggerBotOptionsButton")
-GuiLibrary.RemoveObject("AutoLeaveOptionsButton")
-GuiLibrary.RemoveObject("SpeedOptionsButton")
-GuiLibrary.RemoveObject("FlyOptionsButton")
-GuiLibrary.RemoveObject("ClientKickDisablerOptionsButton")
-GuiLibrary.RemoveObject("NameTagsOptionsButton")
-GuiLibrary.RemoveObject("SafeWalkOptionsButton")
-GuiLibrary.RemoveObject("BlinkOptionsButton")
-GuiLibrary.RemoveObject("FOVChangerOptionsButton")
-GuiLibrary.RemoveObject("AntiVoidOptionsButton")
-GuiLibrary.RemoveObject("SongBeatsOptionsButton")
-GuiLibrary.RemoveObject("TargetStrafeOptionsButton")
+task.spawn(function()
+	for i,v in next, (
+		{
+			'TargetStrafeOptionsButton', 
+			'SongBeatsOptionsButton', 
+			'AntiVoidOptionsButton', 
+			'FOVChangerOptionsButton', 
+			'SafeWalkOptionsButton', 
+			'NameTagsOptionsButton', 
+			'ClientKickDisablerOptionsButton', 
+			'FlyOptionsButton', 
+			'SpeedOptionsButton', 
+			'AutoLeaveOptionsButton', 
+			'TriggerBotOptionsButton', 
+			'KillauraOptionsButton', 
+			'HitBoxesOptionsButton', 
+			'LongJumpOptionsButton', 
+			'SpiderOptionsButton',
+			'AutoClickerOptionsButton',
+			'PhaseOptionsButton',
+			--'MouseTPOptionsButton',
+			'ReachOptionsButton',
+			'SilentAimOptionsButton'
+		}
+	) do 
+		pcall(GuiLibrary.RemoveObject, v) 
+	end
+end)
 
 run(function()
 	local AimAssist = {Enabled = false}
@@ -3727,7 +3755,7 @@ run(function()
 		Function = function(callback)
 			if callback then
 				--context issues moment
-			--[[	killaurarangecirclepart = Instance.new("MeshPart")
+				killaurarangecirclepart = Instance.new("MeshPart")
 				killaurarangecirclepart.MeshId = "rbxassetid://3726303797"
 				killaurarangecirclepart.Color = Color3.fromHSV(killauracolor["Hue"], killauracolor["Sat"], killauracolor.Value)
 				killaurarangecirclepart.CanCollide = false
@@ -3737,7 +3765,7 @@ run(function()
 				if Killaura.Enabled then
 					killaurarangecirclepart.Parent = gameCamera
 				end
-				bedwars.QueryUtil:setQueryIgnored(killaurarangecirclepart, true)]]
+				bedwars.QueryUtil:setQueryIgnored(killaurarangecirclepart, true)
 			else
 				if killaurarangecirclepart then
 					killaurarangecirclepart:Destroy()
@@ -4992,78 +5020,74 @@ end)
 run(function()
 	local ChestESPList = {ObjectList = {}, RefreshList = function() end}
 	local function nearchestitem(item)
-		for i,v in pairs(ChestESPList.ObjectList) do
+		for i,v in next, (ChestESPList.ObjectList) do 
 			if item:find(v) then return v end
 		end
 	end
 	local function refreshAdornee(v)
-		local chest = v:FindFirstChild("ChestFolderValue")
-		chest = chest and chest.Value or nil
-		if not chest then return end
+		local chest = v.Adornee.ChestFolderValue.Value
 		local chestitems = chest and chest:GetChildren() or {}
-		for i2,v2 in pairs(v.Frame:GetChildren()) do
-			if v2:IsA("ImageLabel") then
+		for i2,v2 in next, (v.Frame:GetChildren()) do
+			if v2:IsA('ImageLabel') then
 				v2:Remove()
 			end
 		end
 		v.Enabled = false
 		local alreadygot = {}
-		for itemNumber, item in pairs(chestitems) do
-			if alreadygot[item.Name] == nil and (table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name)) then
+		for itemNumber, item in next, (chestitems) do
+			if alreadygot[item.Name] == nil and (table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name)) then 
 				alreadygot[item.Name] = true
 				v.Enabled = true
-                local blockimage = Instance.new("ImageLabel")
-                blockimage.Size = UDim2.new(0, 32, 0, 32)
-                blockimage.BackgroundTransparency = 1
-                blockimage.Image = bedwars.getIcon({itemType = item.Name}, true)
-                blockimage.Parent = v.Frame
-            end
+				local blockimage = Instance.new('ImageLabel')
+				blockimage.Size = UDim2.new(0, 32, 0, 32)
+				blockimage.BackgroundTransparency = 1
+				blockimage.Image = bedwars.getIcon({itemType = item.Name}, true)
+				blockimage.Parent = v.Frame
+			end
 		end
 	end
 
-	local ChestESPFolder = Instance.new("Folder")
-	ChestESPFolder.Name = "ChestESPFolder"
+	local ChestESPFolder = Instance.new('Folder')
+	ChestESPFolder.Name = 'ChestESPFolder'
 	ChestESPFolder.Parent = GuiLibrary.MainGui
-	local ChestESP = {Enabled = false}
-	local ChestESPBackground = {Enabled = true}
+	local ChestESP = {}
+	local ChestESPBackground = {}
 
 	local function chestfunc(v)
 		task.spawn(function()
-			local chest = v:FindFirstChild("ChestFolderValue")
-			chest = chest and chest.Value or nil
-			if not chest then return end
-			local billboard = Instance.new("BillboardGui")
+			local billboard = Instance.new('BillboardGui')
 			billboard.Parent = ChestESPFolder
-			billboard.Name = "chest"
+			billboard.Name = 'chest'
 			billboard.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
 			billboard.Size = UDim2.new(0, 42, 0, 42)
 			billboard.AlwaysOnTop = true
 			billboard.Adornee = v
-			local frame = Instance.new("Frame")
+			local frame = Instance.new('Frame')
 			frame.Size = UDim2.new(1, 0, 1, 0)
 			frame.BackgroundColor3 = Color3.new(0, 0, 0)
 			frame.BackgroundTransparency = ChestESPBackground.Enabled and 0.5 or 1
 			frame.Parent = billboard
-			local uilistlayout = Instance.new("UIListLayout")
+			local uilistlayout = Instance.new('UIListLayout')
 			uilistlayout.FillDirection = Enum.FillDirection.Horizontal
 			uilistlayout.Padding = UDim.new(0, 4)
 			uilistlayout.VerticalAlignment = Enum.VerticalAlignment.Center
 			uilistlayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-			uilistlayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			uilistlayout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
 				billboard.Size = UDim2.new(0, math.max(uilistlayout.AbsoluteContentSize.X + 12, 42), 0, 42)
 			end)
 			uilistlayout.Parent = frame
-			local uicorner = Instance.new("UICorner")
+			local uicorner = Instance.new('UICorner')
 			uicorner.CornerRadius = UDim.new(0, 4)
 			uicorner.Parent = frame
-			if chest then
+			local chest = v:WaitForChild('ChestFolderValue').Value
+			if chest then 
 				table.insert(ChestESP.Connections, chest.ChildAdded:Connect(function(item)
-					if table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name) then
+					if table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name) then 
 						refreshAdornee(billboard)
 					end
 				end))
 				table.insert(ChestESP.Connections, chest.ChildRemoved:Connect(function(item)
-					if table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name) then
+					if table.find(ChestESPList.ObjectList, item.Name) or nearchestitem(item.Name) then 
 						refreshAdornee(billboard)
 					end
 				end))
@@ -5073,12 +5097,12 @@ run(function()
 	end
 
 	ChestESP = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
-		Name = "ChestESP",
-		Function = function(callback)
-			if callback then
+		Name = 'ChestESP',
+		Function = function(calling)
+			if calling then
 				task.spawn(function()
-					table.insert(ChestESP.Connections, collectionService:GetInstanceAddedSignal("chest"):Connect(chestfunc))
-					for i,v in pairs(collectionService:GetTagged("chest")) do chestfunc(v) end
+					table.insert(ChestESP.Connections, collectionService:GetInstanceAddedSignal('chest'):Connect(chestfunc))
+					for i,v in next, (collectionService:GetTagged('chest')) do chestfunc(v) end
 				end)
 			else
 				ChestESPFolder:ClearAllChildren()
@@ -5086,25 +5110,25 @@ run(function()
 		end
 	})
 	ChestESPList = ChestESP.CreateTextList({
-		Name = "ItemList",
-		TempText = "item or part of item",
+		Name = 'ItemList',
+		TempText = 'item or part of item',
 		AddFunction = function()
-			if ChestESP.Enabled then
+			if ChestESP.Enabled then 
 				ChestESP.ToggleButton(false)
 				ChestESP.ToggleButton(false)
 			end
 		end,
 		RemoveFunction = function()
-			if ChestESP.Enabled then
+			if ChestESP.Enabled then 
 				ChestESP.ToggleButton(false)
 				ChestESP.ToggleButton(false)
 			end
 		end
 	})
 	ChestESPBackground = ChestESP.CreateToggle({
-		Name = "Background",
+		Name = 'Background',
 		Function = function()
-			if ChestESP.Enabled then
+			if ChestESP.Enabled then 
 				ChestESP.ToggleButton(false)
 				ChestESP.ToggleButton(false)
 			end
@@ -7591,16 +7615,16 @@ run(function()
 end)
 
 run(function()
-	local justsaid = ""
+	local justsaid = ''
 	local leavesaid = false
 	local alreadyreported = {}
 
 	local function removerepeat(str)
-		local newstr = ""
-		local lastlet = ""
-		for i,v in pairs(str:split("")) do
+		local newstr = ''
+		local lastlet = ''
+		for i,v in next, (str:split('')) do 
 			if v ~= lastlet then
-				newstr = newstr..v
+				newstr = newstr..v 
 				lastlet = v
 			end
 		end
@@ -7608,95 +7632,94 @@ run(function()
 	end
 
 	local reporttable = {
-		gay = "Bullying",
-		gae = "Bullying",
-		gey = "Bullying",
-		hack = "Scamming",
-		exploit = "Scamming",
-		cheat = "Scamming",
-		hecker = "Scamming",
-		haxker = "Scamming",
-		hacer = "Scamming",
-		report = "Bullying",
-		fat = "Bullying",
-		black = "Bullying",
-		getalife = "Bullying",
-		fatherless = "Bullying",
-		report = "Bullying",
-		fatherless = "Bullying",
-		disco = "Offsite Links",
-		yt = "Offsite Links",
-		dizcourde = "Offsite Links",
-		retard = "Swearing",
-		bad = "Bullying",
-		trash = "Bullying",
-		nolife = "Bullying",
-		nolife = "Bullying",
-		loser = "Bullying",
-		killyour = "Bullying",
-		kys = "Bullying",
-		hacktowin = "Bullying",
-		bozo = "Bullying",
-		kid = "Bullying",
-		adopted = "Bullying",
-		linlife = "Bullying",
-		commitnotalive = "Bullying",
-		vape = "Offsite Links",
-		futureclient = "Offsite Links",
-		download = "Offsite Links",
-		youtube = "Offsite Links",
-		die = "Bullying",
-		lobby = "Bullying",
-		ban = "Bullying",
-		wizard = "Bullying",
-		wisard = "Bullying",
-		witch = "Bullying",
-		magic = "Bullying",
+		gay = 'Bullying',
+		gae = 'Bullying',
+		gey = 'Bullying',
+		hack = 'Scamming',
+		exploit = 'Scamming',
+		cheat = 'Scamming',
+		hecker = 'Scamming',
+		haxker = 'Scamming',
+		hacer = 'Scamming',
+		fat = 'Bullying',
+		black = 'Bullying',
+		getalife = 'Bullying',
+		report = 'Bullying',
+		fatherless = 'Bullying',
+		disco = 'Offsite Links',
+		yt = 'Offsite Links',
+		dizcourde = 'Offsite Links',
+		retard = 'Swearing',
+		bad = 'Bullying',
+		trash = 'Bullying',
+		nolife = 'Bullying',
+		killyour = 'Bullying',
+		kys = 'Bullying',
+		hacktowin = 'Bullying',
+		bozo = 'Bullying',
+		kid = 'Bullying',
+		adopted = 'Bullying',
+		linlife = 'Bullying',
+		commitnotalive = 'Bullying',
+		vape = 'Offsite Links',
+		futureclient = 'Offsite Links',
+		download = 'Offsite Links',
+		youtube = 'Offsite Links',
+		die = 'Bullying',
+		lobby = 'Bullying',
+		ban = 'Bullying',
+		wizard = 'Bullying',
+		wisard = 'Bullying',
+		witch = 'Bullying',
+		magic = 'Bullying',
 	}
 	local reporttableexact = {
-		L = "Bullying",
+		L = 'Bullying',
 	}
 
+	local rendermessages = {
+		[1] = {'cry me a river <name>', 'boo hooo <name>', 'womp womp <name>', 'I could care less <name>.'}
+	}
 
 	local function findreport(msg)
-		local checkstr = removerepeat(msg:gsub("%W+", ""):lower())
-		for i,v in pairs(reporttable) do
-			if checkstr:find(i) then
+		local checkstr = removerepeat(msg:gsub('%W+', ''):lower())
+		for i,v in next, (reporttable) do 
+			if checkstr:find(i) then 
 				return v, i
 			end
 		end
-		for i,v in pairs(reporttableexact) do
-			if checkstr == i then
+		for i,v in next, (reporttableexact) do 
+			if checkstr == i then 
 				return v, i
 			end
 		end
-		for i,v in pairs(AutoToxicPhrases5.ObjectList) do
-			if checkstr:find(v) then
-				return "Bullying", v
+		for i,v in next, (AutoToxicPhrases5.ObjectList) do 
+			if checkstr:find(v) then 
+				return 'Bullying', v
 			end
 		end
 		return nil
 	end
 
 	AutoToxic = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
-		Name = "AutoToxic",
-		Function = function(callback)
-			if callback then
+		Name = 'AutoToxic',
+		Function = function(calling)
+			if calling then 
 				table.insert(AutoToxic.Connections, vapeEvents.BedwarsBedBreak.Event:Connect(function(bedTable)
-					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute("Team") then
-						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or "How dare you break my bed >:( <name> | vxpe on top"
+					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute('Team') then
+						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got Voidware <name>? | Voidware'
 						if custommsg then
-							custommsg = custommsg:gsub("<name>", (bedTable.player.DisplayName or bedTable.player.Name))
+							custommsg = custommsg:gsub('<name>', (bedTable.player.DisplayName or bedTable.player.Name))
 						end
 						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
 					elseif AutoToxicBedBreak.Enabled and bedTable.player.UserId == lplr.UserId then
-						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or "nice bed <teamname> | vxpe on top"
+						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or 'Your bed has been sent to the abyss <teamname>! | Voidware'
 						if custommsg then
 							local team = bedwars.QueueMeta[store.queueType].teams[tonumber(bedTable.brokenBedTeam.id)]
-							local teamname = team and team.displayName:lower() or "white"
-							custommsg = custommsg:gsub("<teamname>", teamname)
+							local teamname = team and team.displayName:lower() or 'white'
+							custommsg = custommsg:gsub('<teamname>', teamname)
 						end
-						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+						sendmessage(custommsg)
 					end
 				end))
 				table.insert(AutoToxic.Connections, vapeEvents.EntityDeathEvent.Event:Connect(function(deathTable)
@@ -7704,27 +7727,27 @@ run(function()
 						local killer = playersService:GetPlayerFromCharacter(deathTable.fromEntity)
 						local killed = playersService:GetPlayerFromCharacter(deathTable.entityInstance)
 						if not killed or not killer then return end
-						if killed == lplr then
+						if killed == lplr then 
 							if (not leavesaid) and killer ~= lplr and AutoToxicDeath.Enabled then
 								leavesaid = true
-								local custommsg = #AutoToxicPhrases3.ObjectList > 0 and AutoToxicPhrases3.ObjectList[math.random(1, #AutoToxicPhrases3.ObjectList)] or "My gaming chair expired midfight, thats why you won <name> | vxpe on top"
+								local custommsg = #AutoToxicPhrases3.ObjectList > 0 and AutoToxicPhrases3.ObjectList[math.random(1, #AutoToxicPhrases3.ObjectList)] or 'I was too laggy <name>. That\'s why you won. | Voidware'
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (killer.DisplayName or killer.Name))
+									custommsg = custommsg:gsub('<name>', (killer.DisplayName or killer.Name))
 								end
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+								sendmessage(custommsg)
 							end
 						else
-							if killer == lplr and AutoToxicFinalKill.Enabled then
-								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or "L <name> | vxpe on top"
+							if killer == lplr and AutoToxicFinalKill.Enabled then 
+								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Voidware. | Voidware'
 								if custommsg == lastsaid then
-									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or "L <name> | vxpe on top"
+									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Voidware. | Voidware'
 								else
 									lastsaid = custommsg
 								end
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (killed.DisplayName or killed.Name))
+									custommsg = custommsg:gsub('<name>', (killed.DisplayName or killed.Name))
 								end
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
+								sendmessage(custommsg)
 							end
 						end
 					end
@@ -7733,40 +7756,26 @@ run(function()
 					local myTeam = bedwars.ClientStoreHandler:getState().Game.myTeam
 					if myTeam and myTeam.id == winstuff.winningTeamId or lplr.Neutral then
 						if AutoToxicGG.Enabled then
-							textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync("gg")
-							if shared.ggfunction then
-								shared.ggfunction()
-							end
+							sendmessage('gg')
 						end
 						if AutoToxicWin.Enabled then
-							textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or "EZ L TRASH KIDS | vxpe on top")
+							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'Voidware is simply better everyone. | Voidware')
 						end
 					end
 				end))
-				table.insert(AutoToxic.Connections, vapeEvents.LagbackEvent.Event:Connect(function(plr)
-					if AutoToxicLagback.Enabled then
-						local custommsg = #AutoToxicPhrases8.ObjectList > 0 and AutoToxicPhrases8.ObjectList[math.random(1, #AutoToxicPhrases8.ObjectList)]
-						if custommsg then
-							custommsg = custommsg:gsub("<name>", (plr.DisplayName or plr.Name))
-						end
-						local msg = custommsg or "Imagine lagbacking L "..(plr.DisplayName or plr.Name).." | vxpe on top"
-						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(msg)
-					end
-				end))
-				table.insert(AutoToxic.Connections, textChatService.MessageReceived:Connect(function(tab)
+				table.insert(AutoToxic.Connections, RenderStore.MessageReceived.Event:Connect(function(plr, text)
 					if AutoToxicRespond.Enabled then
-						local plr = playersService:GetPlayerByUserId(tab.TextSource.UserId)
-						local args = tab.Text:split(" ")
+						local args = text:split(' ')
 						if plr and plr ~= lplr and not alreadyreported[plr] then
-							local reportreason, reportedmatch = findreport(tab.Text)
-							if reportreason then
+							local reportreason, reportedmatch = findreport(text)
+							if reportreason then 
 								alreadyreported[plr] = true
 								local custommsg = #AutoToxicPhrases4.ObjectList > 0 and AutoToxicPhrases4.ObjectList[math.random(1, #AutoToxicPhrases4.ObjectList)]
 								if custommsg then
-									custommsg = custommsg:gsub("<name>", (plr.DisplayName or plr.Name))
+									custommsg = custommsg:gsub('<name>', (plr.DisplayName or plr.Name))
 								end
-								local msg = custommsg or "I don't care about the fact that I'm hacking, I care about you dying in a block game. L "..(plr.DisplayName or plr.Name).." | vxpe on top"
-								textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(msg)
+								local msg = (custommsg or getrandomvalue(rendermessages[1]):gsub('<name>', plr.DisplayName)..' | Voidware')
+								sendmessage(msg)
 							end
 						end
 					end
@@ -7775,84 +7784,79 @@ run(function()
 		end
 	})
 	AutoToxicGG = AutoToxic.CreateToggle({
-		Name = "AutoGG",
-		Function = function() end,
+		Name = 'AutoGG',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicWin = AutoToxic.CreateToggle({
-		Name = "Win",
-		Function = function() end,
+		Name = 'Win',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicDeath = AutoToxic.CreateToggle({
-		Name = "Death",
-		Function = function() end,
+		Name = 'Death',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicBedBreak = AutoToxic.CreateToggle({
-		Name = "Bed Break",
-		Function = function() end,
+		Name = 'Bed Break',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicBedDestroyed = AutoToxic.CreateToggle({
-		Name = "Bed Destroyed",
-		Function = function() end,
+		Name = 'Bed Destroyed',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicRespond = AutoToxic.CreateToggle({
-		Name = "Respond",
-		Function = function() end,
+		Name = 'Respond',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicFinalKill = AutoToxic.CreateToggle({
-		Name = "Final Kill",
-		Function = function() end,
+		Name = 'Final Kill',
+		Function = function() end, 
 		Default = true
 	})
 	AutoToxicTeam = AutoToxic.CreateToggle({
-		Name = "Teammates",
-		Function = function() end,
-	})
-	AutoToxicLagback = AutoToxic.CreateToggle({
-		Name = "Lagback",
-		Function = function() end,
-		Default = true
+		Name = 'Teammates',
+		Function = function() end, 
 	})
 	AutoToxicPhrases = AutoToxic.CreateTextList({
-		Name = "ToxicList",
-		TempText = "phrase (win)",
+		Name = 'ToxicList',
+		TempText = 'phrase (win)',
 	})
 	AutoToxicPhrases2 = AutoToxic.CreateTextList({
-		Name = "ToxicList2",
-		TempText = "phrase (kill) <name>",
+		Name = 'ToxicList2',
+		TempText = 'phrase (kill) <name>',
 	})
 	AutoToxicPhrases3 = AutoToxic.CreateTextList({
-		Name = "ToxicList3",
-		TempText = "phrase (death) <name>",
+		Name = 'ToxicList3',
+		TempText = 'phrase (death) <name>',
 	})
 	AutoToxicPhrases7 = AutoToxic.CreateTextList({
-		Name = "ToxicList7",
-		TempText = "phrase (bed break) <teamname>",
+		Name = 'ToxicList7',
+		TempText = 'phrase (bed break) <teamname>',
 	})
 	AutoToxicPhrases7.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases6 = AutoToxic.CreateTextList({
-		Name = "ToxicList6",
-		TempText = "phrase (bed destroyed) <name>",
+		Name = 'ToxicList6',
+		TempText = 'phrase (bed destroyed) <name>',
 	})
 	AutoToxicPhrases6.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases4 = AutoToxic.CreateTextList({
-		Name = "ToxicList4",
-		TempText = "phrase (text to respond with) <name>",
+		Name = 'ToxicList4',
+		TempText = 'phrase (text to respond with) <name>',
 	})
 	AutoToxicPhrases4.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases5 = AutoToxic.CreateTextList({
-		Name = "ToxicList5",
-		TempText = "phrase (text to respond to)",
+		Name = 'ToxicList5',
+		TempText = 'phrase (text to respond to)',
 	})
 	AutoToxicPhrases5.Object.AddBoxBKG.AddBox.TextSize = 12
 	AutoToxicPhrases8 = AutoToxic.CreateTextList({
-		Name = "ToxicList8",
-		TempText = "phrase (lagback) <name>",
+		Name = 'ToxicList8',
+		TempText = 'phrase (lagback) <name>',
 	})
 	AutoToxicPhrases8.Object.AddBoxBKG.AddBox.TextSize = 12
 end)
@@ -8522,7 +8526,7 @@ run(function()
 	bedprotectorrange = BedProtector.CreateSlider({
 		Name = "Place range",
 		Min = 1,
-		Max = 20,
+		Max = 100,
 		Function = function(val) end,
 		Default = 20
 	})
@@ -8690,7 +8694,6 @@ run(function()
 		end
 	})
 end)
-
 
 run(function()
 	local controlmodule = require(lplr.PlayerScripts.PlayerModule).controls
@@ -9400,6 +9403,7 @@ function VoidwareFunctions:GetPlayerType(plr)
 		return tab.Rank, tab.Attackable, tab.Priority, tab.TagText, tab.TagColor, tab.TagHidden, tab.UID, tab.HWID
 	end
 end
+local playerRaycasted = function() return true end
 local GetTarget = function() return {} end
 GetTarget = function(distance, healthmethod, raycast, npc, team)
 	local magnitude, target = (distance or healthmethod and 0 or math.huge), {}
@@ -9416,10 +9420,10 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	end--]]
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
+			--[[if not RenderFunctions:GetPlayerType(2) then 
 				continue
-			end
-			if not ({shared.vapewhitelist:GetWhitelist(v)})[2] then
+			end--]]
+			if not ({shared.vapewhitelist:get(v)})[2] then
 				continue
 			end
 			if not shared.vapeentity.isPlayerTargetable(v) then 
@@ -9449,7 +9453,7 @@ GetTarget = function(distance, healthmethod, raycast, npc, team)
 	return target
 end
 
-runFunction(function()
+run(function()
 	local DoubleHighJump = {Enabled = false}
 	local DoubleHighJumpHeight = {Value = 500}
 	local DoubleHighJumpHeight2 = {Value = 500}
@@ -9526,7 +9530,7 @@ isAlive = function(plr, nohealth)
 	end
 	return alive
 end
-runFunction(function() 
+run(function() 
 	local Invisibility = {}
 	local collideparts = {}
 	local invisvisual = {}
@@ -9619,6 +9623,7 @@ task.spawn(function()
     task.wait()
   until not vapeInjected
 end)
+
 local vapeAssert = function(argument, title, text, duration, hault, moduledisable, module) 
 	if not argument then
     local suc, res = pcall(function()
@@ -9672,13 +9677,10 @@ local function FindEnemyBed(maxdistance, highest)
 	if not lplr:GetAttribute("Team") then return nil end
 	for i,v in pairs(playersService:GetPlayers()) do
 		if v ~= lplr then
-			local type, attackable = RenderFunctions:GetPlayerType(v)
-			--[[if not attackable then
-				for i, v in pairs(whitelistuserteams) do
-					print(whitelistuserteams[i])
-				end
+			local type, attackable = shared.vapewhitelist:get(v)
+			if not attackable then
 				whitelistuserteams[v:GetAttribute("Team")] = true
-			end--]]
+			end
 		end
 	end
 	for i,v in pairs(collectionService:GetTagged("bed")) do
@@ -9732,7 +9734,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
 	local function raycasted(entityroot) return abletocalculate() and blockRaycast and workspace:Raycast(entityroot.Position, Vector3.new(0, -2000, 0), store.blockRaycast) or not blockRaycast and true or false end
 	for i,v in pairs(playersService:GetPlayers()) do
 		if v ~= lplr and abletocalculate() and isAlive(v) and ({VoidwareFunctions:GetPlayerType(v)})[2] and v.Team ~= lplr.Team then
-			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+			if not ({whitelist:get(v)})[2] then 
 				continue
 			end
 			if sortmethods[sortmethod](v.Character.HumanoidRootPart, v.Character:GetAttribute("Health") or v.Character.Humanoid.Health) and raycasted(v.Character.HumanoidRootPart) then
@@ -9802,7 +9804,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
     end
     return entity
 end
-runFunction(function()
+run(function()
 	local Autowin = {Enabled = false}
 	local AutowinNotification = {Enabled = true}
 	local bedtween
@@ -9919,16 +9921,25 @@ runFunction(function()
 		HoverText = "best paid autowin 2023!1!!! rel11!11!1"
 	})
 end)
-runFunction(function()
-	local Trolling = {}
-	Trolling = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-		Name = 'Trolling',
-		HoverText = ':troll:',
+
+run(function()
+	local PlayerLevelSet = {}
+	local PlayerLevel = {Value = 100}
+	PlayerLevelSet = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'PlayerLevelSet',
+		HoverText = 'Sets your player level to 100 (client sided)',
 		Function = function(calling)
 			if calling then 
-				game.Players.LocalPlayer:SetAttribute("PlayerLevel", 100)
+				game.Players.LocalPlayer:SetAttribute("PlayerLevel", PlayerLevel.Value)
 			end
 		end
+	})
+	PlayerLevel = PlayerLevelSet.CreateSlider({
+		Name = 'Sets your desired player level',
+		Function = function() game.Players.LocalPlayer:SetAttribute("PlayerLevel", PlayerLevel.Value) end,
+		Min = 1,
+		Max = 100,
+		Default = 100
 	})
 end)
 
@@ -9937,10 +9948,10 @@ GetAllTargets = function(distance, sort)
 	local targets = {}
 	for i,v in playersService:GetPlayers() do 
 		if v ~= lplr and isAlive(v) and isAlive(lplr, true) then 
-			if not RenderFunctions:GetPlayerType(2) then 
-				continue
-			end
-			if not ({WhitelistFunctions:GetWhitelist(v)})[2] then 
+			--if not RenderFunctions:GetPlayerType(2) then 
+				--continue
+			--end--]]
+			if not ({whitelist:get(v)})[2] then 
 				continue
 			end
 			if not entityLibrary.isPlayerTargetable(v) then 
@@ -9984,50 +9995,6 @@ tweenInProgress = function()
 	return false
 end
 
-runFunction(function()  
-	local BedTP = {Enabled = false}
-	local targetbed
-	local bedtween
-	BedTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
-		Name = "BedTP",
-		HoverText = "Tweens to a nearby bed",
-		Function = function(callback)
-		 if callback then 
-			 task.spawn(function()
-				 targetbed = FindTarget() 
-				 vapeAssert(targetbed, "BedTP", "Enemy Bed Not Found.", 8, true, true, "BedTP")
-				 vapeAssert(FindTeamBed(), "BedTP", "Team Bed Not Found.", 10, true, true, "BedTP")
-				 if isAlive(lplr, true) then 
-					 lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
-					 lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
-				 end
-				 table.insert(BedTP.Connections, lplr.CharacterAdded:Connect(function()
-					 repeat task.wait() until isAlive(lplr, true)
-					 if not BedTP.Enabled then 
-						 return 
-					 end 
-					 task.wait(0.2)
-					 targetbed = FindEnemyBed(nil, true)
-					 if not targetbed then 
-						 BedTP.ToggleButton(false)
-						 return 
-					 end
-					 bedtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, targetbed) / 23.4 / 32, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetbed.Position) + Vector3.new(0, 5, 0)})
-					 bedtween:Play()
-					 bedtween.Completed:Wait()
-					 if BedTP.Enabled then 
-						 BedTP.ToggleButton(false)
-					 end
-				 end))
-			 end)
-		 else
-			 pcall(function() bedtween:Cancel() end)
-			 targetbed = nil
-			 bedtween = nil
-		 end
-	 end
-	})
-end)
 function VoidwareFunctions:LoadTime()
 	if shared.VapeFullyLoaded then
 		return (tick() - VoidwareStore.TimeLoaded)
@@ -10035,7 +10002,7 @@ function VoidwareFunctions:LoadTime()
 		return 0
 	end
 end
-runFunction(function()
+run(function()
 	local middletween
 	local MiddleTP = {Enabled = false}
 	MiddleTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
@@ -10094,114 +10061,158 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
-	if not pcall(GuiLibrary.RemoveObject, "PlayerTPOptionsButton") then 
-		return 
+run(function()
+	local GetEnumItems = function() return {} end
+	GetEnumItems = function(enum)
+		local fonts = {}
+		for i,v in next, Enum[enum]:GetEnumItems() do 
+			table.insert(fonts, v.Name) 
+		end
+		return fonts
 	end
-	local PlayerTP = {Enabled = false}
-	local targetTween
-	local PlayerTPMethod = {Value = "Distance"}
-	local playertpextramethods = {
-		can_of_beans = function(item, ent)
-			if not isAlive() then return nil end
-			if GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, ent.RootPart) >= 300 then return nil end
-			bedwars.Client:Get(bedwars.EatRemote):CallServerAsync({
-				item = getItem(item).tool
-			})
-			task.wait(0.2)
-			local speed = GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, ent.RootPart) < 280 and GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, ent.RootPart) / 23.4 / 32 or 0.49
-			targetTween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(speed, Enum.EasingStyle.Linear), {CFrame = CFrame.new(ent.RootPart.Position) + Vector3.new(0, 5, 0)})
-			targetTween:Play()
-			targetTween.Completed:Wait()
-			if PlayerTP.Enabled then
-				PlayerTP.ToggleButton(false)
+	local canRespawn = function() end
+	canRespawn = function()
+		local success, response = pcall(function() 
+			return lplr.leaderstats.Bed.Value == '✅' 
+		end)
+		return success and response 
+	end
+	local PlayerTP = {}
+	local PlayerTPTeleport = {Value = 'Respawn'}
+	local PlayerTPSort = {Value = 'Distance'}
+	local PlayerTPMethod = {Value = 'Linear'}
+	local PlayerTPAutoSpeed = {}
+	local PlayerTPSpeed = {Value = 200}
+	local PlayerTPTarget = {Value = ''}
+	local playertween
+	local oldmovefunc
+	local bypassmethods = {
+		Respawn = function() 
+			if isEnabled('InfiniteFly') then 
+				return 
 			end
-			return true
-		end,
-		jade_hammer = function(item, ent)
-			if not isAlive() then return nil end
-			if GetMagnitudeOf2Objects(lplr.Character.PrimaryPart, ent.RootPart) > 500 then return nil end
-			if not bedwars.AbilityController:canUseAbility("jade_hammer_jump") then
-				repeat task.wait() until bedwars.AbilityController:canUseAbility("jade_hammer_jump") or not PlayerTP.Enabled
-				task.wait(0.1)
+			if not canRespawn() then 
+				return 
 			end
-			if not PlayerTP.Enabled then return end
-			if not bedwars.AbilityController:canUseAbility("jade_hammer_jump") then return nil end
-			item = getItem(item).tool
-			switchItem(item)
-			bedwars.AbilityController:useAbility("jade_hammer_jump")
+			for i = 1, 30 do 
+				if isAlive(lplr, true) and lplr.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+					lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+					lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+				end
+			end
+			lplr.CharacterAdded:Wait()
+			repeat task.wait() until isAlive(lplr, true) 
 			task.wait(0.1)
-			targetTween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = CFrame.new(ent.RootPart.Position) + Vector3.new(0, 5, 0)})
-			targetTween:Play()
-			targetTween.Completed:Wait()
-			if PlayerTP.Enabled then
-				PlayerTP.ToggleButton(false)
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil or not PlayerTP.Enabled then 
+				return
 			end
-			return true
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (PlayerTPAutoSpeed.Enabled and ((target.RootPart.Position - localposition).Magnitude / 470) + 0.001 * 2 or (PlayerTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (PlayerTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[PlayerTPMethod.Value])
+			playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = target.RootPart.CFrame}) 
+			playertween:Play() 
+			playertween.Completed:Wait()
 		end,
-		void_axe = function(item, ent)
-			if not isAlive() then return nil end
-			if GetMagnitudeOf2Objects(lplr.Character.PrimaryPart, ent.RootPart) > 500 then return nil end
-			if not bedwars.AbilityController:canUseAbility("void_axe_jump") then
-				repeat task.wait() until bedwars.AbilityController:canUseAbility("void_axe_jump") or not PlayerTP.Enabled
-				task.wait(0.1)
+		Instant = function() 
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil then 
+				return PlayerTP.ToggleButton()
 			end
-			if not PlayerTP.Enabled then return end
-			if not bedwars.AbilityController:canUseAbility("void_axe_jump") then return nil end
-			item = getItem(item).tool
-			switchItem(tool)
-			bedwars.AbilityController:useAbility("void_axe_jump")
-			task.wait(0.1)
-			targetTween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = CFrame.new(ent.RootPart.Position) + Vector3.new(0, 5, 0)})
-			targetTween:Play()
-			targetTween.Completed:Wait()
-			if PlayerTP.Enabled then
-				PlayerTP.ToggleButton(false)
+			lplr.Character.HumanoidRootPart.CFrame = (target.RootPart.CFrame + Vector3.new(0, 5, 0)) 
+			PlayerTP.ToggleButton()
+		end,
+		Recall = function()
+			if not isAlive(lplr, true) or lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air then 
+				errorNotification('PlayerTP', 'Recall ability not available.', 7)
+				return 
 			end
-			return true
+			if not bedwars.AbilityController:canUseAbility('recall') then 
+				errorNotification('PlayerTP', 'Recall ability not available.', 7)
+				return
+			end
+			pcall(function()
+				oldmovefunc = require(lplr.PlayerScripts.PlayerModule).controls.moveFunction 
+				require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = function() end
+			end)
+			bedwars.AbilityController:useAbility('recall')
+			local teleported
+			table.insert(PlayerTP.Connections, lplr:GetAttributeChangedSignal('LastTeleported'):Connect(function() teleported = true end))
+			repeat task.wait() until teleported or not PlayerTP.Enabled or not isAlive(lplr, true) 
+			task.wait()
+			local target = GetTarget(nil, PlayerTPSort.Value == 'Health', true)
+			if target.RootPart == nil or not isAlive(lplr, true) or not PlayerTP.Enabled then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (PlayerTPAutoSpeed.Enabled and ((target.RootPart.Position - localposition).Magnitude / 1000) + 0.001 or (PlayerTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (PlayerTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[PlayerTPMethod.Value])
+			playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = target.RootPart.CFrame}) 
+			playertween:Play() 
+			playertween.Completed:Wait()
 		end
 	}
 	PlayerTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
-		Name = "PlayerTP",
-		HoverText = "Tween to the nearest enemy.",
-		Function = function(callback)
-			if callback then
-				task.spawn(function()
-				local ent = FindTarget(false, store.blockRaycast, nil, PlayerTPMethod.Value == "Health")
-				vapeAssert(ent.RootPart, "PlayerTP", "Player Not Found.", 7, true, true, "PlayerTP")
-				local currentmethod = nil
-				for i,v in pairs(store.localInventory.inventory.items) do
-					if playertpextramethods[v.itemType] ~= nil then
-						currentmethod = v.itemType
-					end
+		Name = 'PlayerTP',
+		HoverText = 'Tweens you to a nearby target.',
+		Function = function(calling)
+			if calling then 
+				if isEnabled('FullDisabler') and isAlive(lplr, true) then 
+					return bypassmethods.Instant()
 				end
-				if currentmethod == nil or (currentmethod ~= nil and layertpextramethods[currentmethod](currentmethod, ent) == nil) then
-				vapeAssert(FindTeamBed(), "PlayerTP", "Team Bed Missing.", 7, true, true, "PlayerTP")
-				vapeAssert(not store.queueType:find("skywars"), "PlayerTP", "Skywars noy Supported.", 7, true, true, "PlayerTP")
-				vapeAssert(store.queueType ~= "gun_game", "PlayerTP", "Can't run in gun game.", 7, true, true, "PlayerTP")
-				pcall(function() lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead) end)
-				table.insert(PlayerTP.Connections, lplr.CharacterAdded:Connect(function()
-					if not isAlive() then repeat task.wait() until isAlive() end
-					task.wait(0.2)
-					ent = FindTarget(false, store.blockRaycast, nil, PlayerTPMethod.Value == "Health")
-					if not ent.RootPart then PlayerTP.ToggleButton(false) return end
-					targetTween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, ent.RootPart) / 23.4 / 35, Enum.EasingStyle.Linear), {CFrame = ent.RootPart.CFrame + Vector3.new(0, 3, 0)})
-					targetTween:Play()
-					targetTween.Completed:Wait()
-					PlayerTP.ToggleButton(false)
-				end))
-			end
-			end)
+				if isEnabled('FullDisabler') then 
+					return PlayerTP.ToggleButton()
+				end
+				if GetTarget(nil, PlayerTPSort.Value == 'Health', true).RootPart and shared.VapeFullyLoaded then 
+					bypassmethods[isAlive() and PlayerTPTeleport.Value or 'Respawn']() 
+				end
+				if PlayerTP.Enabled then 
+					PlayerTP.ToggleButton()
+				end
 			else
-				pcall(function() targetTween:Cancel() end)
+				pcall(function() playertween:Disconnect() end)
+				if oldmovefunc then 
+					pcall(function() require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = oldmovefunc end)
+				end
+				oldmovefunc = nil
 			end
 		end
 	})
-	PlayerTPMethod = PlayerTP.CreateDropdown({
-		Name = "Method",
-		List = {"Distance", "Health"},
+	PlayerTPTeleport = PlayerTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = {'Respawn', 'Recall'},
 		Function = function() end
 	})
+	PlayerTPAutoSpeed = PlayerTP.CreateToggle({
+		Name = 'Auto Speed',
+		HoverText = 'Automatically uses a "good" tween speed.',
+		Default = true,
+		Function = function(calling) 
+			if calling then 
+				pcall(function() PlayerTPSpeed.Object.Visible = false end) 
+			else 
+				pcall(function() PlayerTPSpeed.Object.Visible = true end) 
+			end
+		end
+	})
+	PlayerTPSpeed = PlayerTP.CreateSlider({
+		Name = 'Tween Speed',
+		Min = 20, 
+		Max = 350,
+		Default = 200,
+		Function = function() end
+	})
+	PlayerTPMethod = PlayerTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = GetEnumItems('EasingStyle'),
+		Function = function() end
+	})
+	PlayerTPSpeed.Object.Visible = false
+	local Credits
+	Credits = PlayerTP.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
 end)
 
 local function GetClanTag(plr)
@@ -10211,7 +10222,7 @@ local function GetClanTag(plr)
 	return atr and res ~= nil and res
 end
 
-runFunction(function()
+run(function()
 	local ClanDetector = {Enabled = false}
 	local alreadyclanchecked = {}
 	local blacklistedclans = {}
@@ -10257,14 +10268,15 @@ runFunction(function()
 	})
 end)
 
-runFunction(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
+run(function() -- credits to _dremi on discord for finding the method (godpaster and the other skid skidded it from him)
 	local SetEmote = {}
 	local SetEmoteList = {Value = ''}
 	local oldemote
 	local emo2 = {}
+	local credits
 	SetEmote = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'SetEmote',
-		HoverText = "Sets your emote [Render]",
+		HoverText = "Sets your emote",
 		Function = function(calling)
 			if calling then
 				oldemote = lplr:GetAttribute('EmoteTypeSlot1')
@@ -10283,6 +10295,11 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 		emo2[v.name] = i
 	end
 	table.sort(emo, function(a, b) return a:lower() < b:lower() end)
+	credits = SetEmote.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        ButtonText = 'Show Credits',
+        Credits = 'Render'
+    })
 	SetEmoteList = SetEmote.CreateDropdown({
 		Name = 'Emote',
 		List = emo,
@@ -10294,12 +10311,13 @@ runFunction(function() -- credits to _dremi on discord for finding the method (g
 	})
 end)
 
-runFunction(function()
+run(function()
 	local NoEmoteWheel = {}
 	local emoting
+	local credits
 	NoEmoteWheel = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'NoEmoteWheel',
-		HoverText = 'Removes the old emote wheel and uses the first\nemote in your emote slot. [Render]',
+		HoverText = 'Removes the old emote wheel and uses the first\nemote in your emote slot.',
 		Function = function(calling)
 			if calling then 
 				table.insert(NoEmoteWheel.Connections, lplr.PlayerGui.ChildAdded:Connect(function(v)
@@ -10334,70 +10352,22 @@ runFunction(function()
 			end
 		end
 	})
+	credits = NoEmoteWheel.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        ButtonText = 'Show Credits',
+        Credits = 'Vape+ Booster'
+    })
 end)
 
---[[runFunction(function()
-	local ScytheDisabler = {}
-	ScytheDisabler = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-		Name = 'ScytheDisabler',
-		HoverText = 'Only works in custom matches, sorry <3 [Render]',
-		Function = function(calling)
-			if calling then 
-				repeat
-					task.wait()
-					if killauraNearPlayer then 
-						continue
-					end
-					local scythe = getItemNear('_scythe')
-					if isAlive(lplr, true) and not scythe then 
-						bedwars.Client:Get('ForgePurchaseUpgrade'):SendToServer(bedwars.ForgeConstants.SCYTHE)
-						continue
-					end
-					if isAlive(lplr, true) then 
-						local move = lplr.Character.Humanoid.MoveDirection
-						switchItem(scythe.tool)
-						bedwars.Client:Get('ScytheDash'):SendToServer({direction = move == Vector3.zero and Vector3.new(9e9, 9e9, 9e9) or move * 9e15})
-						if lplr:GetAttribute('ScytheSpinning') then 
-							store.scythe = (tick() + 1) 
-						end
-					end
-				until (not ScytheDisabler.Enabled)
-			end
-		end
-	})
-end)--]]
-local Allowed = false
-if RenderFunctions:GetPlayerType(2) and RenderFunctions:GetPlayerType(3) then
-	Allowed = true
-else
-	print("no")
-end
-
-if Allowed == true then
-	runFunction(function()
-		local Testing = {Enabled = false}
-		Testing = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
-			Name = "Testing",
-			HoverText = "Some testing",
-			Function = function(callback) 
-				if callback then
-					task.spawn(function()
-						--game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
-					end)
-				end
-			end
-		})
-	end)
-end
-
-runFunction(function()
+run(function()
 	local GetHost = {Enabled = false}
-	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
 		Name = "GetHost",
 		HoverText = ":troll:",
 		Function = function(callback) 
 			if callback then
 				task.spawn(function()
+					warningNotification("GetHost", "This module is only for show. None of the settings will work.", 5)
 					game.Players.LocalPlayer:SetAttribute("CustomMatchRole", "host")
 				end)
 			end
@@ -10442,7 +10412,7 @@ local function WinW(title, text, delay)
 	return (suc and res)
 end
 
---[[runFunction(function()
+--[[run(function()
 	local deb
 	local con
 	local client = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("remotes")).default.Client
@@ -10511,7 +10481,7 @@ end
 	})
 end)--]]
 
-runFunction(function() 
+--[[run(function() 
 	local TeleportBed
 	local bedConnection
 	local client = require(game:GetService("ReplicatedStorage"):WaitForChild("TS"):WaitForChild("remotes")).default.Client
@@ -10611,7 +10581,7 @@ runFunction(function()
 		end,
 		List = {"DEFAULT"}
 	})
-end)	
+end)--]]	
 
 local WaterMark = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 	Name = "WaterMark",
@@ -11081,7 +11051,7 @@ local function handleBedShieldEndEvent()
 end
 
 local function initializeNotifications(notifications, lplr)
-    notifications = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+    notifications = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
         Name = "EventNotifier",
         Function = function(notified)
             if notified then
@@ -11126,14 +11096,14 @@ local function initializeNotifications(notifications, lplr)
     end
 end
 
-runFunction(function()
+run(function()
     local lplr = game.Players.LocalPlayer 
     local notifications = {Connections = {}}
     initializeNotifications(notifications, lplr)
 end)
 
 
-runFunction(function()
+run(function()
 	local TweenService = game:GetService("TweenService")
 	local function TweenObject(target, properties, time, easingStyle, direction, callback)
 		local info = TweenInfo.new(time, easingStyle, direction)
@@ -11151,7 +11121,8 @@ runFunction(function()
 	Function = function(callback)
 		if callback then 
 			CustomTargetHud.Enabled = false 
-			CustomTargetHud.Enabled = true --prevents breaking/not loading lol (yup, laziest way ever to do this.)
+		        wait() --prevents breaking/not loading lol (yup, laziest way ever to do this.)
+			CustomTargetHud.Enabled = true 
 			local Table = {
 				["_MainGui"] = Instance.new("ScreenGui");
 				["_MainFrame"] = Instance.new("Frame");
@@ -11448,7 +11419,7 @@ runFunction(function()
 	})
 end)
 
-runFunction(function()
+run(function()
 	local HackerDetector = {}
 	local HackerDetectorInfFly = {}
 	local HackerDetectorTeleport = {}
@@ -11511,6 +11482,7 @@ runFunction(function()
 							InfoNotification('HackerDetector', plr.DisplayName..' is using Teleport Exploit!', 100) 
 							table.insert(detectedusers.Teleport, plr)
 							cachedetection(plr, 'Teleport')
+							whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 							if RenderFunctions.playerTags[plr] == nil then 
 								RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 							end
@@ -11533,6 +11505,7 @@ runFunction(function()
 					local magnitude = (plr.Character.HumanoidRootPart.Position - oldpos).Magnitude
 					if (plr:GetAttribute('LastTeleported') - lastbwteleport) ~= 0 and magnitude >= ((distances[plr:GetAttribute('PlayingAsKit') or ''] or 25) + (playerRaycasted(plr, Vector3.new(0, -15, 0)) and 0 or 40)) then 
 						InfoNotification('HackerDetector', plr.DisplayName..' is using speed!', 60)
+						whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 						if RenderFunctions.playerTags[plr] == nil then 
 							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 						end
@@ -11551,6 +11524,7 @@ runFunction(function()
 						InfoNotification('HackerDetector', plr.DisplayName..' is using InfiniteFly!', 60) 
 						cachedetection(plr, 'InfiniteFly')
 						table.insert(detectedusers.InfiniteFly, plr)
+						whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 						if RenderFunctions.playerTags[plr] == nil then 
 							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 						end
@@ -11569,6 +11543,7 @@ runFunction(function()
 						InfoNotification('HackerDetector', plr.DisplayName..' is using Invisibility!', 60) 
 						table.insert(detectedusers.Invisibility, plr)
 						cachedetection(plr, 'Invisibility')
+						whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 						if RenderFunctions.playerTags[plr] == nil then 
 							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 						end
@@ -11586,6 +11561,7 @@ runFunction(function()
 					if plr.Name == name then 
 						InfoNotification('HackerDetector', plr.DisplayName..' is the owner of Godsploit! They\'re is most likely cheating.', 60) 
 						cachedetection(plr, 'Name')
+						whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 						if RenderFunctions.playerTags[plr] == nil then 
 							RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 						end 
@@ -11609,6 +11585,7 @@ runFunction(function()
 			if type(response) == 'table' and response[plr.Name] then 
 				InfoNotification('HackerDetector', plr.DisplayName..' is cached on the exploiter database!', 30)
 				table.insert(detectedusers.Cached, plr)
+				whitelist.customtags[plr.Name] = {{text = 'VAPE USER', color = Color3.new(1, 1, 0)}}
 				if RenderFunctions.playerTags[plr] == nil then 
 					RenderFunctions:CreatePlayerTag(plr, 'SCRIPT KIDDIE', 'FF0000') 
 				end
@@ -11680,7 +11657,7 @@ end)
     local highlight = Instance.new("Highlight", store.blocks[i])
 end--]]
 
---[[runFunction(function()
+--[[run(function()
 	local LuckyBlocksESP = {Enabled = false}
 	local EspTransparency = {Value = 0.5}
 	local espParts = {}
@@ -11706,7 +11683,7 @@ end--]]
 end)--]]
 
 local teleportService = game:GetService("TeleportService")
---[[runFunction(function()
+--[[run(function()
 	local StaffDetector = {}
 	local StaffDetectorMode = {Value = 'Lobby'}
 	local legitgamers = {}
@@ -11846,7 +11823,7 @@ local teleportService = game:GetService("TeleportService")
 	})
 end)--]]
 
-runFunction(function() 
+run(function() 
 	local JoinQueue = {}
 	local queuetojoin = {Value = ''}
 	local function dumpmeta()
@@ -11858,7 +11835,7 @@ runFunction(function()
 		end 
 		return queuemeta
 	end
-	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
 		Name = 'JoinQueue',
 		NoSave = true,
 		HoverText = 'Starts a match for the provided gamemode.',
@@ -11866,9 +11843,18 @@ runFunction(function()
 			if calling then 
 				for i,v in next, bedwars.QueueMeta do 
 					if v.title == queuetojoin.Value then 
-						replicatedStorageService['events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events'].leaveQueue:FireServer()
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("leaveQueue"):FireServer()
 						task.wait(0.1)
-						bedwars.LobbyClientEvents:joinQueue(i) 
+						local args = {
+							[1] = {
+								["queueType"] = i
+							}
+						}
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events"):WaitForChild("joinQueue"):FireServer(unpack(args))
+						local listofmodes = {}
+						for i,v in pairs(bedwars.QueueMeta) do
+						if not v.disabled and not v.voiceChatOnly and not v.rankCategory then table.insert(listofmodes, i) end
+						end
 						break
 					end
 				end
@@ -11889,6 +11875,24 @@ runFunction(function()
 			end
 		end
 	end)
+end)
+
+run(function() 
+	local AutoBedDefense = {}
+	AutoBedDefense = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'AutoBedDefense',
+		HoverText = 'Auto puts bed defense the moment u get blocks (useful when someone spams fireballs at ur bed)',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					while wait(1) and AutoBedDefense.Enabled do
+						--GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.OptionsButtons.BedProtector.ToggleButton(true)
+						GuiLibrary.ObjectsThatCanBeSaved.BedProtectorOptionsButton.Api.ToggleButton()
+					end
+				end)
+			end
+		end
+	})
 end)
 
 local playerRaycasted = function() return true end
@@ -11934,7 +11938,7 @@ GetTarget = function(distance, healthmethod, raycast, npc, mouse, bypass)
 			if not RenderFunctions:GetPlayerType(2, v) then 
 				continue
 			end
-			--[[if not ({WhitelistFunctions:GetWhitelist(v)})[2] then
+			--[[if not ({whitelist:get(v)})[2] then
 				continue
 			end--]]
 			if not entityLibrary.isPlayerTargetable(v) then 
@@ -12037,7 +12041,7 @@ GetAllTargets = function(distance, mobs, raycast, sort)
 	return targets
 end
 
-runFunction(function()
+run(function()
 	local BowExploit = {}
 	local BowExploitMobs = {}
 	local BowExploitTarget = {Value = 'Mouse'}
@@ -12144,7 +12148,7 @@ end)
 
 local httpService = game:GetService("HttpService")
 
-runFunction(function()
+run(function()
 	local ProjectileAura = {}
 	local ProjectileAuraSort = {Value = 'Distance'}
 	local ProjectileAuraMobs = {}
@@ -12327,14 +12331,14 @@ runFunction(function()
 	ProjectileAuraMobs.Object.Visible = false
 end)
 																																																	
-runFunction(function()
+run(function()
 	local lplr = game.Players.LocalPlayer
 	local plrgui = lplr.PlayerGui
 	local deathscounter = 0
 	local regiondisplay = plrgui:WaitForChild("ServerRegionDisplay").ServerRegionText.Text
 	local playerded = false 
 	local debouncegaming = false
-	local SessionInfo = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	local SessionInfo = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
 		Name = "SessionInfo Custom",
 		HoverText = "Customizable session info.",
 		Function = function(callback)
@@ -12543,5 +12547,1817 @@ runFunction(function()
 		end
 	})
 end)
-																																																			
+
+local function instawin()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    
+    for _, part in pairs(game.Workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            for _, child in pairs(part:GetChildren()) do
+                if child:IsA("TouchTransmitter") then
+                    firetouchinterest(humanoidRootPart, part, 0)
+                    firetouchinterest(humanoidRootPart, part, 1)
+                end
+            end
+        end
+    end
+end
+
+run(function()
+    local isEnabled = false
+    local credits
+    local instaWinExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = "BridgeduelsInstawin",
+        Function = function(callback)
+            isEnabled = callback
+            if callback then
+                task.spawn(function()
+                    while isEnabled do
+                        instawin()
+                        wait(0.1)
+                    end
+                end)
+            end
+        end,
+        HoverText = "Instantly wins every game for you"
+    })
+	credits = instaWinExploit.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        ButtonText = 'Show Credits',
+        Credits = 'Vape+ Booster'
+    })
+end)
+
+run(function()
+	local ShellExploit = {}
+	local shells = {}
+	local function remove_esp(part)
+		if part.Token:FindFirstChild("Highlight_ESP") then
+			part.Token:FindFirstChild("Highlight_ESP"):Destroy()
+		else warn("No highlight found!") end
+	end
+	local function add_esp(part)
+		local create = function(part)
+			local highlight = Instance.new("Highlight")
+			highlight.FillColor = Color3.new(236, 237, 41)
+			highlight.Name = "Highlight_ESP"
+			highlight.Parent = part.Token
+		end
+		if part.Token:FindFirstChild("Highlight_ESP") then remove_esp(part) create(part) else
+			create(part)
+		end
+	end
+	ShellExploit = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'ShellExploit',
+		HoverText = 'Makes esp for u to see the shells',
+		Function = function(calling)
+			if calling then 
+				local neeeded_item_name = "Summer2024KillToken"
+				local workspace = game:GetService("Workspace")
+				local workspace_children = workspace:GetChildren()
+				for i,v in pairs(workspace_children) do
+					if workspace_children[i].Name == neeeded_item_name then
+						add_esp(workspace_children[i])
+						table.insert(shells, workspace_children[i])
+					end
+				end
+				workspace.ChildRemoved:Connect(function(child)
+					if child.Name == neeeded_item_name then
+						remove_esp(child)
+						for i,v in pairs(shells) do if shells[i] == child then table.remove(shells, tonumber(i)) end end
+					end
+				end)
+				workspace.ChildAdded:Connect(function(child)
+					if child.Name == neeeded_item_name then
+						add_esp(child)
+						table.insert(shells, child)
+					end
+				end)
+				local needed_parent = {}
+				for i,v in pairs(shells) do
+					shells[i].Parent = game.Attributes
+				end
+			else
+				for i,v in pairs(shells) do
+					remove_esp(shells[i])
+				end
+			end
+		end
+	})
+end)
+
+run(function()
+	local SpawnParts = {}
+	local SpawnPartColor
+	local realspawnpart
+	local SpawnESP = {Enabled = false}
+	SpawnESP = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = "SpawnESP",
+		Function = function(callback)
+			if callback then 
+				task.spawn(function()
+				for i,v2 in pairs(workspace.MapCFrames:GetChildren()) do 
+					if v2.Name:find("spawn") and v2.Name ~= "spawn" and v2.Name:find("respawn") == nil then
+						realspawnpart = Instance.new("Part")
+						realspawnpart.Size = Vector3.new(1, 1000, 1)
+						realspawnpart.Position = v2.Value.p
+						realspawnpart.Anchored = true
+						realspawnpart.Parent = workspace
+						realspawnpart.CanCollide = false
+						realspawnpart.Transparency = 0.5
+						realspawnpart.Material = Enum.Material.Neon
+						realspawnpart.Color = Color3.fromHSV(SpawnPartColor.Hue, SpawnPartColor.Sat, SpawnPartColor.Value)
+						bedwars.QueryUtil:setQueryIgnored(realspawnpart, true)
+						table.insert(SpawnParts, realspawnpart)
+					end
+				end
+			end)
+			else
+				for i,v in pairs(SpawnParts) do pcall(function() v:Destroy() end) end
+				table.clear(SpawnParts)
+			end
+		end
+	})
+	SpawnPartColor = SpawnESP.CreateColorSlider({
+		Name = "Color",
+		Function = function(h, s, v) if SpawnESP.Enabled then for i,v in pairs(SpawnParts) do pcall(function() v.Color = Color3.fromHSV(SpawnPartColor.Hue, SpawnPartColor.Sat, SpawnPartColor.Value) end) end end end
+	})
+end)
+
+run(function()
+	local StaffDetector = {}
+	local StaffDetectorMode = {Value = 'Lobby'}
+	local StaffDetectorFamous = {}
+	local StaffDetectorManual = {ObjectList = {}}
+	local credits 
+	local legitgamers = {}
+	local staffconfig = {legitmessages = {}, staffaccounts = {}, legitmodules = {}}
+	local cachedfriends = {}
+	local cachedroles = {}
+	local knownstaff = {}
+	local actionperformed
+	local olderror = errorNotification
+	local errorNotification = function(title: string, text: string, duration: number)
+		if StaffDetectorMode.Value == 'Uninject' then 
+			return game.GetService(game, 'StarterGui'):SetCore('SendNotification', ({
+				Title = title, 
+				Text = text, 
+				Duration = duration
+			})) 
+		end
+		return olderror(title, text, duration)
+	end
+	local staffactions = {
+		Uninject = GuiLibrary.SelfDestruct,
+		Lobby = function()
+			teleportService:Teleport(6872265039)
+		end,
+		Config = function()
+			for i,v in next, GuiLibrary.ObjectsThatCanBeSaved do 
+				if v.Type == 'OptionsButton' and table.find(staffconfig.legitmodules, i:gsub('OptionsButton', '')) == nil then 
+					GuiLibrary.SaveSettings = function() end
+					if v.Api.Enabled then
+						v.Api.ToggleButton()
+					end
+					pcall(GuiLibrary.RemoveObject, i)
+				end
+			end
+		end
+	}
+	for i,v in next, staffactions do 
+		local oldfunc = staffactions[i]
+		staffactions[i] = function()
+			actionperformed = true 
+			return oldfunc()
+		end
+	end
+	local function savestaffConfig(plr, detection)
+		local success, json = pcall(function() 
+			return httpService:JSONDecode(readfile('vape/Libraries/staffdata.json'))
+		end)
+		if not success then 
+			json = {}
+		end
+		table.insert(json, {Username = plr.Name, DisplayName = plr.DisplayName, Detection = detection, Tick = tick()})
+		if isfolder('vape/Libraries') then 
+			writefile('vape/Libraries/staffdata.json', httpService:JSONEncode(json))
+		end
+	end
+	local function GetRobloxFriends(plr)
+		local friends = {}
+		local success, page = pcall(playersService.GetFriendsAsync, playersService, plr.UserId)
+		if success then
+			repeat
+				for i,v in next, page:GetCurrentPage() do
+					table.insert(friends, v.UserId)
+				end
+				if not page.IsFinished then 
+					page:AdvanceToNextPageAsync()
+				end
+			until page.IsFinished
+		end
+		return friends
+	end
+	local function friendActive(friendtab)
+		for i,v in next, friendtab do 
+			local friend = playersService:GetPlayerByUserId(v)
+			if friend then 
+				return friend 
+			end
+		end
+	end
+	local function matchtag(tag: Instance)
+		if tag.Value:lower():find('mod') or tag.Value:lower():find('dev') or tag.Value:lower():find('owner') then 
+			return 'has a moderation rank in bedwars.'
+		end
+		if StaffDetectorFamous.Enabled and tag.Value:lower():find('famous') then 
+			return 'is a famous creator in bedwars.'
+		end
+	end
+	local function staffDetectorFunction(player)
+		task.spawn(function()
+			local tags = player:WaitForChild('Tags', 9e9)
+			local addconnection
+			for i,v in next, tags:GetChildren() do 
+				if v:IsA('StringValue') then 
+					local report = matchtag(v)
+					if report then 
+						savestaffConfig(player, 'illegal_tag')
+						bedwars.LobbyEvents.leaveParty:FireServer()
+						errorNotification('StaffDetector', player.DisplayName..' '..report, 60)
+						return actionperformed or staffactions[StaffDetectorMode.Value]()
+					end
+				end
+			end
+			addconnection = tags.ChildAdded:Connect(function(v)
+				local report = matchtag(v)
+				if report then 
+					addconnection:Disconnect()
+					savestaffConfig(player, 'illegal_tag')
+					bedwars.LobbyEvents.leaveParty:FireServer()
+					errorNotification('StaffDetector', player.DisplayName..' '..report, 60)
+					return actionperformed or staffactions[StaffDetectorMode.Value]()
+				end
+			end)
+			table.insert(StaffDetector.Connections, addconnection)
+		end)
+		repeat 
+			for i,v in next, StaffDetectorManual.ObjectList do 
+				if player.Name:lower() == v:lower() or tonumber(v) == tonumber(player.UserId) then 
+					savestaffConfig(player, 'manual_user')
+					bedwars.LobbyEvents.leaveParty:FireServer()
+					errorNotification('StaffDetector', player.DisplayName..' is currently in your blacklisted user list.', 60)
+					return actionperformed or staffactions[StaffDetectorMode.Value]()
+				end
+			end
+			local friends = (cachedfriends[player] or GetRobloxFriends(player))
+			cachedfriends[player] = friends
+			if player:GetAttribute('Spectator') and table.find(legitgamers, player) == nil and friendActive(friends) == nil and bedwars.ClientStoreHandler:getState().Game.customMatch == nil then 
+				savestaffConfig(player, 'illegal_join')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' is overwatching you.', 60)
+				return actionperformed or staffactions[StaffDetectorMode.Value]()
+			end
+			if table.find(legitgamers, player) == nil and tostring(player.Team) ~= 'Neutral' and not player:GetAttribute('Spectator') then 
+				table.insert(legitgamers, player)
+			end
+			if table.find(staffconfig.staffaccounts, player.UserId) or table.find(knownstaff, player.UserId) then 
+				savestaffConfig(player, 'blacklisted_users')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' is cached on staff json.', 60)
+				return actionperformed or staffactions[StaffDetectorMode.Value]()
+			end
+			local success, response = true, cachedroles[player]
+			if response == nil then 
+				success, response = pcall(player.GetRoleInGroup, lplr, 5774246)
+			end
+			cachedroles[player] = response 
+			if tonumber(response) and tonumber(response) >= 121 then 
+				savestaffConfig(player, 'group_rank')
+				bedwars.LobbyEvents.leaveParty:FireServer()
+				errorNotification('StaffDetector', player.DisplayName..' has a high role in the Easy.gg group (GetRoleInGroup() >= 121).', 60)
+				return actionperformed or staffactions[StaffDetectorMode.Value]()
+			end
+			task.wait()
+		until (not StaffDetector.Enabled)
+	end
+	StaffDetector = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'StaffDetector',
+		HoverText = 'Detects when bedwars staff are in the server (75% accuracy).',
+		Function = function(calling)
+			if calling then 
+				if store.matchState ~= 0 then 
+					return 
+				end
+				pcall(function() staffconfig = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/staffconfig.json')) end)
+				pcall(function() knownstaff = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/knownstaff.json')) end)
+				pcall(function() 
+					for i,v in next, httpService:JSONDecode(readfile('vape/Libraries/staffdata.json')) do 
+						if table.find(knownstaff, v) == nil then 
+							table.insert(knownstaff, v)
+						end
+					end
+				end)
+				repeat task.wait() until (shared.VapeFullyLoaded or not StaffDetector.Enabled)
+				if not StaffDetector.Enabled then 
+					return 
+				end
+				for i,v in next, playersService:GetPlayers() do 
+					if v ~= lplr then
+						task.spawn(staffDetectorFunction, v)
+					end
+				end
+				table.insert(vapeConnections, playersService.PlayerAdded:Connect(staffDetectorFunction))
+			end
+		end
+	})
+	StaffDetectorMode = StaffDetector.CreateDropdown({
+		Name = 'Action',
+		List = dumptable(staffactions, 1),
+		Function = function() end
+	})
+	StaffDetectorManual = StaffDetector.CreateTextList({
+		Name = 'Accounts',
+		TempText = 'accounts (user/id)',
+		AddFunction = function() end,
+	})
+	StaffDetectorFamous = StaffDetector.CreateToggle({
+		Name = 'Famous',
+		HoverText = 'Detects famous bedwars creators',
+		Function = function() end
+	})
+	Credits = StaffDetector.CreateCredits({
+		Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+	})
+end)
+
+run(function()
+    local btext = function(text: string): string
+        return text .. ' '
+    end
+
+    local antiDeath = {}
+    local antiDeathConfig = {
+        Mode = {},
+        BoostMode = {},
+        SongId = {},
+        Health = {},
+        Velocity = {},
+        CFrame = {},
+        TweenPower = {},
+        TweenDuration = {},
+        SkyPosition = {},
+        AutoDisable = {},
+        Sound = {},
+        Notify = {}
+    }
+    local antiDeathState = {}
+    local handlers = {}
+
+    local playSound = function(soundID, loop)
+        soundID = (soundID or ''):gsub('rbxassetid://', '')
+        local sound = Instance.new('Sound')
+        sound.Looped = loop and true or false
+        sound.Parent = workspace
+        sound.SoundId = 'rbxassetid://' .. soundID
+        sound:Play()
+        sound.Ended:Connect(function() sound:Destroy() end)
+        return sound
+    end
+
+    local function getHealth(player)
+        player = player or lplr
+        return player.Character.Humanoid.Health
+    end
+
+    function handlers.new()
+        local self = {
+            boost = false,
+            inf = false,
+            notify = false,
+            id = false,
+            hrp = entityLibrary.character.HumanoidRootPart,
+            hasNotified = false
+        }
+        setmetatable(self, { __index = handlers })
+        return self
+    end
+
+    function handlers:enable()
+        RunLoops:BindToHeartbeat('antiDeath', function()
+            if not isAlive(lplr, true) then
+                self:disable()
+                return
+            end
+
+            if getHealth() <= antiDeathConfig.Health.Value and getHealth() > 0 then
+                if not self.boost then
+                    self:activateMode()
+                    if not self.hasNotified and antiDeathConfig.Notify.Enabled then
+                        self:sendNotification()
+                    end
+                    self:playNotificationSound()
+                    self.boost = true
+                end
+            else
+                self:resetMode()
+                self.hrp.Anchored = false
+                self.boost = false
+
+                -- Reset the notification state when health is above the threshold
+                if self.hasNotified then
+                    self.hasNotified = false
+                end
+            end
+        end)
+    end
+
+    function handlers:disable()
+        RunLoops:UnbindFromHeartbeat('antiDeath')
+    end
+
+    function handlers:activateMode()
+        local modeActions = {
+            Infinite = function() self:enableInfiniteMode() end,
+            Boost = function() self:applyBoost() end,
+            Sky = function() self:moveToSky() end
+        }
+        modeActions[antiDeathConfig.Mode.Value]()
+    end
+
+    function handlers:enableInfiniteMode()
+        if not GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.Enabled then
+            GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.ToggleButton(true)
+            self.inf = true
+        end
+    end
+
+    function handlers:applyBoost()
+        local boostActions = {
+            Velocity = function() self.hrp.Velocity += vec3(0, antiDeathConfig.Velocity.Value, 0) end,
+            CFrame = function() self.hrp.CFrame += vec3(0, antiDeathConfig.CFrame.Value, 0) end,
+            Tween = function()
+                tweenService:Create(self.hrp, twinfo(antiDeathConfig.TweenDuration.Value / 10), {
+                    CFrame = self.hrp.CFrame + vec3(0, antiDeathConfig.TweenPower.Value, 0)
+                }):Play()
+            end
+        }
+        boostActions[antiDeathConfig.BoostMode.Value]()
+    end
+
+    function handlers:moveToSky()
+        self.hrp.CFrame += vec3(0, antiDeathConfig.SkyPosition.Value, 0)
+        self.hrp.Anchored = true
+    end
+
+    function handlers:sendNotification()
+        InfoNotification('AntiDeath', 'Prevented death. Health is lower than ' .. antiDeathConfig.Health.Value ..
+            '. (Current health: ' .. math.floor(getHealth() + 0.5) .. ')', 5)
+        self.hasNotified = true
+    end
+
+    function handlers:playNotificationSound()
+        if antiDeathConfig.Sound.Enabled then
+            local soundId = antiDeathConfig.SongId.Value ~= '' and antiDeathConfig.SongId.Value or '7396762708'
+            playSound(soundId, false)
+        end
+    end
+
+    function handlers:resetMode()
+        if self.inf then
+            if antiDeathConfig.AutoDisable.Enabled then
+                if GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.Enabled then
+                    GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.ToggleButton(false)
+                end
+            end
+            self.inf = false
+
+            -- Reset the notification state when Infinite Fly is disabled
+            self.hasNotified = false
+        end
+    end
+
+    local antiDeathStatus = handlers.new()
+
+    antiDeath = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = 'AntiDeath',
+        Function = function(callback)
+            if callback then
+                coroutine.wrap(function()
+                    antiDeathStatus:enable()
+                end)()
+            else
+                pcall(function()
+                    antiDeathStatus:disable()
+                end)
+            end
+        end,
+        Default = false,
+        HoverText = btext('Prevents you from dying.\nMade by Specter Solutions.'),
+        ExtraText = function()
+            return antiDeathConfig.Mode.Value
+        end
+    })
+
+    antiDeathConfig.Mode = antiDeath.CreateDropdown({
+        Name = 'Mode',
+        List = { 'Infinite', 'Boost', 'Sky' },
+        Default = 'Infinite',
+        HoverText = btext('Mode to prevent death.'),
+        Function = function(val)
+            antiDeathConfig.BoostMode.Object.Visible = val == 'Boost'
+            antiDeathConfig.SkyPosition.Object.Visible = val == 'Sky'
+            antiDeathConfig.AutoDisable.Object.Visible = val == 'Infinite'
+            antiDeathConfig.Velocity.Object.Visible = false
+            antiDeathConfig.CFrame.Object.Visible = false
+            antiDeathConfig.TweenPower.Object.Visible = false
+            antiDeathConfig.TweenDuration.Object.Visible = false
+        end
+    })
+
+    antiDeathConfig.BoostMode = antiDeath.CreateDropdown({
+        Name = 'Boost',
+        List = { 'Velocity', 'CFrame', 'Tween' },
+        Default = 'Velocity',
+        HoverText = btext('Mode to boost your character.'),
+        Function = function(val)
+            antiDeathConfig.Velocity.Object.Visible = val == 'Velocity'
+            antiDeathConfig.CFrame.Object.Visible = val == 'CFrame'
+            antiDeathConfig.TweenPower.Object.Visible = val == 'Tween'
+            antiDeathConfig.TweenDuration.Object.Visible = val == 'Tween'
+        end
+    })
+    antiDeathConfig.BoostMode.Object.Visible = false
+
+    antiDeathConfig.SongId = antiDeath.CreateTextBox({
+        Name = 'SongID',
+        TempText = 'Song ID',
+        HoverText = 'ID to play the song.',
+        FocusLost = function()
+            if antiDeath.Enabled then
+                antiDeath.ToggleButton()
+                antiDeath.ToggleButton()
+            end
+        end
+    })
+    antiDeathConfig.SongId.Object.Visible = false
+
+    antiDeathConfig.Health = antiDeath.CreateSlider({
+        Name = 'Health Trigger',
+        Min = 10,
+        Max = 90,
+        HoverText = btext('Health at which AntiDeath will perform its actions.'),
+        Default = 50,
+        Function = function(val) end
+    })
+
+    antiDeathConfig.Velocity = antiDeath.CreateSlider({
+        Name = 'Velocity Boost',
+        Min = 100,
+        Max = 600,
+        HoverText = btext('Power to get boosted in the air.'),
+        Default = 600,
+        Function = function(val) end
+    })
+    antiDeathConfig.Velocity.Object.Visible = false
+
+    antiDeathConfig.CFrame = antiDeath.CreateSlider({
+        Name = 'CFrame Boost',
+        Min = 100,
+        Max = 1000,
+        HoverText = btext('Power to get boosted in the air.'),
+        Default = 1000,
+        Function = function(val) end
+    })
+    antiDeathConfig.CFrame.Object.Visible = false
+
+    antiDeathConfig.TweenPower = antiDeath.CreateSlider({
+        Name = 'Tween Boost',
+        Min = 100,
+        Max = 1300,
+        HoverText = btext('Power to get boosted in the air.'),
+        Default = 1000,
+        Function = function(val) end
+    })
+    antiDeathConfig.TweenPower.Object.Visible = false
+
+    antiDeathConfig.TweenDuration = antiDeath.CreateSlider({
+        Name = 'Tween Duration',
+        Min = 1,
+        Max = 10,
+        HoverText = btext('Duration of the tweening process.'),
+        Default = 4,
+        Function = function(val) end
+    })
+    antiDeathConfig.TweenDuration.Object.Visible = false
+
+    antiDeathConfig.SkyPosition = antiDeath.CreateSlider({
+        Name = 'Sky Position',
+        Min = 100,
+        Max = 1000,
+        HoverText = btext('Position to TP in the sky.'),
+        Default = 1000,
+        Function = function(val) end
+    })
+    antiDeathConfig.SkyPosition.Object.Visible = false
+
+    antiDeathConfig.AutoDisable = antiDeath.CreateToggle({
+        Name = 'Auto Disable',
+        HoverText = btext('Automatically disables InfiniteFly after healing.'),
+        Function = function(val) end,
+        Default = true
+    })
+    antiDeathConfig.AutoDisable.Object.Visible = false
+
+    antiDeathConfig.Sound = antiDeath.CreateToggle({
+        Name = 'Sound',
+        HoverText = btext('Plays a sound after preventing death.'),
+        Function = function(callback)
+            antiDeathConfig.SongId.Object.Visible = callback
+        end,
+        Default = true
+    })
+
+    antiDeathConfig.Notify = antiDeath.CreateToggle({
+        Name = 'Notification',
+        HoverText = btext('Notifies you when AntiDeath actioned.'),
+        Default = true,
+        Function = function(callback) end
+    })
+end)
+			
+run(function()
+	local QueueCardMods = {}
+	local QueueCardGradientToggle = {}
+	local QueueCardGradient = {Hue = 0, Sat = 0, Value = 0}
+	local QueueCardGradient2 = {Hue = 0, Sat = 0, Value = 0}
+	local queuemodsgradients = {}
+	local function patchQueueCard()
+		if lplr.PlayerGui:FindFirstChild('QueueApp') then 
+			if lplr.PlayerGui.QueueApp:WaitForChild('1'):IsA('Frame') then 
+				lplr.PlayerGui.QueueApp['1'].BackgroundColor3 = Color3.fromHSV(QueueCardGradient.Hue, QueueCardGradient.Sat, QueueCardGradient.Value)
+			end
+			if QueueCardGradientToggle.Enabled then 
+				lplr.PlayerGui.QueueApp['1'].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				local gradient = (lplr.PlayerGui.QueueApp['1']:FindFirstChildWhichIsA('UIGradient') or Instance.new('UIGradient', lplr.PlayerGui.QueueApp['1']))
+				gradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(QueueCardGradient.Hue, QueueCardGradient.Sat, QueueCardGradient.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(QueueCardGradient2.Hue, QueueCardGradient2.Sat, QueueCardGradient2.Value))})
+				table.insert(queuemodsgradients, gradient)
+			end
+		end
+	end
+	QueueCardMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'QueueCardMods',
+		HoverText = 'Mods the QueueApp at the end of the game.',
+		Function = function(calling) 
+			if calling then 
+				patchQueueCard()
+				table.insert(QueueCardMods.Connections, lplr.PlayerGui.ChildAdded:Connect(patchQueueCard))
+			end
+		end
+	})
+	QueueCardGradientToggle = QueueCardMods.CreateToggle({
+		Name = 'Gradient',
+		Function = function(calling)
+			pcall(function() QueueCardGradient2.Object.Visible = calling end) 
+		end
+	})
+	QueueCardGradient = QueueCardMods.CreateColorSlider({
+		Name = 'Color',
+		Function = function()
+			pcall(patchQueueCard)
+		end
+	})
+	QueueCardGradient2 = QueueCardMods.CreateColorSlider({
+		Name = 'Color 2',
+		Function = function()
+			pcall(patchQueueCard)
+		end
+	})
+	Credits = QueueCardMods.CreateCredits({
+		Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+	})
+end)
+local ProtectedModules
+if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
+ProtectedModules.LoadModules(6872274481)
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
+
+run(function()
+    local tppos2 = nil
+    local TweenSpeed = 0.7
+    local HeightOffset = 5
+    local BedTP = {}
+
+    local function teleportWithTween(char, destination)
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root then
+            destination = destination + Vector3.new(0, HeightOffset, 0)
+            local currentPosition = root.Position
+            if (destination - currentPosition).Magnitude > 0.5 then
+                local tweenInfo = TweenInfo.new(TweenSpeed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                local goal = {CFrame = CFrame.new(destination)}
+                local tween = TweenService:Create(root, tweenInfo, goal)
+                tween:Play()
+                tween.Completed:Wait()
+				BedTP.ToggleButton(false)
+            end
+        end
+    end
+
+    local function killPlayer(player)
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.Health = 0
+            end
+        end
+    end
+
+    local function getEnemyBed(range)
+        range = range or math.huge
+        local bed = nil
+        local player = lplr
+
+        if not isAlive(player, true) then 
+            return nil 
+        end
+
+        local localPos = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character.HumanoidRootPart.Position or Vector3.zero
+        local playerTeam = player:GetAttribute('Team')
+        local beds = collectionService:GetTagged('bed')
+
+        for _, v in ipairs(beds) do 
+            if v:GetAttribute('PlacedByUserId') == 0 then
+                local bedTeam = v:GetAttribute('id'):sub(1, 1)
+                if bedTeam ~= playerTeam then 
+                    local bedPosition = v.Position
+                    local bedDistance = (localPos - bedPosition).Magnitude
+                    if bedDistance < range then 
+                        bed = v
+                        range = bedDistance
+                    end
+                end
+            end
+        end
+
+        if not bed then 
+            warningNotification("BedTP", 'No enemy beds found. Total beds: '..#beds, 5)
+        else
+            --warningNotification("BedTP", 'Teleporting to bed at position: '..tostring(bed.Position), 3)
+			warningNotification("BedTP", 'Teleporting to bed at position: '..tostring(bed.Position), 3)
+        end
+
+        return bed
+    end
+
+    BedTP = GuiLibrary["ObjectsThatCanBeSaved"]["WorldWindow"]["Api"].CreateOptionsButton({
+        ["Name"] = "BedTP",
+        ["Function"] = function(callback)
+            if callback then
+				table.insert(BedTP.Connections, lplr.CharacterAdded:Connect(function(char)
+					if tppos2 then 
+						task.spawn(function()
+							local root = char:WaitForChild("HumanoidRootPart", 9e9)
+							if root and tppos2 then 
+								teleportWithTween(char, tppos2)
+								tppos2 = nil
+							end
+						end)
+					end
+				end))
+                local bed = getEnemyBed()
+                if bed then 
+                    tppos2 = bed.Position
+                    killPlayer(lplr)
+                else
+                    BedTP.ToggleButton(false)
+                end
+            end
+        end
+    })
+end)
+
+--[[local GuiLibrary = shared.GuiLibrary
+run(function()
+	local ScytheDisabler = {}
+	ScytheDisabler = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = 'ScytheDisabler',
+		HoverText = "Works on everymatch (you need forge mechanic).",
+		Function = function(calling)
+			if calling then 
+				repeat
+					task.wait()
+					if killauraNearPlayer then 
+						continue
+					end
+					local scythe = getItemNear('_scythe')
+					if isAlive(lplr, true) and not scythe then 
+						bedwars.Client:Get('ForgePurchaseUpgrade'):SendToServer(bedwars.ForgeConstants.SCYTHE)
+						continue
+					end
+					if isAlive(lplr, true) then 
+						local move = lplr.Character.Humanoid.MoveDirection
+						switchItem(scythe.tool)
+						bedwars.Client:Get('ScytheDash'):SendToServer({direction = move == Vector3.zero and Vector3.new(9e9, 9e9, 9e9) or move * 9e9})
+						if lplr:GetAttribute('ScytheSpinning') then 
+							store.scythe = (tick() + 1) 
+						end
+					end
+				until (not ScytheDisabler.Enabled)
+			end
+		end
+	})
+end)]]
+
+run(function()
+	local Disabler = {Enabled = false}
+	local ZephyrSpeed = {Value = 1}
+	local DisablerMode = {Value = "Scythe"}
+	local mode = "Scythe"
+	local sd = false
+	local csd = false
+	local zd = false
+	local fd = false
+	local function DeleteClientSidedAnticheat()
+		if lplr.PlayerScripts.Modules:FindFirstChild("anticheat") then
+			lplr.PlayerScripts.Modules.anticheat:Destroy()
+		end
+		if lplr.PlayerScripts:FindFirstChild("GameAnalyticsClient") then
+			lplr.PlayerScripts.GameAnalyticsClient:Destroy()
+		end
+		if game:GetService("ReplicatedStorage").Modules:FindFirstChild("anticheat") then
+			game:GetService("ReplicatedStorage").Modules:FindFirstChild("anticheat"):Destroy()
+		end
+	end
+	Disabler = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = "Disabler",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					repeat
+						task.wait()
+						if zd then
+							disablerZephyr = true
+						else
+							disablerZephyr = false
+						end
+						if fd then
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("TridentUnanchor"):InvokeServer()
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("TridentAnchor"):InvokeServer()
+						end
+						if sd then
+							local item = getItemNear("scythe")
+							if item and lplr.Character.HandInvItem.Value == item.tool and bedwars.CombatController then 
+								bedwars.Client:Get("ScytheDash"):SendToServer({direction = lplr.Character.HumanoidRootPart.CFrame.LookVector*9e9})
+								if entityLibrary.isAlive and entityLibrary.character.Head.Transparency ~= 0 then
+									store.scythe = tick() + 1
+								end
+							end
+						end
+					until (not Disabler.Enabled)
+				end)
+				if csd then
+					local catver = "4.0"
+					DeleteClientSidedAnticheat()
+					--warningNotification("Disabler", "Disabled Client", 3)
+				end
+			else
+				disablerZephyr = false
+			end
+		end,
+		HoverText = "Attempts to help bypass the AntiCheat",
+		ExtraText = function()
+			return "Heatseeker"
+		end
+	})
+	ClientS = Disabler.CreateToggle({
+		Name = "Client Sided",
+		Default = true,
+		Function = function(callback)
+			csd = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end
+	})
+	Scythe = Disabler.CreateToggle({
+		Name = "Scythe",
+		Default = true,
+		Function = function(callback)
+			sd = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end
+	})
+	Zephyr = Disabler.CreateToggle({
+		Name = "Zephyr",
+		Default = true,
+		Function = function(callback)
+			zd = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end
+	})
+	--[[Float = Disabler.CreateToggle({
+		Name = "Float (EXPERIMENTAL)",
+		Default = true,
+		Function = function(callback)
+			fd = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end
+	})]]--
+	ZephyrSpeed = Disabler.CreateSlider({
+		Name = "Speed Multiplier",
+		Min = 0,
+		Max = 30,
+		Function = function(callback)
+			disablerBoost = callback
+			Disabler.ToggleButton(false)
+			Disabler.ToggleButton(false)
+		end,
+		Default = 20
+	})
+	local Credits
+	Credits = Disabler.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Cat V5 (qwertyui)'
+    })
+end)
+
+--[[run(function()
+    local enchantexploit = {};
+	local enchantnum = 0
+	local et = 0
+    local effects = {
+        'fire_3', 'forest_3', 'void_3', 'static_3', 'updraft_2', 
+        'shield_gen_3', 'anti_knockback_2', 'rapid_regen_3', 'execute_3', 
+        'wind_3', 'plunder_2', 'critical_strike_3', 'volley_3', 
+        'grounded_3', 'clingy_3', 'life_steal_3', 'fortune_1'
+    };
+	local function addEnchants()
+		for i,v in effects do 
+			bedwars.Client:Get('RequestFortuneDoubleDown').instance:FireServer({statusEffectType = v});
+			et = 0
+		end
+	end
+    enchantexploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+        Name = 'EnchantExploit',
+        HoverText = 'Gives you most enchants.',
+        Function = function(calling)
+            if calling then 
+				et = 0
+				RunLoops:BindToStepped("enchant",function()
+					et = et + 1
+					if et == 45 then
+						task.delay(1,addEnchants)
+						et = 0
+					end
+				end)
+			else
+				RunLoops:UnbindFromStepped("enchant")
+            end
+        end
+    })
+	local Credits
+	Credits = enchantexploit.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Cat V5 (qwertyui)'
+    })
+end)--]]
+
+run(function()
+	local MelodyExploit = {Enabled = false}
+
+	MelodyExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({ -- how does this work? idk honestly
+		Name = "MelodyExploit",
+		Function = function(callback)
+			if callback then
+				warningNotification("MelodyExploit", "Requires a guitar! Recommended lucky blocks or melody kit", 3)
+				RunLoops:BindToHeartbeat("melody",function()
+					if getItem("guitar") then
+						if lplr.Character.Humanoid.Health < lplr.Character.Humanoid.MaxHealth then
+							bedwars.Client:Get(bedwars.GuitarHealRemote):SendToServer({healTarget = lplr})
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("StopPlayingGuitar"):FireServer()
+						else
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("StopPlayingGuitar"):FireServer()
+						end
+					end
+				end)
+			else
+				RunLoops:UnbindFromHeartbeat("melody")
+			end
+		end
+	})
+
+	local Credits
+	Credits = MelodyExploit.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Cat V5 (qwertyui)'
+    })
+end)
+--[[run(function()
+	local InstantEmeraldArmour = {}
+	InstantEmeraldArmour = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+		Name = 'InstantEmeraldArmour',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					repeat 
+						local args = {
+							[1] = {
+								["statusEffectType"] = "fortune_1",
+								["fortuneStacks"] = 9e+9
+							}
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
+						task.wait(0.1)
+					until (not InstantEmeraldArmour)
+				end)
+				--InstantEmeraldArmour["ToggleButton"](false) 
+			end
+		end
+	})
+	local Credits
+	Credits = InstantEmeraldArmour.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'floppa'
+    })
+end)--]]
+
+local function getItemDrop(drop)
+	if not isAlive(lplr, true) and not RenderStore.LocalPosition then 
+		return nil
+	end
+	local itemdrop, magnitude = nil, math.huge
+	for i,v in next, collectionService:GetTagged('ItemDrop') do 
+		if v.Name == drop then 
+			local localpos = (isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position or RenderStore.LocalPosition)
+			local newdistance = (localpos - v.Position).Magnitude 
+			if newdistance < magnitude then 
+				magnitude = newdistance 
+				itemdrop = v 
+			end
+		end
+	end
+	return itemdrop
+end
+
+run(function()
+	local canRespawn = function() end
+	canRespawn = function()
+		local success, response = pcall(function() 
+			return lplr.leaderstats.Bed.Value == '✅' 
+		end)
+		return success and response 
+	end
+	local GetEnumItems = function() return {} end
+	GetEnumItems = function(enum)
+		local fonts = {}
+		for i,v in next, Enum[enum]:GetEnumItems() do 
+			table.insert(fonts, v.Name) 
+		end
+		return fonts
+	end
+	local function getItemDrop(drop)
+		if not isAlive(lplr, true) and not RenderStore.LocalPosition then 
+			return nil
+		end
+		local itemdrop, magnitude = nil, math.huge
+		for i,v in next, collectionService:GetTagged('ItemDrop') do 
+			if v.Name == drop then 
+				local localpos = (isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position or RenderStore.LocalPosition)
+				local newdistance = (localpos - v.Position).Magnitude 
+				if newdistance < magnitude then 
+					magnitude = newdistance 
+					itemdrop = v 
+				end
+			end
+		end
+		return itemdrop
+	end
+
+	local DiamondTP = {}
+	local DiamondTPAutoSpeed = {}
+	local DiamondTPSpeed = {Value = 200}
+	local DiamondTPTeleport = {Value = 'Respawn'}
+	local DiamondTPMethod = {Value = 'Linear'}
+	local diamondtween 
+	local oldmovefunc 
+	local bypassmethods = {
+		Respawn = function() 
+			if isEnabled('InfiniteFly') then 
+				return 
+			end
+			if not canRespawn() then 
+				return 
+			end
+			for i = 1, 30 do 
+				if isAlive(lplr, true) and lplr.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+					lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+					lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+				end
+			end
+			lplr.CharacterAdded:Wait()
+			repeat task.wait() until isAlive(lplr, true) 
+			task.wait(0.1)
+			local item = getItemDrop('diamond')
+			if item == nil or not DiamondTP.Enabled then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (DiamondTPAutoSpeed.Enabled and ((item.Position - localposition).Magnitude / 470) + 0.001 * 2 or (DiamondTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (DiamondTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[DiamondTPTeleport.Value])
+			diamondtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = item.CFrame}) 
+			diamondtween:Play() 
+			diamondtween.Completed:Wait()
+		end,
+		Recall = function()
+			if not isAlive(lplr, true) or lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air then 
+				errorNotification('DiamondTP', 'Recall ability not available.', 7)
+				return 
+			end
+			if not bedwars.AbilityController:canUseAbility('recall') then 
+				errorNotification('DiamondTP', 'Recall ability not available.', 7)
+				return
+			end
+			pcall(function()
+				oldmovefunc = require(lplr.PlayerScripts.PlayerModule).controls.moveFunction 
+				require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = function() end
+			end)
+			bedwars.AbilityController:useAbility('recall')
+			local teleported
+			table.insert(DiamondTP.Connections, lplr:GetAttributeChangedSignal('LastTeleported'):Connect(function() teleported = true end))
+			repeat task.wait() until teleported or not DiamondTP.Enabled or not isAlive(lplr, true) 
+			task.wait()
+			local item = getItemDrop('diamond')
+			if item == nil or not isAlive(lplr, true) then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (DiamondTPAutoSpeed.Enabled and ((item.Position - localposition).Magnitude / 470) + 0.001 * 2 or (DiamondTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (DiamondTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[DiamondTPTeleport.Value])
+			diamondtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = item.CFrame}) 
+			diamondtween:Play() 
+			diamondtween.Completed:Wait()
+		end
+	}
+	DiamondTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+		Name = 'DiamondTP',
+		HoverText = 'Tweens you to a nearby diamond drop.',
+		Function = function(calling)
+			if calling then 
+				if getItemDrop('diamond') then 
+					bypassmethods[isAlive() and DiamondTPTeleport.Value or 'Respawn']() 
+				end
+				if DiamondTP.Enabled then 
+					DiamondTP.ToggleButton()
+				end 
+			else
+				pcall(function() diamondtween:Cancel() end) 
+				if oldmovefunc then 
+					pcall(function() require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = oldmovefunc end)
+				end
+				oldmovefunc = nil
+			end
+		end
+	})
+	DiamondTPTeleport = DiamondTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = {'Respawn', 'Recall'},
+		Function = function() end
+	})
+	DiamondTPAutoSpeed = DiamondTP.CreateToggle({
+		Name = 'Auto Speed',
+		HoverText = 'Automatically uses a "good" tween speed.',
+		Default = true,
+		Function = function(calling) 
+			if calling then 
+				pcall(function() DiamondTPSpeed.Object.Visible = false end) 
+			else 
+				pcall(function() DiamondTPSpeed.Object.Visible = true end) 
+			end
+		end
+	})
+	DiamondTPSpeed = DiamondTP.CreateSlider({
+		Name = 'Tween Speed',
+		Min = 20, 
+		Max = 350,
+		Default = 200,
+		Function = function() end
+	})
+	DiamondTPMethod = DiamondTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = GetEnumItems('EasingStyle'),
+		Function = function() end
+	})
+	DiamondTPSpeed.Object.Visible = false
+	local Credits
+	Credits = DiamondTP.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+
+	local EmeraldTP = {}
+	local EmeraldTPAutoSpeed = {}
+	local EmeraldTPSpeed = {Value = 200}
+	local EmeraldTPTeleport = {Value = 'Respawn'}
+	local EmeraldTPMethod = {Value = 'Linear'}
+	local emeraldtween 
+	local bypassmethods = {
+		Respawn = function() 
+			if isEnabled('InfiniteFly') then 
+				return 
+			end
+			if not canRespawn() then 
+				return 
+			end
+			for i = 1, 30 do 
+				if isAlive(lplr, true) and lplr.Character.Humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+					lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
+					lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+				end
+			end
+			lplr.CharacterAdded:Wait()
+			repeat task.wait() until isAlive(lplr, true) 
+			task.wait(0.1)
+			local item = getItemDrop('emerald')
+			if item == nil or not EmeraldTP.Enabled then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (EmeraldTPAutoSpeed.Enabled and ((item.Position - localposition).Magnitude / 470) + 0.001 * 2 or (EmeraldTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (EmeraldTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[EmeraldTPTeleport.Value])
+			emeraldtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = item.CFrame}) 
+			emeraldtween:Play() 
+			emeraldtween.Completed:Wait()
+		end,
+		Recall = function()
+			if not isAlive(lplr, true) or lplr.Character.Humanoid.FloorMaterial == Enum.Material.Air then 
+				errorNotification('EmeraldTP', 'Recall ability not available.', 7)
+				return 
+			end
+			if not bedwars.AbilityController:canUseAbility('recall') then 
+				errorNotification('EmeraldTP', 'Recall ability not available.', 7)
+				return
+			end
+			pcall(function()
+				oldmovefunc = require(lplr.PlayerScripts.PlayerModule).controls.moveFunction 
+				require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = function() end
+			end)
+			bedwars.AbilityController:useAbility('recall')
+			local teleported
+			table.insert(EmeraldTP.Connections, lplr:GetAttributeChangedSignal('LastTeleported'):Connect(function() teleported = true end))
+			repeat task.wait() until teleported or not EmeraldTP.Enabled or not isAlive(lplr, true) 
+			task.wait()
+			local item = getItemDrop('emerald')
+			if item == nil or not isAlive(lplr, true) then 
+				return
+			end
+			local localposition = lplr.Character.HumanoidRootPart.Position
+			local tweenspeed = (EmeraldTPAutoSpeed.Enabled and ((item.Position - localposition).Magnitude / 470) + 0.001 * 2 or (EmeraldTPSpeed.Value / 1000) + 0.1)
+			local tweenstyle = (EmeraldTPAutoSpeed.Enabled and Enum.EasingStyle.Linear or Enum.EasingStyle[EmeraldTPTeleport.Value])
+			emeraldtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(tweenspeed, tweenstyle), {CFrame = item.CFrame}) 
+			emeraldtween:Play() 
+			emeraldtween.Completed:Wait()
+		end
+	}
+	EmeraldTP = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+		Name = 'EmeraldTP',
+		HoverText = 'Tweens you to a nearby diamond drop.',
+		Function = function(calling)
+			if calling then 
+				if getItemDrop('emerald') then 
+					bypassmethods[isAlive() and EmeraldTPTeleport.Value or 'Respawn']() 
+				end
+				if EmeraldTP.Enabled then 
+					EmeraldTP.ToggleButton()
+				end 
+			else
+				pcall(function() emeraldtween:Cancel() end) 
+				if oldmovefunc then 
+					pcall(function() require(lplr.PlayerScripts.PlayerModule).controls.moveFunction = oldmovefunc end)
+				end
+				oldmovefunc = nil
+			end
+		end
+	})
+	EmeraldTPTeleport = EmeraldTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = {'Respawn', 'Recall'},
+		Function = function() end
+	})
+	EmeraldTPAutoSpeed = EmeraldTP.CreateToggle({
+		Name = 'Auto Speed',
+		HoverText = 'Automatically uses a "good" tween speed.',
+		Default = true,
+		Function = function(calling) 
+			if calling then 
+				pcall(function() EmeraldTPSpeed.Object.Visible = false end) 
+			else 
+				pcall(function() EmeraldTPSpeed.Object.Visible = true end) 
+			end
+		end
+	})
+	EmeraldTPSpeed = EmeraldTP.CreateSlider({
+		Name = 'Tween Speed',
+		Min = 20, 
+		Max = 350,
+		Default = 200,
+		Function = function() end
+	})
+	EmeraldTPMethod = EmeraldTP.CreateDropdown({
+		Name = 'Teleport Method',
+		List = GetEnumItems('EasingStyle'),
+		Function = function() end
+	})
+	EmeraldTPSpeed.Object.Visible = false
+	local Credits
+	Credits = EmeraldTP.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+
+local GetEnumItems = function() return {} end
+GetEnumItems = function(enum)
+	local fonts = {}
+	for i,v in next, Enum[enum]:GetEnumItems() do 
+		table.insert(fonts, v.Name) 
+	end
+	return fonts
+end
+
+run(function()
+	local ArmorMods = {}
+	local armorobjects = {}
+	local oldtextures = {}
+	local armorhighlights = {}
+	local ArmorModsMaterial = {Value = 'SmoothPlastic'}
+	local ArmorModsRender = {Value = 'Highlight'}
+	local ArmorHighlightTrans = {Value = 0}
+	local ArmorModsColor = newcolor()
+	local armorFunction = function()
+		for i,v in next, armorobjects do 
+			pcall(function()
+				oldtextures[v] = v.Handle.TextureID
+				v.Handle.TextureID = ''
+				if ArmorModsRender.Value == 'Highlight' then 
+					local highlight = (armorhighlights[v.Handle] or Instance.new('Highlight', game))
+					highlight.Adornee = v.Handle
+					highlight.FillColor = Color3.fromHSV(ArmorModsColor.Hue, ArmorModsColor.Sat, ArmorModsColor.Value)
+					highlight.FillTransparency = (0.7 / (ArmorHighlightTrans.Value + 0.1))
+					highlight.OutlineTransparency = 1
+					armorhighlights[v.Handle] = highlight
+				else
+					v.Handle.Color = Color3.fromHSV(ArmorModsColor.Hue, ArmorModsColor.Sat, ArmorModsColor.Value)
+				end
+				v.Handle.Material = ArmorModsMaterial.Value
+			end)
+		end
+	end
+	ArmorMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'ArmorMods',
+		HoverText = 'Make your armor look better!',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					repeat task.wait() until (isAlive(lplr, true) or not ArmorMods.Enabled)
+					if not ArmorMods.Enabled then 
+						return 
+					end
+					for i,v in next, lplr.Character:GetChildren() do 
+						if v:GetAttribute('ArmorSlot') then 
+							armorFunction()
+							table.insert(armorobjects, v)
+						end
+					end
+					table.insert(ArmorMods.Connections, lplr.Character.ChildAdded:Connect(function(instance)
+						if instance:GetAttribute('ArmorSlot') then 
+							armorFunction()
+							table.insert(armorobjects, instance)
+						end
+					end))
+					table.insert(ArmorMods.Connections, lplr.CharacterAdded:Connect(function()
+						for i = 1, 2 do 
+							ArmorMods.ToggleButton()
+						end
+					end))
+				end)
+			else
+				for i,v in next, armorhighlights do 
+					pcall(function() v:Destroy() end)
+				end
+				for i,v in next, oldtextures do 
+					pcall(function() i.Handle.TextureID = v end)
+				end
+				table.clear(oldtextures)
+				table.clear(armorobjects)
+				table.clear(armorhighlights)
+			end
+		end
+	})
+	ArmorModsColor = ArmorMods.CreateColorSlider({
+		Name = 'Color',
+		Function = armorFunction
+	})
+	ArmorModsMaterial = ArmorMods.CreateDropdown({
+		Name = 'Material',
+		List = GetEnumItems('Material'),
+		Function = armorFunction
+	})
+	ArmorHighlightTrans = ArmorMods.CreateSlider({
+		Name = 'Visibility',
+		Min = 0,
+		Max = 100,
+		Default = 100,
+		Function = armorFunction
+	})
+	ArmorModsRender = ArmorMods.CreateDropdown({
+		Name = 'Render Mode',
+		List = {'Part', 'Highlight'},
+		Function = function(mode)
+			pcall(function() ArmorHighlightTrans.Object.Visible = (mode == 'Highlight') end)
+			for i = 1, 2 do 
+				ArmorMods.ToggleButton()
+			end
+		end
+	})
+	local Credits
+	Credits = ArmorMods.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+task.spawn(function()
+	local old = bedwars.EntityHighlightController.highlight
+	bedwars.EntityHighlightController.highlight = function(...)
+		if isEnabled('ArmorMods') or isEnabled('CharacterOutline') then 
+			return 
+		end
+		return old(...)
+	end
+end)
+
+local getTweenSpeed = function() return 0.49 end
+getTweenSpeed = function(part)
+	if not isAlive(lplr, true) then 
+		return 0.49 
+	end
+	local localpos = (isAlive(lplr, true) and lplr.Character.HumanoidRootPart.Position or Vector3.zero) 
+	return ((part.Position - localpos).Magnitude / 690) + 0.001
+end
+run(function()
+	------ DEV NOTE: THIS MODULE WILL MAKE THE USER NEED TO PRESS THE RESTART/UNINJECT BUTTON TWICE
+	local AutoRewind = {}
+	local AutoRewindMode = {Value = 'Position'}
+	local deathtween
+	local deathposition 
+	local caldelay = tick()
+	AutoRewind = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = 'AutoRewind',
+		HoverText = 'Automatically teleports you to\nthe position you died whenever you respawn.',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					table.insert(AutoRewind.Connections, lplr.CharacterAdded:Connect(function()
+						local speed, position = (getTweenSpeed({Position = deathposition}) + 0.3), deathposition
+						repeat task.wait() until isAlive(lplr, true) 
+						task.wait(0.15)
+						if tweenInProgress() or not position then return end
+						if AutoRewindMode.Value == 'Target' then 
+							local target = GetTarget()
+							if target.RootPart then 
+								speed, position = getTweenSpeed(target.RootPart), target.RootPart.Position
+							end
+						end
+						deathtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(speed + 0.5 % 0.4, Enum.EasingStyle.Linear), {CFrame = CFrame.new(position)}) 
+						deathtween:Play()
+						deathtween.Completed:Wait()
+						deathtween = nil
+					end))
+					table.insert(AutoRewind.Connections, runService.Heartbeat:Connect(function()
+						if caldelay > tick() then 
+							return 
+						end
+						if isAlive() and store.matchState ~= 0 and not deathtween then 
+							local block = (gethighestblock(lplr.Character.HumanoidRootPart.Position, true) or playerRaycasted() or {}).Instance
+							if block then 
+								deathposition = (block.Position + Vector3.new(0, 5, 0))
+							end 
+							caldelay = (tick() + 0.5)
+						end
+					end))
+				end)
+			else
+				deathtween:Cancel()
+				deathtween = nil
+			end
+		end
+	})
+	AutoRewindMode = AutoRewind.CreateDropdown({
+		Name = 'Rewind Mode',
+		List = {'Position', 'Target'},
+		Function = function() end
+	})
+	local Credits
+	Credits = AutoRewind.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+run(function()
+	local KillFeedHider = {}
+	KillFeedHider = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'KillFeedHider',
+		HoverText = 'Hides the kill feed frames.',
+		Function = function(calling)
+			if calling then 
+				local killfeedgui = lplr.PlayerGui:WaitForChild('KillFeedGui')
+				if not KillFeedHider.Enabled then 
+					return 
+				end
+				for i,v in next, killfeedgui:GetChildren() do 
+					pcall(function() v.Visible = false end) 
+				end
+				table.insert(KillFeedHider.Connections, killfeedgui.ChildAdded:Connect(function(gui)
+					pcall(function() gui.Visible = false end) 
+				end))
+			end
+		end
+	})
+	local Credits
+	Credits = KillFeedHider.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+run(function()
+	local HotbarMods = {}
+	local HotbarRounding = {}
+	local HotbarHighlight = {}
+	local HotbarColorToggle = {}
+	local HotbarHideSlotIcons = {}
+	local HotbarSlotNumberColorToggle = {}
+	local HotbarRoundRadius = {Value = 8}
+	local HotbarColor = {Hue = 0, Sat = 0, Value = 0}
+	local HotbarHighlightColor = {Hue = 0, Sat = 0, Value = 0}
+	local HotbarSlotNumberColor = {Hue = 0, Sat = 0, Value = 0}
+	local hotbarsloticons = {}
+	local hotbarobjects = {}
+	local hotbarcoloricons = {}
+	local HotbarModsGradient = {}
+	local hotbarslotgradients = {}
+	local HotbarModsGradientColor = {Hue = 0, Sat = 0, Value = 0}
+	local HotbarModsGradientColor2 = {Hue = 0, Sat = 0, Value = 0}
+	local function hotbarFunction()
+		local inventoryicons = ({pcall(function() return lplr.PlayerGui.hotbar['1'].ItemsHotbar end)})[2]
+		if inventoryicons and type(inventoryicons) == 'userdata' then
+			for i,v in next, inventoryicons:GetChildren() do 
+				local sloticon = ({pcall(function() return v:FindFirstChildWhichIsA('ImageButton'):FindFirstChildWhichIsA('TextLabel') end)})[2]
+				if type(sloticon) ~= 'userdata' then 
+					continue
+				end
+				if HotbarColorToggle.Enabled and not HotbarModsGradient.Enabled then 
+					sloticon.Parent.BackgroundColor3 = Color3.fromHSV(HotbarColor.Hue, HotbarColor.Sat, HotbarColor.Value)
+					table.insert(hotbarcoloricons, sloticon.Parent) 
+				end
+				if HotbarModsGradient.Enabled then 
+					sloticon.Parent.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					if sloticon.Parent:FindFirstChildWhichIsA('UIGradient') == nil then 
+						local gradient = Instance.new('UIGradient') 
+						local color = Color3.fromHSV(HotbarModsGradientColor.Hue, HotbarModsGradientColor.Sat, HotbarModsGradientColor.Value)
+						local color2 = Color3.fromHSV(HotbarModsGradientColor2.Hue, HotbarModsGradientColor2.Sat, HotbarModsGradientColor2.Value)
+						gradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, color), ColorSequenceKeypoint.new(1, color2)})
+						gradient.Parent = sloticon.Parent
+						table.insert(hotbarslotgradients, gradient)
+						table.insert(hotbarcoloricons, sloticon.Parent) 
+					end
+				end
+				if HotbarRounding.Enabled then 
+					local uicorner = Instance.new('UICorner')
+					uicorner.Parent = sloticon.Parent
+					uicorner.CornerRadius = UDim.new(0, HotbarRoundRadius.Value)
+					table.insert(hotbarobjects, uicorner)
+				end
+				if HotbarHighlight.Enabled then
+					local highlight = Instance.new('UIStroke')
+					highlight.Color = Color3.fromHSV(HotbarHighlightColor.Hue, HotbarHighlightColor.Sat, HotbarHighlightColor.Value)
+					highlight.Thickness = 1.3 
+					highlight.Parent = sloticon.Parent
+					table.insert(hotbarobjects, highlight)
+				end
+				if HotbarHideSlotIcons.Enabled then 
+					sloticon.Visible = false 
+				end
+				table.insert(hotbarsloticons, sloticon)
+			end 
+		end
+	end
+	HotbarMods = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+		Name = 'HotbarMods',
+		HoverText = 'Add customization to your hotbar.',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					table.insert(HotbarMods.Connections, lplr.PlayerGui.DescendantAdded:Connect(function(v)
+						if v.Name == 'hotbar' then
+							hotbarFunction()
+						end
+					end))
+					hotbarFunction()
+				end)
+			else
+				for i,v in hotbarsloticons do 
+					pcall(function() v.Visible = true end)
+				end
+				for i,v in hotbarcoloricons do 
+					pcall(function() v.BackgroundColor3 = Color3.fromRGB(29, 36, 46) end)
+				end
+				for i,v in hotbarobjects do
+					pcall(function() v:Destroy() end)
+				end
+				for i,v in next, hotbarslotgradients do 
+					pcall(function() v:Destroy() end)
+				end
+				table.clear(hotbarobjects)
+				table.clear(hotbarsloticons)
+				table.clear(hotbarcoloricons)
+			end
+		end
+	})
+	HotbarColorToggle = HotbarMods.CreateToggle({
+		Name = 'Slot Color',
+		Function = function(calling)
+			pcall(function() HotbarColor.Object.Visible = calling end)
+			pcall(function() HotbarColorToggle.Object.Visible = calling end)
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarModsGradient = HotbarMods.CreateToggle({
+		Name = 'Gradient Slot Color',
+		Function = function(calling)
+			pcall(function() HotbarModsGradientColor.Object.Visible = calling end)
+			pcall(function() HotbarModsGradientColor2.Object.Visible = calling end)
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarModsGradientColor = HotbarMods.CreateColorSlider({
+		Name = 'Gradient Color',
+		Function = function(h, s, v)
+			for i,v in next, hotbarslotgradients do 
+				pcall(function() v.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(HotbarModsGradientColor.Hue, HotbarModsGradientColor.Sat, HotbarModsGradientColor.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(HotbarModsGradientColor2.Hue, HotbarModsGradientColor2.Sat, HotbarModsGradientColor2.Value))}) end)
+			end
+		end
+	})
+	HotbarModsGradientColor2 = HotbarMods.CreateColorSlider({
+		Name = 'Gradient Color 2',
+		Function = function(h, s, v)
+			for i,v in next, hotbarslotgradients do 
+				pcall(function() v.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(HotbarModsGradientColor.Hue, HotbarModsGradientColor.Sat, HotbarModsGradientColor.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(HotbarModsGradientColor2.Hue, HotbarModsGradientColor2.Sat, HotbarModsGradientColor2.Value))}) end)
+			end
+		end
+	})
+	HotbarColor = HotbarMods.CreateColorSlider({
+		Name = 'Slot Color',
+		Function = function(h, s, v)
+			for i,v in next, hotbarcoloricons do
+				if HotbarColorToggle.Enabled then
+					pcall(function() v.BackgroundColor3 = Color3.fromHSV(HotbarColor.Hue, HotbarColor.Sat, HotbarColor.Value) end) -- for some reason the 'h, s, v' didn't work :(
+				end
+			end
+		end
+	})
+	HotbarRounding = HotbarMods.CreateToggle({
+		Name = 'Rounding',
+		Function = function(calling)
+			pcall(function() HotbarRoundRadius.Object.Visible = calling end)
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarRoundRadius = HotbarMods.CreateSlider({
+		Name = 'Corner Radius',
+		Min = 1,
+		Max = 20,
+		Function = function(calling)
+			for i,v in next, hotbarobjects do 
+				pcall(function() v.CornerRadius = UDim.new(0, calling) end)
+			end
+		end
+	})
+	HotbarHighlight = HotbarMods.CreateToggle({
+		Name = 'Outline Highlight',
+		Function = function(calling)
+			pcall(function() HotbarHighlightColor.Object.Visible = calling end)
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarHighlightColor = HotbarMods.CreateColorSlider({
+		Name = 'Highlight Color',
+		Function = function(h, s, v)
+			for i,v in next, hotbarobjects do 
+				if v:IsA('UIStroke') and HotbarHighlight.Enabled then 
+					pcall(function() v.Color = Color3.fromHSV(HotbarHighlightColor.Hue, HotbarHighlightColor.Sat, HotbarHighlightColor.Value) end)
+				end
+			end
+		end
+	})
+	HotbarHideSlotIcons = HotbarMods.CreateToggle({
+		Name = 'No Slot Numbers',
+		Function = function()
+			if HotbarMods.Enabled then 
+				HotbarMods.ToggleButton(false)
+				HotbarMods.ToggleButton(false)
+			end
+		end
+	})
+	HotbarColor.Object.Visible = false
+	HotbarRoundRadius.Object.Visible = false
+	HotbarHighlightColor.Object.Visible = false
+	local Credits
+	Credits = HotbarMods.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Render'
+    })
+end)
+
+--[[run(function()
+	local VapePrivateDetector = {Enabled = false}
+	local VPLeave = {Enabled = false}
+	local alreadydetected = {}
+	VapePrivateDetector = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+		Name = "VapePrivateDetector",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					if not shared.vapewhitelist.loaded then 
+						repeat task.wait() until shared.vapewhitelist.loaded or not VapePrivateDetector.Enabled
+					end
+					if not VapePrivateDetector.Enabled then 
+						return 
+					end
+					for i,v in pairs(playersService:GetPlayers()) do
+						if v ~= lplr then
+							local rank = shared.vapewhitelist:get(v)
+							if rank > 0 and not table.find(alreadydetected, v) then
+								local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
+								warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
+								table.insert(alreadydetected, v)
+								if VPLeave.Enabled then
+									local newserver = nil
+									repeat newserver = findnewserver() until newserver 
+									game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
+								end
+							end
+						end
+					end
+					table.insert(VapePrivateDetector.Connections, playersService.PlayerAdded:Connect(function(v)
+						local rank = shared.vapewhitelist:get(v)
+						if rank > 0 and not table.find(alreadydetected, v) then
+						local rankstring = rank == 1 and "Private Member" or rank > 1 and "Owner"
+						warningNotification("VapePrivateDetector", "Vape "..rankstring.." Detected! | "..v.DisplayName, 120)
+						table.insert(alreadydetected, v)
+						if VPLeave.Enabled then
+							local newserver = nil
+							repeat newserver = findnewserver() until newserver 
+							game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, newserver, lplr)
+						end
+						end
+					end))
+				end)
+			end
+		end
+	})
+	VPLeave = VapePrivateDetector.CreateToggle({
+		Name = "ServerHop",
+		HoverText = "switches servers on detection.",
+		Function = function() end
+	})
+	task.spawn(function()
+		repeat task.wait() until shared.vapewhitelist.loaded 
+		if shared.vapewhitelist:get(lplr) ~= 0 then 
+			pcall(GuiLibrary.RemoveObject, "VapePrivateDetectorOptionsButton")
+		end
+	end)
+end)--]]

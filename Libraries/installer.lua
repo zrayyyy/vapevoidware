@@ -16,7 +16,7 @@ local function vapeGithubRequest(scripturl)
 	return print(scripturl)
 end
 
-local GuiLibrary = {
+local Gui1 = {
     MainGui = ""
 }
 
@@ -27,7 +27,7 @@ local gui = Instance.new("ScreenGui")
 	gui.OnTopOfCoreBlur = true
 	gui.ResetOnSpawn = false
 	gui.Parent = game:GetService("Players").LocalPlayer.PlayerGui
-	GuiLibrary["MainGui"] = gui
+	Gui1["MainGui"] = gui
 
 local function downloadVapeProfile(path)
 	if not isfile('vape/'..path) then
@@ -42,9 +42,10 @@ local function downloadVapeProfile(path)
 			textlabel.Font = Enum.Font.SourceSans
 			textlabel.TextColor3 = Color3.new(1, 1, 1)
 			textlabel.Position = UDim2.new(0, 0, 0, -36)
-			textlabel.Parent = GuiLibrary.MainGui
-            vapeGithubRequest(path)
+			textlabel.Parent = Gui1.MainGui
+			task.wait(0.1)
 			textlabel:Destroy()
+            vapeGithubRequest(path)
 		end)
 	end
 	return downloadedprofiles[path] 
@@ -72,6 +73,16 @@ task.spawn(function()
 	end
 end)	
 
+if isfolder('vape') then
+	if isfolder('vape/Libraries') then
+	else
+		makefolder('vape/Libraries')
+	end
+else
+	makefolder('vape')
+	makefolder('vape/Libraries')
+end
+
 writefile('vape/Libraries/profilesinstalled.ren', 'yes')
 
-return loadfile('vape/NewMainScript.lua')()
+return loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/main/NewMainScript.lua", true))()
