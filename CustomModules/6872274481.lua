@@ -1,5 +1,3 @@
---im nuking voidware real!!!!!!1111
-
 local GuiLibrary = shared.GuiLibrary
 local VoidwareFunctions = {WhitelistLoaded = false, WhitelistRefreshEvent = Instance.new("BindableEvent"), WhitelistSucceeded = false, WhitelistLoadTime = tick()}
 local VoidwareLibraries = {}
@@ -549,33 +547,29 @@ local function attackValue(vec)
 	return {value = vec}
 end
 
-disablerZephyr = false
-disablerBoost = 1
 local function getSpeed()
 	local speed = 0
 	if lplr.Character then
 		local SpeedDamageBoost = lplr.Character:GetAttribute("SpeedBoost")
 		if SpeedDamageBoost and SpeedDamageBoost > 1 then
-			speed = speed * 1.6
+			speed = speed + (8 * (SpeedDamageBoost - 1))
 		end
 		if store.grapple > tick() then
-			speed = speed * 3
+			speed = speed + 90
 		end
 		if store.scythe > tick() then
-			speed = speed * (1.6 * disablerBoost)
+			speed = speed + 5
 		end
 		if lplr.Character:GetAttribute("GrimReaperChannel") then
-			speed = speed * 1.9
+			speed = speed + 20
 		end
 		local armor = store.localInventory.inventory.armor[3]
 		if type(armor) ~= "table" then armor = {itemType = ""} end
 		if armor.itemType == "speed_boots" then
-			speed = speed * 1.375
+			speed = speed + 12
 		end
 		if store.zephyrOrb ~= 0 then
-			if disablerZephyr then
-				speed = speed * (1.899 * disablerBoost)
-			end
+			speed = speed + 12
 		end
 	end
 	return speed
@@ -13374,7 +13368,7 @@ run(function()
 	})
 end)]]
 
-run(function()
+--[[run(function()
 	local Disabler = {Enabled = false}
 	local ZephyrSpeed = {Value = 1}
 	local DisablerMode = {Value = "Scythe"}
@@ -13470,7 +13464,7 @@ run(function()
 			Disabler.ToggleButton(false)
 			Disabler.ToggleButton(false)
 		end
-	})]]--
+	})
 	ZephyrSpeed = Disabler.CreateSlider({
 		Name = "Speed Multiplier",
 		Min = 0,
@@ -13487,7 +13481,7 @@ run(function()
         Name = 'CreditsButtonInstance',
         Credits = 'Cat V5 (qwertyui)'
     })
-end)
+end)--]]
 
 --[[run(function()
     local enchantexploit = {};
