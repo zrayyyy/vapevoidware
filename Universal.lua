@@ -7466,12 +7466,12 @@ run(function()
 		HoverText = "switches servers on detection.",
 		Function = function() end
 	})
-	task.spawn(function()
+	--[[task.spawn(function()
 		repeat task.wait() until shared.vapewhitelist.loaded 
 		if shared.vapewhitelist:get(lplr) ~= 0 then 
 			pcall(GuiLibrary.RemoveObject, "VapePrivateDetectorOptionsButton")
 		end
-	end)
+	end)--]]
 end)
 
 run(function()

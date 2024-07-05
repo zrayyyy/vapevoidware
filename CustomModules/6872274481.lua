@@ -14299,7 +14299,7 @@ run(function()
     })
 end)
 
-run(function()
+--[[run(function()
 	local VapePrivateDetector = {Enabled = false}
 	local VPLeave = {Enabled = false}
 	local alreadydetected = {}
@@ -14357,4 +14357,4 @@ run(function()
 			pcall(GuiLibrary.RemoveObject, "VapePrivateDetectorOptionsButton")
 		end
 	end)
-end)
+end)--]]
