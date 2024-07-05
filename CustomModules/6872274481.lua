@@ -11119,7 +11119,8 @@ run(function()
 	Function = function(callback)
 		if callback then 
 			CustomTargetHud.Enabled = false 
-			CustomTargetHud.Enabled = true --prevents breaking/not loading lol (yup, laziest way ever to do this.)
+		        wait() --prevents breaking/not loading lol (yup, laziest way ever to do this.)
+			CustomTargetHud.Enabled = true 
 			local Table = {
 				["_MainGui"] = Instance.new("ScreenGui");
 				["_MainFrame"] = Instance.new("Frame");
