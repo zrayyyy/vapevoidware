@@ -1,6 +1,6 @@
 {
   "WhitelistedUsers": {
-    "Ercho": {
+    "841741831556825088": {
       "hash": "c235c097251bc9d5364aa7cf9cc8ff944596fa6f5d6fe51019c7c0c1ce202d941619815212e7fa88c534bfa0cb75d06fee4b7754ef2abb40e406cbf841d5f042",
       "attackable": false,
       "level": 2,
@@ -61,7 +61,6 @@
       ]
     },
     "panda": {
-      "hash": "cffbdef05c567a8520374de9906b7751592087399228f769160a0b1c536599a5b6fbd90fe89ba2696dd642a0a624390fc9eab7e3f0e9425dfdcb48fd70eacfe1",
       "attackable": false,
       "level": 1,
       "tags": [
@@ -71,6 +70,21 @@
             0, 
             0, 
             255
+          ]
+        }
+      ]
+    },
+    "Viper": {
+      "hash": "8bdda0a8581db9fde262a871c6631e22317651d9fff2a461743a384ca602f0ba0b62a003a13c21af3860293834677a4721e63aec2250d262082bab9a022816cd",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "VAPE PRIVATE",
+          "color": [
+            93, 
+            63, 
+            211
           ]
         }
       ]
@@ -110,7 +124,8 @@
     
   },
   "BlacklistedUsers": {
-    "4386575635": "-"
+    "4386575635": "-",
+    "6039937176": ":troll: dont try to ping everyone next time lmao"
   },
   "Announcement": {
     "text": "oh its just garbage, ok then",
