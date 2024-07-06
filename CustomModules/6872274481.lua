@@ -3129,7 +3129,7 @@ end)
 
 local killauraNearPlayer
 run(function()
-	local Killaura = {}
+	local Killaura = {Enabled = true}
 	local killauraboxes = {}
 	local killauratargetframe = {Players = {Enabled = false}}
 	local killaurasortmethod = {Value = "Distance"}
@@ -3857,6 +3857,7 @@ run(function()
 		HoverText = "no hit vape user"
 	})
 	killauranovape.Object.Visible = false
+	shared.GuiLibrary.ObjectsThatCanBeSaved.KillauraOptionsButton.Api.ToggleButton(true)
 end)
 
 local LongJump = {Enabled = false}
@@ -12244,30 +12245,30 @@ run(function()
 		Function = function(calling)
 			if calling then 
 				task.spawn(function()
-				repeat 
-					local range = (ProjectileAuraRange.Enabled and ProjectileAuraRangeSlider.Value or 9e9)
-					local target = sortfunctions[ProjectileAuraSort.Value]()
-					if target.RootPart and target.RootPart.Parent:FindFirstChildWhichIsA('ForceField') == nil then 
-						for i,v in next, store.localInventory.inventory.items do 
-							local ammo = getammo(v)
-							if target.Human == nil and table.find(ProjectileMobIgnore, v.itemType) or tweenInProgress() then 
-								continue 
-							end 
-							if store.matchState ~= 0 and store.equippedKit == 'dragon_sword' then 
-								bedwars.Client:Get('DragonSwordFire'):SendToServer({target = target.RootPart.Parent}) 
-							end
-							if ammo.tool then 
-								betterswitch(v.tool)
-								bedwars.Client:Get(bedwars.ProjectileRemote):CallServerAsync(v.tool, tostring(ammo.tool), tostring(ammo.tool) == 'star' and 'star_projectile' or tostring(ammo.tool) == 'mage_spell_base' and target.RootPart.Position + Vector3.new(0, 3, 0) or tostring(ammo.tool), target.RootPart.Position + Vector3.new(0, 3, 0), target.RootPart.Position + Vector3.new(0, 3, 0), Vector3.new(0, -1, 0), httpService:GenerateGUID(), {drawDurationSeconds = 1}, workspace:GetServerTimeNow(), target)
+					repeat 
+						local range = (ProjectileAuraRange.Enabled and ProjectileAuraRangeSlider.Value or 9e9)
+						local target = sortfunctions[ProjectileAuraSort.Value]()
+						if target.RootPart and target.RootPart.Parent:FindFirstChildWhichIsA('ForceField') == nil then 
+							for i,v in next, store.localInventory.inventory.items do 
+								local ammo = getammo(v)
+								if target.Human == nil and table.find(ProjectileMobIgnore, v.itemType) or tweenInProgress() then 
+									continue 
+								end 
+								if store.matchState ~= 0 and store.equippedKit == 'dragon_sword' then 
+									bedwars.Client:Get('DragonSwordFire'):SendToServer({target = target.RootPart.Parent}) 
+								end
+								if ammo.tool then 
+									betterswitch(v.tool)
+									bedwars.Client:Get(bedwars.ProjectileRemote):CallServerAsync(v.tool, tostring(ammo.tool), tostring(ammo.tool) == 'star' and 'star_projectile' or tostring(ammo.tool) == 'mage_spell_base' and target.RootPart.Position + Vector3.new(0, 3, 0) or tostring(ammo.tool), target.RootPart.Position + Vector3.new(0, 3, 0), target.RootPart.Position + Vector3.new(0, 3, 0), Vector3.new(0, -1, 0), httpService:GenerateGUID(), {drawDurationSeconds = 1}, workspace:GetServerTimeNow(), target)
+								end
 							end
 						end
-					end
-					store.switchdelay += (ProjectileAuraDelay.Value * 0.2)
-					if RenderStore.ping > 1000 then 
-						store.switchdelay += (store.switchdelay + 8)
-					end
-					task.wait(getItem('star') and 0 or killauraNearPlayer and 0.25 or ProjectileAuraDelay.Value + 0.15)
-				until not ProjectileAura.Enabled
+						store.switchdelay += (ProjectileAuraDelay.Value * 0.2)
+						if RenderStore.ping > 1000 then 
+							store.switchdelay += (store.switchdelay + 8)
+						end
+						task.wait(getItem('star') and 0 or killauraNearPlayer and 0.25 or ProjectileAuraDelay.Value + 0.15)
+					until not ProjectileAura.Enabled
 				end)
 			end
 		end
@@ -14070,6 +14071,7 @@ run(function()
     })
 end)
 
+task.spawn(function()
 run(function()
 	local KillFeedHider = {}
 	KillFeedHider = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
@@ -14077,16 +14079,18 @@ run(function()
 		HoverText = 'Hides the kill feed frames.',
 		Function = function(calling)
 			if calling then 
-				local killfeedgui = lplr.PlayerGui:WaitForChild('KillFeedGui')
-				if not KillFeedHider.Enabled then 
-					return 
-				end
-				for i,v in next, killfeedgui:GetChildren() do 
-					pcall(function() v.Visible = false end) 
-				end
-				table.insert(KillFeedHider.Connections, killfeedgui.ChildAdded:Connect(function(gui)
-					pcall(function() gui.Visible = false end) 
-				end))
+				task.spawn(function()
+					local killfeedgui = lplr.PlayerGui:WaitForChild('KillFeedGui')
+					if not KillFeedHider.Enabled then 
+						return 
+					end
+					for i,v in next, killfeedgui:GetChildren() do 
+						pcall(function() v.Visible = false end) 
+					end
+					table.insert(KillFeedHider.Connections, killfeedgui.ChildAdded:Connect(function(gui)
+						pcall(function() gui.Visible = false end) 
+					end))
+				end)
 			end
 		end
 	})
@@ -14095,6 +14099,7 @@ run(function()
         Name = 'CreditsButtonInstance',
         Credits = 'Render'
     })
+end)
 end)
 
 run(function()
