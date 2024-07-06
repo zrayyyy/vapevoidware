@@ -8299,7 +8299,9 @@ run(function()
 				delfolder('vape')
 				makefolder('vape')
 				makefolder('vape/Libraries')
-				writefile('vape/Libraries/ModulesData.txt', readfile('ModulesData.txt'))
+				if isfile('ModulesData.txt') then
+					writefile('vape/Libraries/ModulesData.txt', readfile('ModulesData.txt'))
+				end
 				loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/main/NewMainScript.lua", true))()
 			end
 		end
