@@ -7613,7 +7613,7 @@ run(function()
 	local CustomJumpMode = {Value = "Normal"}
 	local CustomJumpVelocity = {Value = 50}
 	CustomJump = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"]["CreateOptionsButton"]({
-		Name = "CustomJump",
+		Name = "InfJUmp",
         HoverText = "Customizes your jumping ability",
 		Function = function(callback)
 			if callback then
