@@ -61,6 +61,7 @@
       ]
     },
     "panda": {
+      "hash": "65cab0d4369f7ce8b55bc7e12a6d86329192ead09f985d35ea3e5934a78e76198babe43387f4f134da0e70835370aaf059eb543c5cbd46b4c23aa48bd106b605",
       "attackable": false,
       "level": 1,
       "tags": [
