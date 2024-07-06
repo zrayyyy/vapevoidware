@@ -3896,6 +3896,9 @@ if shared.VapeExecuted then
 		expandbutton.MouseButton2Click:Connect(windowapi["ExpandToggle"])
 
 		windowapi["CreateOptionsButton"] = function(argstablemain)
+			if GuiLibrary.ObjectsThatCanBeSaved[argstablemain["Name"].."OptionsButton"] then
+				GuiLibrary["RemoveObject"](argstablemain["Name"].."OptionsButton")
+			end
 			local buttonapi = {}
 			local amount = #children:GetChildren()
 			local button = Instance.new("TextButton")
