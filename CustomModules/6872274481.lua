@@ -1922,6 +1922,7 @@ task.spawn(function()
 			'HitBoxesOptionsButton', 
 			'LongJumpOptionsButton', 
 			'SpiderOptionsButton',
+			'KillAuraOptionsButton',
 			'AutoClickerOptionsButton',
 			'PhaseOptionsButton',
 			--'MouseTPOptionsButton',
