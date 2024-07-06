@@ -11109,14 +11109,28 @@ run(function()
 			tween.Completed:Connect(callback)
 		end
 	end
+	local function isNPC(target)
+		if target and target:IsA("Model") then
+			return target.Name == "DiamondGuardian" or target.Name == "GolemBoss"
+		end
+		return false
+	end
+	local function getEntityRootPart(entity)
+		if entity:IsA("Player") then
+			return hrpfind(entity.Character)
+		elseif isNPC(entity) then
+			return entity:FindFirstChild("RootPart")
+		end
+	end	
 	local previousTargetHP = 0  
+	local plrgui = game.Players.LocalPlayer.PlayerGui
 	local CustomTargetHud = {Enabled = false}
 	CustomTargetHud = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 	Name = "CustomTargetHud",
 	Function = function(callback)
 		if callback then 
 			CustomTargetHud.Enabled = false 
-		        wait() --prevents breaking/not loading lol (yup, laziest way ever to do this.)
+			wait(1)
 			CustomTargetHud.Enabled = true 
 			local Table = {
 				["_MainGui"] = Instance.new("ScreenGui");
@@ -11139,10 +11153,10 @@ run(function()
 				
 				Table["_MainGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 				Table["_MainGui"].Name = "MainGui"
-				Table["_MainGui"].Parent = game:GetService("CoreGui")
+				Table["_MainGui"].Parent = plrgui
 				
 				Table["_MainFrame"].BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-				Table["_MainFrame"].BackgroundTransparency = 0.20000000298023224
+				Table["_MainFrame"].BackgroundTransparency = HudBgTransparency.Value 
 				Table["_MainFrame"].BorderColor3 = Color3.fromRGB(0, 0, 0)
 				Table["_MainFrame"].BorderSizePixel = 0
 				Table["_MainFrame"].Position = UDim2.new(0.476450503, 0, 0.631067932, 0)
@@ -11155,8 +11169,8 @@ run(function()
 				Table["_UIStroke"].Parent = Table["_MainFrame"]
 				
 				Table["_UIGradient"].Color = ColorSequence.new{
-				ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 251.00000023841858)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 238.00000101327896))
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 251)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 238))
 				}
 				Table["_UIGradient"].Parent = Table["_UIStroke"]
 				
@@ -11259,80 +11273,80 @@ run(function()
 				Table["_Win/Lose"].Name = "Win/Lose"
 				Table["_Win/Lose"].Parent = Table["_MainFrame"]
 				
-				local fake_module_scripts = {}
-				
-				local function MYASSISA_fake_script() 
-				local script = Instance.new("LocalScript")
-				script.Name = "LocalScript"
-				script.Parent = Table["_UIStroke"]
-				local req = require
-				local require = function(obj)
-					local fake = fake_module_scripts[obj]
-					if fake then
-						return fake()
-					end
-					return req(obj)
-				end
-				
 				local r = game:GetService("RunService")
-				local g = script.Parent.UIGradient
+				local g = game.Players.LocalPlayer.PlayerGui.MainGui.MainFrame.UIStroke.UIGradient
 				
 				r.RenderStepped:Connect(function()
 					g.Rotation += 2
 				end)
-				end
 				
-				coroutine.wrap(MYASSISA_fake_script)()
 				local lplr = game.Players.LocalPlayer
 				local character = lplr.Character or lplr.CharacterAdded:Wait()
 				local rootPart = character:WaitForChild("HumanoidRootPart")
 				local target = nil
 				
-				
 				local function updateGUI(target)
-				if not target or not target.Character or not target.Character:FindFirstChild("Humanoid") or not character or not character:FindFirstChild("Humanoid") then
-					return
-				end
+					if not target then 
+						return 
+					end
+					
+					local targetName = ""
+					local userId = 1
 				
-				Table["_User"].Text = target.Name
-				local userId = target.UserId
-				Table["_ImageLabel"].Image = "rbxthumb://type=AvatarHeadShot&w=420&h=420&id=" .. userId
+					if target:IsA("Player") then
+						targetName = target.Name
+						userId = target.UserId
+					elseif target:IsA("Model") then
+						targetName = target.Name
+					end
+			
 				
-				local lplrHP = character.Humanoid.Health
-				local targetHP = target.Character.Humanoid.Health
-				local targetMaxHP = target.Character.Humanoid.MaxHealth
-				local targetHPPercentage = targetHP / targetMaxHP
-				Table["_HP"].Text = tostring(math.floor(targetHP)) .. " HP"
+					Table["_User"].Text = targetName
+					Table["_ImageLabel"].Image = "rbxthumb://type=AvatarHeadShot&w=420&h=420&id=" .. userId
 				
-				local targetHPPercentageChange = targetHPPercentage - (previousTargetHP / targetMaxHP)
-				local tweenTime = math.abs(targetHPPercentageChange) * 1.5
-				tweenTime = math.max(tweenTime, 0.2)  
+					local targetHumanoid = target:FindFirstChildOfClass("Humanoid")
+					if not targetHumanoid then
+						return
+					end
 				
-				TweenObject(Table["_HealthFrame"], {Size = UDim2.new(0, 187 * targetHPPercentage, 0, 17)}, tweenTime, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+					local targetHP = targetHumanoid.Health
+					local targetMaxHP = targetHumanoid.MaxHealth
+					local targetHPPercentage = targetHP / targetMaxHP
+					Table["_HP"].Text = tostring(math.floor(targetHP)) .. " HP"
 				
+					local targetRootPart = target:FindFirstChild("HumanoidRootPart") or target:FindFirstChild("RootPart")
+					if not targetRootPart then
+						return
+					end
 				
-				if targetHP < 20 then
-					Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(255, 0, 0) 
-				elseif targetHP < 50 then
-					Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(255, 165, 0)
-				else
-					Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(0, 157, 58) 
-				end
+					local targetHPPercentageChange = targetHPPercentage - (previousTargetHP / targetMaxHP)
+					local tweenTime = math.abs(targetHPPercentageChange) * 1.5
+					tweenTime = math.max(tweenTime, 0.2)
 				
-				if lplrHP > targetHP then
-					Table["_Win/Lose"].Text = "Winning"
-					Table["_Win/Lose"].TextColor3 = Color3.fromRGB(0, 255, 0)
-				elseif lplrHP == targetHP then
-					Table["_Win/Lose"].Text = "Same HPS"
-					Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 255, 0)
-				else
-					Table["_Win/Lose"].Text = "Losing"
-					Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 0, 0)
-				end
+					TweenObject(Table["_HealthFrame"], {Size = UDim2.new(0, 187 * targetHPPercentage, 0, 17)}, tweenTime, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
 				
-				previousTargetHP = targetHP
-				end
+					if targetHP < 20 then
+						Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+					elseif targetHP < 50 then
+						Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+					else
+						Table["_HealthFrame"].BackgroundColor3 = Color3.fromRGB(0, 157, 58)
+					end
 				
+					local lplrHP = character.Humanoid.Health
+					if lplrHP > targetHP then
+						Table["_Win/Lose"].Text = "Winning"
+						Table["_Win/Lose"].TextColor3 = Color3.fromRGB(0, 255, 0)
+					elseif lplrHP == targetHP then
+						Table["_Win/Lose"].Text = "Same HPS"
+						Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 255, 0)
+					else
+						Table["_Win/Lose"].Text = "Losing"
+						Table["_Win/Lose"].TextColor3 = Color3.fromRGB(255, 0, 0)
+					end
+				
+					previousTargetHP = targetHP
+				end				
 				
 				
 				local function updateCharacterReferences()
@@ -11343,33 +11357,48 @@ run(function()
 				
 				local debounce = false
 				local function checkPlayersWithinReach()
-				if debounce then return end
-				debounce = true
-				
-				local nearestPlayer = nil
-				local shortestDistance = 18 
-				
-				for _, player in pairs(game.Players:GetPlayers()) do
-					if player ~= lplr and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-						local distance = (rootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-						if distance < shortestDistance then
-							shortestDistance = distance
-							nearestPlayer = player
+					if debounce then return end
+					debounce = true
+					
+					local nearestPlayer = nil
+					local nearestNPC = nil
+					local shortestDistancePlayer = 18
+					local shortestDistanceNPC = 18
+					
+					for _, player in pairs(game.Players:GetPlayers()) do
+						if player ~= lplr and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+							local distance = (rootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+							if distance < shortestDistancePlayer then
+								shortestDistancePlayer = distance
+								nearestPlayer = player
+							end
 						end
 					end
-				end
+					
+					for _, npc in ipairs(workspace:GetChildren()) do
+						if isNPC(npc) then
+							local distance = (rootPart.Position - getEntityRootPart(npc).Position).Magnitude
+							if distance < shortestDistanceNPC then
+								shortestDistanceNPC = distance
+								nearestNPC = npc
+							end
+						end
+					end
 				
-				if nearestPlayer then
-					target = nearestPlayer
-					updateGUI(nearestPlayer) 
-					Table["_MainGui"].Enabled = true  
-				else 
-					target = nil
-					Table["_MainGui"].Enabled = false  
-				end
-				
-				debounce = false
-				end
+					if nearestPlayer then
+						target = nearestPlayer
+						updateGUI(nearestPlayer)
+						Table["_MainGui"].Enabled = true
+					elseif nearestNPC then
+						target = nearestNPC
+						updateGUI(nearestNPC)
+						Table["_MainGui"].Enabled = true
+					else
+						Table["_MainGui"].Enabled = false
+					end
+					
+					debounce = false
+				end				
 				
 				local heartbeatConnection
 				
@@ -11402,13 +11431,26 @@ run(function()
 				end)
 				
 				startCheckingPlayers()
-				
-				
+
+				transparencytargethud = Table["_MainFrame"].BackgroundTransparency
+
 				else
-				local MainGui = game:GetService("CoreGui"):FindFirstChild("MainGui")
+				local plrgui = game.Players.LocalPlayer.PlayerGui
+				local MainGui = plrgui:FindFirstChild("MainGui")
 				if MainGui then 
 					MainGui:Destroy()
 				end	
+			end
+		end
+	})
+	HudBgTransparency = CustomTargetHud.CreateSlider({
+		Name = "Background Transparency",
+		Min = 0,
+		Max = 1,
+		Function = function(val)
+			local plrgui = game.Players.LocalPlayer.PlayerGui
+			if plrgui:FindFirstChild("MainGui") then 
+				plrgui.MainGui.MainFrame.BackgroundTransparency = val
 			end
 		end
 	})
