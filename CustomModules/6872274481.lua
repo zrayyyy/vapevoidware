@@ -12841,28 +12841,30 @@ run(function()
 		HoverText = 'Detects when bedwars staff are in the server (75% accuracy).',
 		Function = function(calling)
 			if calling then 
-				if store.matchState ~= 0 then 
-					return 
-				end
-				pcall(function() staffconfig = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/staffconfig.json')) end)
-				pcall(function() knownstaff = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/knownstaff.json')) end)
-				pcall(function() 
-					for i,v in next, httpService:JSONDecode(readfile('vape/Libraries/staffdata.json')) do 
-						if table.find(knownstaff, v) == nil then 
-							table.insert(knownstaff, v)
+				task.spawn(function()
+					if store.matchState ~= 0 then 
+						return 
+					end
+					pcall(function() staffconfig = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/staffconfig.json')) end)
+					pcall(function() knownstaff = httpService:JSONDecode(RenderFunctions:GetFile('Libraries/knownstaff.json')) end)
+					pcall(function() 
+						for i,v in next, httpService:JSONDecode(readfile('vape/Libraries/staffdata.json')) do 
+							if table.find(knownstaff, v) == nil then 
+								table.insert(knownstaff, v)
+							end
+						end
+					end)
+					repeat task.wait() until (shared.VapeFullyLoaded or not StaffDetector.Enabled)
+					if not StaffDetector.Enabled then 
+						return 
+					end
+					for i,v in next, playersService:GetPlayers() do 
+						if v ~= lplr then
+							task.spawn(staffDetectorFunction, v)
 						end
 					end
+					table.insert(vapeConnections, playersService.PlayerAdded:Connect(staffDetectorFunction))
 				end)
-				repeat task.wait() until (shared.VapeFullyLoaded or not StaffDetector.Enabled)
-				if not StaffDetector.Enabled then 
-					return 
-				end
-				for i,v in next, playersService:GetPlayers() do 
-					if v ~= lplr then
-						task.spawn(staffDetectorFunction, v)
-					end
-				end
-				table.insert(vapeConnections, playersService.PlayerAdded:Connect(staffDetectorFunction))
 			end
 		end
 	})
