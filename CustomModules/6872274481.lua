@@ -1919,7 +1919,6 @@ task.spawn(function()
 			'SpeedOptionsButton', 
 			'AutoLeaveOptionsButton', 
 			'TriggerBotOptionsButton', 
-			'KillauraOptionsButton', 
 			'HitBoxesOptionsButton', 
 			'LongJumpOptionsButton', 
 			'SpiderOptionsButton',
