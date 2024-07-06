@@ -3129,6 +3129,7 @@ end)
 
 local killauraNearPlayer
 run(function()
+	local Killaura = {}
 	local killauraboxes = {}
 	local killauratargetframe = {Players = {Enabled = false}}
 	local killaurasortmethod = {Value = "Distance"}
