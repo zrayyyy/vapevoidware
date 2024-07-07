@@ -2064,7 +2064,7 @@ local function loadVape()
 		shared.GuiLibrary.ObjectsThatCanBeSaved["Changes DetectorToggle"].Api.ToggleButton(true)
    end--]]
 
-	if ChangesDetectorToggle.Enabled then
+	--[[if ChangesDetectorToggle.Enabled then
 		task.spawn(function()
 			task.wait(1)
 			local GuiLibrary = shared.GuiLibrary
@@ -2262,7 +2262,7 @@ local function loadVape()
 				LogModules()
 			end)
 		end)
-	end
+	end--]]
 
 	coroutine.resume(saveSettingsLoop)
 	shared.VapeFullyLoaded = true
