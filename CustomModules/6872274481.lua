@@ -14788,7 +14788,7 @@ end)
 
 run(function()
 	local HannahExploit = {Enabled = false}
-	HannahExploit = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+	HannahExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = "HannahExploit",
 		Function = function(callback)
 			if callback then
@@ -14865,7 +14865,26 @@ run(function() -- thank you SystemXVoid for letting me use this
         HoverText = "Makes you rich with fortune enchant :money:, CREDITS TO SYSTEMXVOID!",
         Function = function(calling)
             if calling then 
-				RunLoops:BindToStepped("fortune", function(testing)
+				task.spawn(function()
+					repeat 
+						local args = {
+							[1] = {
+								["statusEffectType"] = "fortune_1",
+								["fortuneStacks"] = 9999999999999999
+							}
+						}
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
+						task.wait(0.1)
+						local args = {
+							[1] = {
+								["player"] = game:GetService("Players").LocalPlayer
+							}
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("FortuneEnchantRequestDoubleDownAmount"):InvokeServer(unpack(args))						
+					until not RichExploit.Enabled
+				end)
+				--[[RunLoops:BindToStepped("fortune", function(testing)
 					ftick = ftick + 1
 					game:GetService('ReplicatedStorage'):WaitForChild('rbxts_include'):WaitForChild('node_modules'):WaitForChild('@rbxts'):WaitForChild('net'):WaitForChild('out'):WaitForChild('_NetManaged'):WaitForChild('RequestFortuneCashOut')
 					:FireServer({
@@ -14873,9 +14892,9 @@ run(function() -- thank you SystemXVoid for letting me use this
 						fortuneStacks = 9e9
 					})
 					ftick = 0
-				end)
-			else
-				RunLoops:UnbindFromRenderStep('fortune')
+				end)--]]
+			--else
+				--RunLoops:UnbindFromRenderStep('fortune')
             end
         end
     })
