@@ -9831,7 +9831,7 @@ run(function()
 						if not isAlive(lplr, true) then repeat task.wait() until isAlive(lplr, true) end
 						local bed = FindEnemyBed()
 						if bed and (bed:GetAttribute("BedShieldEndTime") and bed:GetAttribute("BedShieldEndTime") < workspace:GetServerTimeNow() or not bed:GetAttribute("BedShieldEndTime")) then
-						bedtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.65, Enum.EasingStyle.Linear, Enum.EasingDirection.In, 0, false, 0), {CFrame = CFrame.new(bed.Position) + Vector3.new(0, 10, 0)})
+						bedtween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.75, Enum.EasingStyle.Linear, Enum.EasingDirection.In, 0, false, 0), {CFrame = CFrame.new(bed.Position) + Vector3.new(0, 10, 0)})
 						task.wait(0.1)
 						bedtween:Play()
 						bedtween.Completed:Wait()
@@ -9859,7 +9859,7 @@ run(function()
 							repeat
 							local target = FindTarget(45, store.blockRaycast)
 							if not target.RootPart then break end
-							playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.30), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
+							playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.75), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
 							playertween:Play()
 							task.wait()
 							until not FindTarget(45, store.blockRaycast).RootPart or not Autowin.Enabled or not isAlive()
@@ -9871,7 +9871,7 @@ run(function()
 						elseif FindTarget(nil, store.blockRaycast).RootPart then
 							task.wait()
 							local target = FindTarget(nil, store.blockRaycast)
-							playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, target.RootPart) / 23.4 / 35, Enum.EasingStyle.Linear), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
+							playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.75, Enum.EasingStyle.Linear), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
 							playertween:Play()
 							if AutowinNotification.Enabled then
 								task.spawn(InfoNotification, "Autowin", "Killing "..target.Player.DisplayName.." ("..(target.Player.Team and target.Player.Team.Name or "neutral").." Team)", 5)
@@ -9882,7 +9882,7 @@ run(function()
 									repeat
 									target = FindTarget(50, store.blockRaycast)
 									if not target.RootPart or not isAlive() then break end
-									playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.30), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
+									playertween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.75), {CFrame = target.RootPart.CFrame + Vector3.new(0, 3, 0)})
 									playertween:Play()
 									task.wait()
 									until not FindTarget(50, store.blockRaycast).RootPart or not Autowin.Enabled or not isAlive()
@@ -10039,7 +10039,7 @@ run(function()
 								task.wait(0.2)
 								local raycast = workspace:Raycast(middletween.Position, Vector3.new(0, -2000, 0), store.blockRaycast)
 								raycast = raycast and raycast.Position or middletween.Position
-								middletween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.49, Enum.EasingStyle.Linear), {CFrame = CFrame.new(raycast) + Vector3.new(0, 5, 0)})
+								middletween = tweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.65, Enum.EasingStyle.Linear), {CFrame = CFrame.new(raycast) + Vector3.new(0, 5, 0)})
 								middletween:Play()
 								middletween.Completed:Wait()
 								if MiddleTP.Enabled then
@@ -15029,3 +15029,48 @@ local ProtectedModules
 if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
 ProtectedModules.LoadModules(6872274481)
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
+
+run(function()
+    local CameraUnlocker = {["Enabled"] = false}
+	local CameraUnlockerMode = {Value = 'Infinite'}
+    local CameraUnlockerSlider = {["Value"] = 200}
+    CameraUnlocker = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"]["CreateOptionsButton"]({
+        ["Name"] = "CameraUnlocker",
+        ["HoverText"] = "Unlocks the camera max zoom distance\nCustomizable",
+        ["Function"] = function(callback)
+            if callback then 
+				if CameraUnlockerMode["Value"] == 'Infinite' then
+					game.Players.LocalPlayer.CameraMaxZoomDistance = 9e9
+				elseif CameraUnlockerMode["Value"] == 'Custom' then
+                    game.Players.LocalPlayer.CameraMaxZoomDistance = CameraUnlockerSlider["Value"]
+                else 
+                    game.Players.LocalPlayer.CameraMaxZoomDistance = 13
+                end
+            end
+        end
+    })
+	CameraUnlockerMode = CameraUnlocker["CreateDropdown"]({
+		["Name"] = 'Mode',
+		["List"] = {
+			'Infinite',
+			'Custom'
+		},
+		["HoverText"] = 'Mode to unlock the zoom.',
+		["Function"] = function() end
+	})
+    CameraUnlockerSlider = CameraUnlocker["CreateSlider"]({
+        ["Name"] = "Unlock value",
+        ["Min"] = 1,
+        ["Max"] = 10000,
+        ["HoverText"] = "Sets the camera max zoom distance value",
+        ["Function"] = function()
+            game.Players.LocalPlayer.CameraMaxZoomDistance = Value
+        end,
+        ["Default"] = 200
+    })
+	local Credits
+	Credits = CameraUnlocker.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Mont'
+    })
+end)
