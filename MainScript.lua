@@ -2064,7 +2064,7 @@ local function loadVape()
 		shared.GuiLibrary.ObjectsThatCanBeSaved["Changes DetectorToggle"].Api.ToggleButton(true)
    end--]]
 
-	--[[if ChangesDetectorToggle.Enabled then
+	if ChangesDetectorToggle.Enabled then
 		task.spawn(function()
 			task.wait(1)
 			local GuiLibrary = shared.GuiLibrary
@@ -2221,17 +2221,32 @@ local function loadVape()
 				else
 					for window, buttons in pairs(differences.added) do
 						local buttonList = table.concat(buttons, ", \n")
-						warningNotification("Modules Added", "In " .. window .. ": " .. buttonList, 10)
+						if is_string_too_long(buttonList) then
+							warningNotification("Modules Added", "Changed cannot be shown due to their size being too big!", 7)
+						else
+							warningNotification("Modules Added", "In " .. window .. ": " .. buttonList, 7)
+						end
 					end
 
 					for window, buttons in pairs(differences.removed) do
 						local buttonList = table.concat(buttons, ", \n")
-						warningNotification("Modules Removed", "From " .. window .. ": " .. buttonList, 10)
+						local function is_string_too_long(inputString)
+							if #inputString > 50 then
+								return true
+							else
+								return false
+							end
+						end
+						if is_string_too_long(buttonList) then
+							warningNotification("Modules Removed", "Changed cannot be shown due to their size being too big!", 7)
+						else
+							warningNotification("Modules Removed", "From " .. window .. ": " .. buttonList, 7)
+						end
 					end
 
 					for button, moveInfo in pairs(differences.moved) do
 						local message = "Moved from " .. moveInfo.from .. " to " .. moveInfo.to
-						warningNotification("Module Moved", button .. ": " .. message, 10)
+						warningNotification("Module Moved", button .. ": " .. message, 7)
 					end
 
 					return differences
@@ -2262,7 +2277,7 @@ local function loadVape()
 				LogModules()
 			end)
 		end)
-	end--]]
+	end
 
 	coroutine.resume(saveSettingsLoop)
 	shared.VapeFullyLoaded = true
