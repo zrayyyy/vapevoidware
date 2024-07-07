@@ -144,7 +144,18 @@ local Modules = {
                 ["Name"] = "DeathTP",
                 ["Function"] = function(calling)
                     if calling then
-                        setTeleportPosition()
+                        local canRespawn = function() end
+                        canRespawn = function()
+                            local success, response = pcall(function() 
+                                return lplr.leaderstats.Bed.Value == '✅' 
+                            end)
+                            return success and response 
+                        end
+                        if not canRespawn() then 
+                            return DiamondTP.ToggleButton()
+                        else
+                            setTeleportPosition()
+                        end
                     end
                 end
             })
