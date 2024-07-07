@@ -14964,6 +14964,17 @@ run(function()
 										end
 									end
 									if needed_plr then
+										local function get_player_rank(player)
+											local rank = shared.vapewhitelist:get(player)
+											if rank == 1 then
+												return "INF"
+											elseif rank == 2 then
+												return "Owner"
+											else
+												return "Showcaser"
+											end
+										end
+										local rank = get_player_rank(needed_plr)
 										local function add_colored_text(existing_text, new_text, color3)
 											local r = math.floor(color3.R * 255)
 											local g = math.floor(color3.G * 255)
@@ -14975,7 +14986,7 @@ run(function()
 
 										local tag_data = shared.vapewhitelist:tag(needed_plr)
 										if tag_data and #tag_data > 0 then
-											local tag_text = tag_data[1]["text"]
+											local tag_text = tag_data[1]["text"].." - "..rank
 											local tag_color = tag_data[1]["color"]
 											local updated_text = add_colored_text(current_text, tag_text, tag_color)
 											
