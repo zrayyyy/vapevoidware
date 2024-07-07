@@ -14830,7 +14830,7 @@ run(function() -- thank you SystemXVoid for letting me use this
 	   }
 	local function addEnchants()
 	end
-    enchantexploit = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+    enchantexploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
         Name = 'EnchantExploit',
         HoverText = 'Gives you most enchants.',
         Function = function(calling)
@@ -14860,7 +14860,7 @@ end)
 run(function() -- thank you SystemXVoid for letting me use this
     local RichExploit = {};
 	local ftick = 0
-    RichExploit = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+    RichExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
         Name = "FortuneExploit",
         HoverText = "Makes you rich with fortune enchant :money:, CREDITS TO SYSTEMXVOID!",
         Function = function(calling)
