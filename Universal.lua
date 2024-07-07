@@ -8715,3 +8715,48 @@ local interactable_buttons_table = {
 if not isfile('vape/Libraries/DiscordDecision.txt') then
 	InfoNotification2("Voidware Discord", "Would you like to join Voidware?", 100000000, interactable_buttons_table)
 end
+
+run(function()
+    local CameraUnlocker = {["Enabled"] = false}
+	local CameraUnlockerMode = {Value = 'Infinite'}
+    local CameraUnlockerSlider = {["Value"] = 200}
+    CameraUnlocker = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"]["CreateOptionsButton"]({
+        ["Name"] = "CameraUnlocker",
+        ["HoverText"] = "Unlocks the camera max zoom distance\nCustomizable",
+        ["Function"] = function(callback)
+            if callback then 
+				if CameraUnlockerMode["Value"] == 'Infinite' then
+					game.Players.LocalPlayer.CameraMaxZoomDistance = 9e9
+				elseif CameraUnlockerMode["Value"] == 'Custom' then
+                    game.Players.LocalPlayer.CameraMaxZoomDistance = CameraUnlockerSlider["Value"]
+                else 
+                    game.Players.LocalPlayer.CameraMaxZoomDistance = 13
+                end
+            end
+        end
+    })
+	CameraUnlockerMode = CameraUnlocker["CreateDropdown"]({
+		["Name"] = 'Mode',
+		["List"] = {
+			'Infinite',
+			'Custom'
+		},
+		["HoverText"] = 'Mode to unlock the zoom.',
+		["Function"] = function() end
+	})
+    CameraUnlockerSlider = CameraUnlocker["CreateSlider"]({
+        ["Name"] = "Unlock value",
+        ["Min"] = 1,
+        ["Max"] = 10000,
+        ["HoverText"] = "Sets the camera max zoom distance value",
+        ["Function"] = function()
+            game.Players.LocalPlayer.CameraMaxZoomDistance = Value
+        end,
+        ["Default"] = 200
+    })
+	local Credits
+	Credits = CameraUnlocker.CreateCredits({
+        Name = 'CreditsButtonInstance',
+        Credits = 'Mont'
+    })
+end)
