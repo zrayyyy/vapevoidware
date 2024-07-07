@@ -8672,3 +8672,46 @@ run(function()
         Credits = 'Render'
     })
 end)
+
+local function InfoNotification(title, text, delay, button_table)
+	local suc, res = pcall(function()
+		local frame = GuiLibrary.CreateNotification(title or "Voidware", text or "Successfully called function", delay or 7, "assets/InfoNotification.png", button_table)
+		return frame
+	end)
+	return (suc and res)
+end
+
+local function InfoNotification2(title, text, delay, button_table)
+	local suc, res = pcall(function()
+		local frame = GuiLibrary.CreateInteractableNotification(title or "Voidware", text or "Successfully called function", delay or 7, "assets/InfoNotification.png", button_table)
+		return frame
+	end)
+	return (suc and res)
+end
+
+local interactable_buttons_table = {
+	[1] = {
+		["Name"] = "Yes",
+		["Function"] = function()
+			setclipboard("discord.gg/"..shared.discord_code)
+			writefile('vape/Libraries/DiscordDecision.txt', "yes")
+			local function InfoNotification(title, text, delay, button_table)
+				local suc, res = pcall(function()
+					local frame = GuiLibrary.CreateNotification(title or "Voidware", text or "Successfully called function", delay or 7, "assets/InfoNotification.png", button_table)
+					return frame
+				end)
+				return (suc and res)
+			end
+			InfoNotification("Voidware Discord", "Discord invite link copied to clipboard!", 7)
+		end
+	},
+	[2] = {
+		["Name"] = "No",
+		["Function"] = function()
+			writefile('vape/Libraries/DiscordDecision.txt', "no")
+		end
+	}
+}
+if not isfile('vape/Libraries/DiscordDecision.txt') then
+	InfoNotification2("Voidware Discord", "Would you like to join Voidware?", 100000000, interactable_buttons_table)
+end

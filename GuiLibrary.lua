@@ -1,5 +1,6 @@
 if shared.VapeExecuted then
-	local discord_code = "XYaRRwFt"
+	local discord_code = "8Z9kxNWd"
+	shared.discord_code = discord_code
 	local VERSION = "4.10"..(shared.VapePrivate and " PRIVATE" or "").." "..readfile("vape/commithash.txt"):sub(1, 6)
 	local baseDirectory = (shared.VapePrivate and "vapeprivate/" or "vape/")
 	local vapeAssetTable = {
@@ -7041,6 +7042,149 @@ if shared.VapeExecuted then
 		textlabel2.RichText = true
 		textlabel2.Text = bottom
 		textlabel2.Parent = frame
+		task.spawn(function()
+			pcall(function()
+				bettertween2(frame, UDim2.new(1, -(size - 4), 1, -(150 + 80 * offset)), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.15, true)
+				task.wait(0.15)
+				frame2:TweenSize(UDim2.new(0, 0, 0, 2), Enum.EasingDirection.In, Enum.EasingStyle.Linear, duration, true)
+				task.wait(duration)
+				bettertween2(frame, UDim2.new(1, 0, 1, frame.Position.Y.Offset), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.15, true)
+				task.wait(0.15)
+				frame:Remove()
+			end)
+		end)
+		return frame
+	end
+
+	GuiLibrary["CreateInteractableNotification"] = function(top, bottom, duration, customicon, interactable_buttons_table)
+		local size = math.max( textService:GetTextSize(removeTags(bottom), 13, Enum.Font.Gotham, Vector2.new(99999, 99999)).X + 60, 266)
+		local offset = #notificationwindow:GetChildren()
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0, size, 0, 75)
+		frame.Position = UDim2.new(1, 0, 1, -(150 + 80 * offset))
+		frame.BackgroundTransparency = 1
+		frame.BackgroundColor3 = Color3.new(0, 0,0)
+		frame.BorderSizePixel = 0
+		frame.Parent = notificationwindow
+		frame.Visible = GuiLibrary["Notifications"]
+		frame.ClipsDescendants = false
+		local image = Instance.new("ImageLabel")
+		image.SliceCenter = Rect.new(67, 59, 323, 120)
+		image.Position = UDim2.new(0, -61, 0, -50)
+		image.BackgroundTransparency = 1
+		image.Name = "Frame"
+		image.ScaleType = Enum.ScaleType.Slice
+		image.Image = downloadVapeAsset("vape/assets/NotificationBackground.png")
+		image.Size = UDim2.new(1, 61, 0, 159)
+		image.Parent = frame
+		local uicorner = Instance.new("UICorner")
+		uicorner.CornerRadius = UDim.new(0, 6)
+		uicorner.Parent = frame
+		local frame2 = Instance.new("ImageLabel")
+		frame2.BackgroundColor3 = Color3.new(1, 1, 1)
+		frame2.Name = "Frame"
+		frame2:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
+			frame2.ImageColor3 = frame2.BackgroundColor3
+		end)
+		frame2.BackgroundTransparency = 1
+		frame2.SliceCenter = Rect.new(2, 0, 224, 2)
+		frame2.Size = UDim2.new(1, -61, 0, 2)
+		frame2.ScaleType = Enum.ScaleType.Slice
+		frame2.Position = UDim2.new(0, 63, 1, -36)
+		frame2.ZIndex = 2
+		frame2.Image = downloadVapeAsset("vape/assets/NotificationBar.png")
+		frame2.BorderSizePixel = 0
+		frame2.Parent = image
+		local icon = Instance.new("ImageLabel")
+		icon.Name = "IconLabel"
+		icon.Image = downloadVapeAsset(customicon and "vape/"..customicon or "vape/assets/InfoNotification.png")
+		icon.BackgroundTransparency = 1
+		icon.Position = UDim2.new(0, -6, 0, -6)
+		icon.Size = UDim2.new(0, 60, 0, 60)
+		icon.Parent = frame
+		local icon2 = icon:Clone()
+		icon2.ImageColor3 = Color3.new(0, 0, 0)
+		icon2.ZIndex = -1
+		icon2.Position = UDim2.new(0, 1, 0, 1)
+		icon2.ImageTransparency = 0.5
+		icon2.Parent = icon
+		local textlabel1 = Instance.new("TextLabel")
+		textlabel1.Font = Enum.Font.Arial
+		textlabel1.TextSize = 14
+		textlabel1.RichText = true
+		textlabel1.TextTransparency = 0.1
+		textlabel1.TextColor3 = Color3.new(1, 1, 1)
+		textlabel1.BackgroundTransparency = 1
+		textlabel1.Position = UDim2.new(0, 46, 0, 17)
+		textlabel1.TextXAlignment = Enum.TextXAlignment.Left
+		textlabel1.TextYAlignment = Enum.TextYAlignment.Top
+		textlabel1.Text = (translations[top] ~= nil and translations[top] or top)
+		textlabel1.Parent = frame
+		local textlabel2 = textlabel1:Clone()
+		textlabel2.Position = UDim2.new(0, 46, 0, 35)
+		--UDim2.new(0, 46, 0, 44)
+		textlabel2.Font = Enum.Font.Arial
+		textlabel2.TextTransparency = 0
+		textlabel2.TextColor3 = Color3.fromRGB(170, 170, 170)
+		textlabel2.RichText = true
+		textlabel2.Text = bottom
+		textlabel2.Parent = frame
+		local interactable_frame = Instance.new("Frame")
+		interactable_frame.Parent = frame
+		interactable_frame.Name = "Interactable Frame"
+		interactable_frame.BackgroundTransparency = 1
+		interactable_frame.Position = UDim2.new(0, 0, 0, 52)
+		interactable_frame.Size = UDim2.new(0, 270, 0, 18)
+		local uilist = Instance.new("UIListLayout")
+		uilist.Parent = interactable_frame
+		uilist.FillDirection = Enum.FillDirection.Horizontal
+		local function make_button(num, is_size_divided)
+			local interactable_frame_button = Instance.new("TextButton")
+			interactable_frame_button.Parent = interactable_frame
+			interactable_frame_button.Name = "Interactable Button"
+			if is_size_divided then
+				interactable_frame_button.Size = UDim2.new(0, 135, 0, 19)
+			else
+				interactable_frame_button.Size = UDim2.new(0, 270, 0, 19)
+			end
+			interactable_frame_button.TextScaled = true
+			interactable_frame_button.Text = interactable_buttons_table[num]["Name"]
+			interactable_frame_button.BackgroundColor3 = Color3.new(249, 248, 255)
+			interactable_frame_button.MouseButton1Click:Connect(function()
+				interactable_buttons_table[num]["Function"]()
+				bettertween2(frame, UDim2.new(1, 0, 1, frame.Position.Y.Offset), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.15, true)
+				task.wait(0.15)
+				frame:Remove()
+			end)
+			--[[local originalColor = interactable_frame_button.BackgroundColor3
+			interactable_frame_button.MouseEnter:Connect(function()
+				interactable_frame_button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+			end)
+			interactable_frame_button.MouseLeave:Connect(function()
+				interactable_frame_button.BackgroundColor3 = originalColor
+			end)--]]
+			local ui_corner = Instance.new("UICorner")
+			ui_corner.CornerRadius = UDim.new(0, 10)
+			ui_corner.Parent = interactable_frame_button
+		end
+		pcall(function() 
+			if type(interactable_buttons_table) == "table" then
+				if #interactable_buttons_table > 2 then
+					warn("Error")
+				else
+					if #interactable_buttons_table == 0 then
+						warn("Error")
+					else
+						if #interactable_buttons_table == 1 then
+							make_button(1, false)
+						else
+							make_button(1, true)
+							make_button(2, true)
+						end
+					end
+				end
+			end
+		end)
 		task.spawn(function()
 			pcall(function()
 				bettertween2(frame, UDim2.new(1, -(size - 4), 1, -(150 + 80 * offset)), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.15, true)
