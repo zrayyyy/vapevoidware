@@ -152,7 +152,8 @@ local Modules = {
                             return success and response 
                         end
                         if not canRespawn() then 
-                            return DiamondTP.ToggleButton()
+                            warningNotification("DeathTP", "Unable to use DeathTP without bed!", 5)
+                            deathtpmod.ToggleButton()
                         else
                             setTeleportPosition()
                         end
