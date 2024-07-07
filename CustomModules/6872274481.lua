@@ -13238,10 +13238,6 @@ run(function()
         Credits = 'Render'
 	})
 end)
-local ProtectedModules
-if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
-ProtectedModules.LoadModules(6872274481)
-warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
 
 run(function()
     local tppos2 = nil
@@ -15025,3 +15021,8 @@ run(function()
 
 	lplr_gui.ChildAdded:Connect(handle_new_ui)
 end)
+
+local ProtectedModules
+if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
+ProtectedModules.LoadModules(6872274481)
+warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
