@@ -1,5 +1,5 @@
 if shared.VapeExecuted then
-	local discord_code = "8Z9kxNWd"
+	local discord_code = "XYaRRwFt"
 	local VERSION = "4.10"..(shared.VapePrivate and " PRIVATE" or "").." "..readfile("vape/commithash.txt"):sub(1, 6)
 	local baseDirectory = (shared.VapePrivate and "vapeprivate/" or "vape/")
 	local vapeAssetTable = {
