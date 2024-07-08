@@ -6143,11 +6143,11 @@ run(function()
 				task.spawn(function()
 					repeat task.wait() until store.equippedKit ~= ""
 					if KitESP.Enabled then
-						if store.equippedKit == "metal_detector" then
+						if tostring(store.queueType) == "training_room" or store.equippedKit == "metal_detector" then
 							addKit("hidden-metal", "iron")
-						elseif store.equippedKit == "beekeeper" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "beekeeper" then
 							addKit("bee", "bee")
-						elseif store.equippedKit == "bigman" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "bigman" then
 							addKit("treeOrb", "natures_essence_1")
 						end
 					end
@@ -7149,7 +7149,7 @@ run(function()
 						if found then
 							local inv = store.localInventory.inventory
 							local currentupgrades = bedwars.ClientStoreHandler:getState().Bedwars.teamUpgrades
-							if store.equippedKit == "dasher" then
+							if tostring(store.queueType) == "training_room" or store.equippedKit == "dasher" then
 								swords = {
 									[1] = "wood_dao",
 									[2] = "stone_dao",
@@ -7157,11 +7157,11 @@ run(function()
 									[4] = "diamond_dao",
 									[5] = "emerald_dao"
 								}
-							elseif store.equippedKit == "ice_queen" then
+							elseif tostring(store.queueType) == "training_room" or store.equippedKit == "ice_queen" then
 								swords[5] = "ice_sword"
-							elseif store.equippedKit == "ember" then
+							elseif tostring(store.queueType) == "training_room" or store.equippedKit == "ember" then
 								swords[5] = "infernal_saber"
-							elseif store.equippedKit == "lumen" then
+							elseif tostring(store.queueType) == "training_room" or store.equippedKit == "lumen" then
 								swords[5] = "light_sword"
 							end
 							if (AutoBuyGui.Enabled == false or (bedwars.AppController:isAppOpen("BedwarsItemShopApp") or bedwars.AppController:isAppOpen("BedwarsTeamUpgradeApp"))) and (not enchant) then
@@ -7492,7 +7492,7 @@ run(function()
 				task.spawn(function()
 					repeat task.wait() until store.equippedKit ~= ""
 					if AutoKit.Enabled then
-						if store.equippedKit == "melody" then
+						if tostring(store.queueType) == "training_room" or store.equippedKit == "melody" then
 							task.spawn(function()
 								repeat
 									task.wait(0.1)
@@ -7507,7 +7507,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "bigman" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "bigman" then
 							task.spawn(function()
 								repeat
 									task.wait()
@@ -7524,7 +7524,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "metal_detector" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "metal_detector" then
 							task.spawn(function()
 								repeat
 									task.wait()
@@ -7538,7 +7538,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "battery" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "battery" then
 							task.spawn(function()
 								repeat
 									task.wait()
@@ -7552,7 +7552,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "grim_reaper" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "grim_reaper" then
 							task.spawn(function()
 								repeat
 									task.wait()
@@ -7567,7 +7567,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "farmer_cletus" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "farmer_cletus" then
 							task.spawn(function()
 								repeat
 									task.wait()
@@ -7586,7 +7586,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "pinata" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "pinata" then
 							task.spawn(function()
 								repeat
 									task.wait()
@@ -7598,7 +7598,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "dragon_slayer" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "dragon_slayer" then
 							task.spawn(function()
 								repeat
 									task.wait(0.1)
@@ -7618,7 +7618,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "mage" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "mage" then
 							task.spawn(function()
 								repeat
 									task.wait(0.1)
@@ -7650,7 +7650,7 @@ run(function()
 									end
 								until (not AutoKit.Enabled)
 							end)
-						elseif store.equippedKit == "angel" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "angel" then
 							table.insert(AutoKit.Connections, vapeEvents.AngelProgress.Event:Connect(function(angelTable)
 								task.wait(0.5)
 								if not AutoKit.Enabled then return end
@@ -7660,7 +7660,7 @@ run(function()
 									})
 								end
 							end))
-						elseif store.equippedKit == "miner" then
+						elseif tostring(store.queueType) == "training_room" or store.equippedKit == "miner" then
 							task.spawn(function()
 								repeat
 									task.wait(0.1)
@@ -14989,7 +14989,7 @@ run(function()
 		Name = "HannahExploit",
 		Function = function(callback)
 			if callback then
-				if store.equippedKit == "hannah" then
+				if tostring(store.queueType) == "training_room" or store.equippedKit == "hannah" then
 					RunLoops:BindToHeartbeat("hannah",function()
 						for i,v in pairs(game.Players:GetChildren()) do
 							local args = {
@@ -15235,7 +15235,7 @@ run(function()
 		Name = 'JellyFishExploit',
 		Function = function(calling)
 			if calling then 
-				if store.equippedKit == "marina" then
+				if tostring(store.queueType) == "training_room" or store.equippedKit == "marina" then
 					warningNotification("JellyFishExploit", "This will automatically use the marina kit function and place jellyfishes next to you", 5)
 					task.spaw(function()
 						repeat task.wait() until store.matchState ~= 0
@@ -15269,6 +15269,101 @@ run(function()
 				end
 			end
 		end
+	})
+end)
+
+run(function()
+	local AdetundeExploit = {}
+	local AdetundeExploit_List = {Value = "Shield"}
+	local adetunde_remotes = {
+		["Shield"] = function()
+			local args = {
+				[1] = "shield"
+			}
+			
+			local returning = game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("UpgradeFrostyHammer"):InvokeServer(unpack(args))
+			return returning
+		end,
+		["Speed"] = function()
+			local args = {
+				[1] = "speed"
+			}
+			
+			local returning = game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("UpgradeFrostyHammer"):InvokeServer(unpack(args))
+			return returning
+		end,
+		["Strength"] = function()
+			local args = {
+				[1] = "strength"
+			}
+			
+			local returning = game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("UpgradeFrostyHammer"):InvokeServer(unpack(args))
+			return returning
+		end
+	}
+	local current_upgrador = "Shield"
+	local hasnt_upgraded_everything = true
+	local testing = 1
+	AdetundeExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = 'AdetundeExploit',
+		Function = function(calling)
+			if calling then 
+				if tostring(store.queueType) == "training_room" or store.equippedKit == "adetunde" then
+					--AdetundeExploit["ToggleButton"](false) 
+					current_upgrador = AdetundeExploit_List.Value
+					task.spawn(function()
+						repeat 
+							local returning_table = adetunde_remotes[current_upgrador]() 
+							if type(returning_table) == "table" then
+								local Speed = returning_table["speed"]
+								local Strength = returning_table["strength"]
+								local Shield = returning_table["shield"]
+
+								print("Speed: "..tostring(Speed))
+								print("Strength: "..tostring(Strength))
+								print("Shield: "..tostring(Shield))
+								print("Current Upgrador: "..tostring(current_upgrador))
+
+								if returning_table[string.lower(current_upgrador)] == 3 then
+									if Strength and Shield and Speed then
+										if Strength == 3 or Speed == 3 or Shield == 3 then
+											if (Strength == 3 and Speed == 2 and Shield == 2) or (Strength == 2 and Speed == 3 and Shield == 2) or (Strength == 2 and Speed == 2 and Shield == 3) then
+												warningNotification("AdetundeExploit", "Fully upgraded everything possible!", 7)
+												hasnt_upgraded_everything = false
+											else
+												local things = {}
+												for i,v in pairs(adetunde_remotes) do table.insert(things, i) end
+												for i,v in pairs(things) do if things[i] == current_upgrador then table.remove(things, i) end end
+												local random = things[math.random(1, #things)]
+												current_upgrador = random
+											end
+										end
+									end
+								end
+							else
+								local things = {}
+								for i,v in pairs(adetunde_remotes) do table.insert(things, i) end
+								for i,v in pairs(things) do if things[i] == current_upgrador then table.remove(things, i) end end
+								local random = things[math.random(1, #things)]
+								current_upgrador = random
+							end
+							task.wait(0.1)
+						until not AdetundeExploit.Enabled or hasnt_upgraded_everything == false
+					end)
+				else
+					AdetundeExploit["ToggleButton"](false)
+					warningNotification("AdetundeExploit", "Kit required or u need to be in testing mode", 5)
+				end
+			end
+		end
+	})
+	local real_list = {}
+	for i,v in pairs(adetunde_remotes) do table.insert(real_list, i) end
+	AdetundeExploit_List = AdetundeExploit.CreateDropdown({
+		Name = 'Preferred Upgrade',
+		List = real_list,
+		Function = function() end,
+		Default = "Shield"
 	})
 end)
 
