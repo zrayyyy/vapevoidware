@@ -2116,6 +2116,9 @@ run(function()
 		Function = function(val) end
 	})
 	local states = {"None"}
+	pcall(function()
+		for i,v in pairs(Enum.HumanoidStateType:GetEnumItems()) do if v.Name ~= "Dead" and v.Name ~= "None" then table.insert(states, v.Name) end end
+	end)
 	for i,v in pairs(Enum.HumanoidStateType:GetEnumItems()) do if v.Name ~= "Dead" and v.Name ~= "None" then table.insert(states, v.Name) end end
 	FlyState = Fly.CreateDropdown({
 		Name = "State",
