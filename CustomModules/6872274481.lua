@@ -15238,6 +15238,7 @@ run(function()
 				if store.equippedKit == "marina" then
 					warningNotification("JellyFishExploit", "This will automatically use the marina kit function and place jellyfishes next to you", 5)
 					task.spaw(function()
+						repeat task.wait() until store.matchState ~= 0
 						local function getRandomVectorNearPlayer(player)
 							local playerPosition = player.Character and player.Character.HumanoidRootPart and player.Character.HumanoidRootPart.Position
 							if playerPosition then
