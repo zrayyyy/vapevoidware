@@ -15039,7 +15039,7 @@ run(function()
 		Name = 'JellyFishExploit',
 		Function = function(calling)
 			if calling then 
-				if tostring(store.queueType) == "training_room" or store.equippedKit == "marina" then
+				--if tostring(store.queueType) == "training_room" or store.equippedKit == "marina" then
 					warningNotification("JellyFishExploit", "This will automatically use the marina kit function and place jellyfishes next to you", 5)
 					task.spaw(function()
 						repeat task.wait() until store.matchState ~= 0
@@ -15067,10 +15067,10 @@ run(function()
 							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestPlaceJellyfish"):InvokeServer(unpack(args))
 						end
 					end)
-				else
-					JellyFishExploit["ToggleButton"](false) 
-					warningNotification("JellyFishExploit", "Marina kit required!", 5)
-				end
+				--else
+				--	JellyFishExploit["ToggleButton"](false) 
+				--	warningNotification("JellyFishExploit", "Marina kit required!", 5)
+				--end
 			end
 		end
 	})
@@ -15112,7 +15112,7 @@ run(function()
 		Name = 'AdetundeExploit',
 		Function = function(calling)
 			if calling then 
-				if tostring(store.queueType) == "training_room" or store.equippedKit == "adetunde" then
+				--if tostring(store.queueType) == "training_room" or store.equippedKit == "adetunde" then
 					--AdetundeExploit["ToggleButton"](false) 
 					current_upgrador = AdetundeExploit_List.Value
 					task.spawn(function()
@@ -15154,10 +15154,10 @@ run(function()
 							task.wait(0.1)
 						until not AdetundeExploit.Enabled or hasnt_upgraded_everything == false
 					end)
-				else
-					AdetundeExploit["ToggleButton"](false)
-					warningNotification("AdetundeExploit", "Kit required or u need to be in testing mode", 5)
-				end
+				--else
+				--	AdetundeExploit["ToggleButton"](false)
+				--	warningNotification("AdetundeExploit", "Kit required or u need to be in testing mode", 5)
+				--end
 			end
 		end
 	})
