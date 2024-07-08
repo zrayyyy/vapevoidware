@@ -15183,7 +15183,7 @@ end
 run(function()
     local GodMode = {Enabled = false}
     GodMode = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-        Name = "Godmode",
+        Name = "AntiHit/Godmode",
         Function = function(callback)
             if callback then
 				spawn(function()
