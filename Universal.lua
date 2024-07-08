@@ -651,7 +651,8 @@ local function AllNearPosition(distance, amount, checktab)
 end
 
 local sha = loadstring(vapeGithubRequest("Libraries/sha.lua"))()
-local olduninject
+run(function()
+	local olduninject
 	function whitelist:get(plr)
 		local plrstr = self:hash(plr.Name..plr.UserId)
 		for i,v in self.data.WhitelistedUsers do
@@ -1046,6 +1047,7 @@ local olduninject
 		table.clear(whitelist.data)
 		table.clear(whitelist)
 	end})
+end)
 shared.vapewhitelist = whitelist
 
 if shared.vapewhitelist:get(lplr) == 0 then
@@ -8757,4 +8759,121 @@ end
         Name = 'CreditsButtonInstance',
         Credits = 'Mont'
     })
+end)--]]
+
+--[[run(function()
+	local BreakYourself = {}
+	BreakYourself = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = 'BreakYourself',
+		Function = function(calling)
+			if calling then 
+				BreakYourself.ToggleButton()
+				warningNotification("BreakYourself", "Congrats u broke ur game lol. Rejoin to fix", 7)
+				-- Create a table to store logged messages
+				local loggedMessages = {}
+
+				-- Function to check if a message is relevant to the script
+				local function isRelevantMessage(message)
+					-- Convert the message to lower case to make the check case insensitive
+					local lowerMessage = string.lower(message)
+					return string.find(lowerMessage, "script") and string.find(lowerMessage, "line")
+				end
+
+				-- Function to log messages and create notifications
+				local function logMessage(msgType, message)
+					-- Filter messages to include only relevant ones
+					if isRelevantMessage(message) then
+						table.insert(loggedMessages, {type = msgType, message = message, time = os.time()})
+						
+						-- Create a notification (this can be customized as needed)
+						game.StarterGui:SetCore("SendNotification", {
+							Title = "Log Notification";
+							Text = msgType .. ": " .. message;
+							Duration = 5;
+						})
+					end
+				end
+
+				-- Override global print, warn, and error functions
+				getgenv().print = function(...)
+					local message = table.concat({...}, " ")
+					logMessage("INFO", message)
+				end
+
+				getgenv().warn = function(...)
+					local message = table.concat({...}, " ")
+					logMessage("WARN", message)
+				end
+
+				getgenv().error = function(...)
+					local message = table.concat({...}, " ")
+					logMessage("ERROR", message)
+				end
+
+				-- Override environment's print, warn, and error functions
+				getrenv().print = function(...)
+					local message = table.concat({...}, " ")
+					logMessage("INFO", message)
+				end
+
+				getrenv().warn = function(...)
+					local message = table.concat({...}, " ")
+					logMessage("WARN", message)
+				end
+
+				getrenv().error = function(...)
+					local message = table.concat({...}, " ")
+					logMessage("ERROR", message)
+				end
+
+				-- Function to capture and log Roblox-specific warnings and errors
+				local function captureRobloxLogs()
+					local LogService = game:GetService("LogService")
+					LogService.MessageOut:Connect(function(message, messageType)
+						if messageType == Enum.MessageType.MessageOutput then
+							logMessage("INFO", message)
+						elseif messageType == Enum.MessageType.MessageWarning then
+							logMessage("WARN", message)
+						elseif messageType == Enum.MessageType.MessageError then
+							logMessage("ERROR", message)
+						end
+					end)
+				end
+
+				-- Call the function to capture logs
+				captureRobloxLogs()
+
+				-- Hook Namecall to log specific console methods
+				local oldNamecall
+				oldNamecall = hookmetamethod(game, '__namecall', newcclosure(function(self, ...)
+					local method = getnamecallmethod()
+					local args = {...}
+					local message = table.concat(args, " ")
+
+					if string.lower(method) == 'rconsoleprint' then
+						logMessage("INFO", message)
+					elseif string.lower(method) == 'rconsoleinfo' then
+						logMessage("INFO", message)
+					elseif string.lower(method) == 'rconsolewarn' then
+						logMessage("WARN", message)
+					elseif string.lower(method) == 'rconsoleerr' then
+						logMessage("ERROR", message)
+					elseif string.lower(method) == 'print' then
+						logMessage("INFO", message)
+					elseif string.lower(method) == 'warn' then
+						logMessage("WARN", message)
+					elseif string.lower(method) == 'error' then
+						logMessage("ERROR", message)
+					end
+
+					return oldNamecall(self, ...)
+				end))
+
+				-- Function to retrieve logged messages
+				function getLoggedMessages()
+					return loggedMessages
+				end
+			end
+		end
+	})
 end)--]]
