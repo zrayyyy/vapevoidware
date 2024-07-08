@@ -3126,42 +3126,39 @@ run(function()
 		Default = true
 	})
 end)
-local Killaura = {Enabled = false}
+
 local killauraNearPlayer
 run(function()
+	local Killaura = {Enabled = true}
 	local killauraboxes = {}
-	local killauratargetframe = {Players = {}}
-	local killaurasortmethod = {Value = 'Distance'}
+	local killauratargetframe = {Players = {Enabled = false}}
+	local killaurasortmethod = {Value = "Distance"}
 	local killaurarealremote = bedwars.Client:Get(bedwars.AttackRemote).instance
-	local killaurauseitems = {}
-	local killaurafacemode = {Value = 'Lunar'}
-	local killauramethod = {Value = 'Normal'}
-	local killauraothermethod = {Value = 'Normal'}
-	local killauraanimmethod = {Value = 'Normal'}
+	local killauramethod = {Value = "Normal"}
+	local killauraothermethod = {Value = "Normal"}
+	local killauraanimmethod = {Value = "Normal"}
 	local killaurarange = {Value = 14}
 	local killauraangle = {Value = 360}
 	local killauratargets = {Value = 10}
-	local killauraautoblock = {}
-	local killauramouse = {}
-	local killauracframe = {}
-	local killauragui = {}
-	local killauratarget = {}
-	local killaurasound = {}
-	local killauraswing = {}
-	local killaurasync = {}
-	local killaurahandcheck = {}
-	local killauraanimation = {}
-	local killauraanimationtween = {}
+	local killauraautoblock = {Enabled = false}
+	local killauramouse = {Enabled = false}
+	local killauracframe = {Enabled = false}
+	local killauragui = {Enabled = false}
+	local killauratarget = {Enabled = false}
+	local killaurasound = {Enabled = false}
+	local killauraswing = {Enabled = false}
+	local killaurasync = {Enabled = false}
+	local killaurahandcheck = {Enabled = false}
+	local killauraanimation = {Enabled = false}
+	local killauraanimationtween = {Enabled = false}
 	local killauracolor = {Value = 0.44}
-	local killauranovape = {}
-	local killauranorender = {}
-	local killauratargethighlight = {}
-	local killaurarangecircle = {}
-	local killauraparticlecolor = {Hue = 0, Sat = 0, Value = 0}
+	local killauranovape = {Enabled = false}
+	local killauratargethighlight = {Enabled = false}
+	local killaurarangecircle = {Enabled = false}
 	local killaurarangecirclepart
-	local killauraaimcircle = {}
+	local killauraaimcircle = {Enabled = false}
 	local killauraaimcirclepart
-	local killauraparticle = {}
+	local killauraparticle = {Enabled = false}
 	local killauraparticlepart
 	local Killauranear = false
 	local killauraplaying = false
@@ -3176,16 +3173,16 @@ run(function()
 		local strength = 0
 		local strongestsword = 0
 		if inv then
-			for i,v in pairs(inv.items) do 
+			for i,v in pairs(inv.items) do
 				local itemmeta = bedwars.ItemTable[v.itemType]
-				if itemmeta and itemmeta.sword and itemmeta.sword.damage > strongestsword then 
+				if itemmeta and itemmeta.sword and itemmeta.sword.damage > strongestsword then
 					strongestsword = itemmeta.sword.damage / 100
-				end	
+				end
 			end
 			strength = strength + strongestsword
-			for i,v in pairs(inv.armor) do 
+			for i,v in pairs(inv.armor) do
 				local itemmeta = bedwars.ItemTable[v.itemType]
-				if itemmeta and itemmeta.armor then 
+				if itemmeta and itemmeta.armor then
 					strength = strength + (itemmeta.armor.damageReductionMultiplier or 0)
 				end
 			end
@@ -3202,29 +3199,19 @@ run(function()
 		regent = 1
 	}
 
-	local custominoutspeeds = {
-		Future = 0.2,
-		FasterSmooth = 0.2,
-		Smooth = 0.2,
-		BingChilling = 0.25,
-		SmoothV2 = 0.25,
-		['Liquid Bounce'] = 0.48
-	}
-
 	local killaurasortmethods = {
 		Distance = function(a, b)
 			return (a.RootPart.Position - entityLibrary.character.HumanoidRootPart.Position).Magnitude < (b.RootPart.Position - entityLibrary.character.HumanoidRootPart.Position).Magnitude
 		end,
-		Health = function(a, b) 
+		Health = function(a, b)
 			return a.Humanoid.Health < b.Humanoid.Health
 		end,
-		Threat = function(a, b) 
+		Threat = function(a, b)
 			return getStrength(a) > getStrength(b)
 		end,
 		Kit = function(a, b)
-			return (kitpriolist[a.Player:GetAttribute('PlayingAsKit')] or 0) > (kitpriolist[b.Player:GetAttribute('PlayingAsKit')] or 0)
-		end,
-		Switch = false -- :omegalol:
+			return (kitpriolist[a.Player:GetAttribute("PlayingAsKit")] or 0) > (kitpriolist[b.Player:GetAttribute("PlayingAsKit")] or 0)
+		end
 	}
 
 	local originalNeckC0
@@ -3246,7 +3233,7 @@ run(function()
 			{CFrame = CFrame.new(0.69, -0.7, 0.1) * CFrame.Angles(math.rad(-65), math.rad(55), math.rad(-51)), Time = 0.1},
 			{CFrame = CFrame.new(0.16, -1.16, 0.5) * CFrame.Angles(math.rad(-179), math.rad(54), math.rad(33)), Time = 0.1}
 		},
-		['Vertical Spin'] = {
+		["Vertical Spin"] = {
 			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-90), math.rad(8), math.rad(5)), Time = 0.1},
 			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(180), math.rad(3), math.rad(13)), Time = 0.1},
 			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(90), math.rad(-5), math.rad(8)), Time = 0.1},
@@ -3256,157 +3243,43 @@ run(function()
 			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.1},
 			{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
 		},
-		['Exhibition Old'] = {
+		["Exhibition Old"] = {
 			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.15},
 			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.05},
 			{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.1},
 			{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.05},
 			{CFrame = CFrame.new(0.63, -0.1, 1.37) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.15}
 		},
-		Funny = {
-			{CFrame = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)),Time = 0.15},
-			{CFrame = CFrame.new(0, 0, -1.5) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)),Time = 0.15},
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), Time = 0.15},
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-55), math.rad(0), math.rad(0)), Time = 0.15}
+		Hamsterware = {
+			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(40), math.rad(-90)), Time = 0.1},
+			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(70), math.rad(-135)), Time = 0.1}
 		},
-		FunnyFuture = {
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-60), math.rad(0), math.rad(0)),Time = 0.25},
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)),Time = 0.25}
+		["Cat V5"] = {
+			{CFrame = CFrame.new(0.63, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(25), math.rad(-60)), Time = 0.1},
+			{CFrame = CFrame.new(0.63, -0.7, 0.6) * CFrame.Angles(math.rad(-40), math.rad(40), math.rad(-90)), Time = 0.1},
+			{CFrame = CFrame.new(0.63, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(55), math.rad(-115)), Time = 0.1},
+			{CFrame = CFrame.new(0.63, -0.7, 0.6) * CFrame.Angles(math.rad(-50), math.rad(70), math.rad(-60)), Time = 0.1},
+			{CFrame = CFrame.new(0.63, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(70), math.rad(-70)), Time = 0.1}
 		},
-		Goofy = {
-			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.25},
-			{CFrame = CFrame.new(-1, -1, 1) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)),Time = 0.25},
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-33)),Time = 0.25}
+		Astral = {
+			{CFrame = CFrame.new(0.7, -0.7, 0.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0.1},
+			{CFrame = CFrame.new(0.7, -0.7, 0.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0.15},
+			{CFrame = CFrame.new(0.95, -1.06, -2.25) * CFrame.Angles(math.rad(-179), math.rad(61), math.rad(80)), Time = 0.15}
 		},
-		Future = {
-			{CFrame = CFrame.new(0.69, -0.7, 0.10) * CFrame.Angles(math.rad(295), math.rad(55), math.rad(290)), Time = 0.20},
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)),Time = 0.25}
+		Leaked = {
+			{CFrame = CFrame.new(0.7, -0.7, 0.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0},
+			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(16), math.rad(59), math.rad(-90)), Time = 0.15},
+			{CFrame = CFrame.new(0.7, -0.7, 0.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0.05}
 		},
-		Pop = {
-			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.15},
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)),Time = 0.25},
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(-90)), Time = 0.35},
-			{CFrame = CFrame.new(0, 1, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), Time = 0.35}
+		Slide2 = {
+			{CFrame = CFrame.new(0.7, -0.7, 0.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0},
+			{CFrame = CFrame.new(0.7, -0.7, 0.6) * CFrame.Angles(math.rad(-171), math.rad(47), math.rad(74)), Time = 0.16}
 		},
-		FunnyV2 = {
-			{CFrame = CFrame.new(0.10, -0.5, -1) * CFrame.Angles(math.rad(295), math.rad(80), math.rad(300)), Time = 0.45},
-			{CFrame = CFrame.new(-5, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), Time = 0.45},
-			{CFrame = CFrame.new(5, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), Time = 0.45},
-		},
-		Smooth = {
-			{CFrame = CFrame.new(-0.42, 0, 0.30) * CFrame.Angles(math.rad(0), math.rad(80), math.rad(60)), Time = 0.25},
-			{CFrame = CFrame.new(-0.42, 0, 0.30) * CFrame.Angles(math.rad(0), math.rad(100), math.rad(60)), Time = 0.25},
-			{CFrame = CFrame.new(-0.42, 0, 0.30) * CFrame.Angles(math.rad(0), math.rad(60), math.rad(60)), Time = 0.25},
-		},
-		FasterSmooth = {
-			{CFrame = CFrame.new(-0.42, 0, 0.30) * CFrame.Angles(math.rad(0), math.rad(80), math.rad(60)), Time = 0.11},
-			{CFrame = CFrame.new(-0.42, 0, 0.30) * CFrame.Angles(math.rad(0), math.rad(100), math.rad(60)), Time = 0.11},
-			{CFrame = CFrame.new(-0.42, 0, 0.30) * CFrame.Angles(math.rad(0), math.rad(60), math.rad(60)), Time = 0.11},
-		},
-		PopV2 = {
-			{CFrame = CFrame.new(0.10, -0.3, -0.30) * CFrame.Angles(math.rad(295), math.rad(80), math.rad(290)), Time = 0.09},
-			{CFrame = CFrame.new(0.10, 0.10, -1) * CFrame.Angles(math.rad(295), math.rad(80), math.rad(300)), Time = 0.1},
-			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.15},
-		},
-		Bob = {
-			{CFrame = CFrame.new(-0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2},
-			{CFrame = CFrame.new(-0.7, -2.5, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
-		},
-		Knife = {
-			{CFrame = CFrame.new(-0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2},
-			{CFrame = CFrame.new(1, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2},
-			{CFrame = CFrame.new(4, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2},
-		},
-		FunnyExhibition = {
-			{CFrame = CFrame.new(-1.5, -0.50, 0.20) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.10},
-			{CFrame = CFrame.new(-0.55, -0.20, 1.5) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2},
-		},
-		Remake = {
-			{CFrame = CFrame.new(-0.10, -0.45, -0.20) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-50)), Time = 0.01},
-			{CFrame = CFrame.new(0.7, -0.71, -1) * CFrame.Angles(math.rad(-90), math.rad(50), math.rad(-38)), Time = 0.2},
-			{CFrame = CFrame.new(0.63, -0.1, 1.50) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.15}
-		},
-		PopV3 = {
-			{CFrame = CFrame.new(0.69, -0.10, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.1},
-			{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.1},
-			{CFrame = CFrame.new(0.69, -2, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.1}
-		},
-		PopV4 = {
-			{CFrame = CFrame.new(0.69, -0.10, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.01},
-			{CFrame = CFrame.new(0.7, -0.30, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.01},
-			{CFrame = CFrame.new(0.69, -2, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.01}
-		},
-		Shake = {
-			{CFrame = CFrame.new(0.69, -0.8, 0.6) * CFrame.Angles(math.rad(-60), math.rad(30), math.rad(-35)), Time = 0.05},
-			{CFrame = CFrame.new(0.8, -0.71, 0.30) * CFrame.Angles(math.rad(-60), math.rad(39), math.rad(-55)), Time = 0.02},
-			{CFrame = CFrame.new(0.8, -2, 0.45) * CFrame.Angles(math.rad(-60), math.rad(30), math.rad(-55)), Time = 0.03}
-		},
-		Idk = {
-			{CFrame = CFrame.new(0, -0.1, -0.30) * CFrame.Angles(math.rad(-20), math.rad(20), math.rad(0)), Time = 0.30},
-			{CFrame = CFrame.new(0, -0.50, -0.30) * CFrame.Angles(math.rad(-40), math.rad(41), math.rad(0)), Time = 0.32},
-			{CFrame = CFrame.new(0, -0.1, -0.30) * CFrame.Angles(math.rad(-60), math.rad(0), math.rad(0)), Time = 0.32}
-		},
-		Block = {
-			{CFrame = CFrame.new(1, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2},
-			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(45), math.rad(0), math.rad(0)), Time = 0.2},
-			{CFrame = CFrame.new(1, 0, 0) * CFrame.Angles(math.rad(-60), math.rad(0), math.rad(0)), Time = 0.2},
-			{CFrame = CFrame.new(0.3, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
-		},
-		BingChilling = {
-			{CFrame = CFrame.new(0.07, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.1},
-			{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
-		},
-		['Womp Womp'] = {
-			{CFrame = CFrame.new(0.07, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(15), math.rad(-90)), Time = 0.1},
-			{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
-		},
-		['Yomp Yomp'] = {
-			{CFrame = CFrame.new(0.07, -0.7, 0.6) * CFrame.Angles(math.rad(0), math.rad(15), math.rad(-20)), Time = 0.1},
-			{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
-		},
-		FunnyV3 = {
-			{CFrame = CFrame.new(0.8, 10.7, 3.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0.1},
-			{CFrame = CFrame.new(5.7, -1.7, 5.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0.15},
-			{CFrame = CFrame.new(2.95, -5.06, -6.25) * CFrame.Angles(math.rad(-179), math.rad(61), math.rad(80)), Time = 0.15}
-		},
-		["Lunar Old"] = {
-			{CFrame = CFrame.new(0.150, -0.8, 0.1) * CFrame.Angles(math.rad(-45), math.rad(40), math.rad(-75)), Time = 0.15},
-			{CFrame = CFrame.new(0.02, -0.8, 0.05) * CFrame.Angles(math.rad(-60), math.rad(60), math.rad(-95)), Time = 0.15}
-		},
-		["Lunar New"] = {
-			{CFrame = CFrame.new(0.86, -0.8, 0.1) * CFrame.Angles(math.rad(-45), math.rad(40), math.rad(-75)), Time = 0.17},
-			{CFrame = CFrame.new(0.73, -0.8, 0.05) * CFrame.Angles(math.rad(-60), math.rad(60), math.rad(-95)), Time = 0.17}
-		},
-		["Lunar Fast"] = {
-			{CFrame = CFrame.new(0.95, -0.8, 0.1) * CFrame.Angles(math.rad(-45), math.rad(40), math.rad(-75)), Time = 0.15},
-			{CFrame = CFrame.new(0.40, -0.8, 0.05) * CFrame.Angles(math.rad(-60), math.rad(60), math.rad(-95)), Time = 0.15}
-		},
-		["Liquid Bounce"] = {
-			{CFrame = CFrame.new(-0.01, -0.3, -1.01) * CFrame.Angles(math.rad(-35), math.rad(90), math.rad(-90)), Time = 0.45},
-			{CFrame = CFrame.new(-0.01, -0.3, -1.01) * CFrame.Angles(math.rad(-35), math.rad(70), math.rad(-90)), Time = 0.45},
-			{CFrame = CFrame.new(-0.01, -0.3, 0.4) * CFrame.Angles(math.rad(-35), math.rad(70), math.rad(-90)), Time = 0.32}
-		},
-		["Auto Block"] = {
-			{CFrame = CFrame.new(-0.6, -0.2, 0.3) * CFrame.Angles(math.rad(0), math.rad(80), math.rad(65)), Time = 0.15},
-			{CFrame = CFrame.new(-0.6, -0.2, 0.3) * CFrame.Angles(math.rad(0), math.rad(110), math.rad(65)), Time = 0.15},
-			{CFrame = CFrame.new(-0.6, -0.2, 0.3) * CFrame.Angles(math.rad(0), math.rad(65), math.rad(65)), Time = 0.15}
-		},
-		Meteor = {
-			{CFrame = CFrame.new(0.150, -0.8, 0.1) * CFrame.Angles(math.rad(-45), math.rad(40), math.rad(-75)), Time = 0.15},
-			{CFrame = CFrame.new(0.02, -0.8, 0.05) * CFrame.Angles(math.rad(-60), math.rad(60), math.rad(-95)), Time = 0.15}
-		},
-		Switch = {
-			{CFrame = CFrame.new(0.69, -0.7, 0.1) * CFrame.Angles(math.rad(-65), math.rad(55), math.rad(-51)), Time = 0.1},
-			{CFrame = CFrame.new(0.16, -1.16, 0.5) * CFrame.Angles(math.rad(-179), math.rad(54), math.rad(33)), Time = 0.1}
-		},
-		Sideways = {
-			{CFrame = CFrame.new(5, -3, 2) * CFrame.Angles(math.rad(120), math.rad(160), math.rad(140)), Time = 0.12},
-			{CFrame = CFrame.new(5, -2.5, -1) * CFrame.Angles(math.rad(80), math.rad(180), math.rad(180)), Time = 0.12},
-			{CFrame = CFrame.new(5, -3.4, -3.3) * CFrame.Angles(math.rad(45), math.rad(160), math.rad(190)), Time = 0.12},
-			{CFrame = CFrame.new(5, -2.5, -1) * CFrame.Angles(math.rad(80), math.rad(180), math.rad(180)), Time = 0.12}
-		},
-		Stand = {
-			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.1}
+		Femboy = {
+			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(1), math.rad(-7), math.rad(7)), Time = 0},
+			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-0), math.rad(0), math.rad(-0)), Time = 0.08},
+			{CFrame = CFrame.new(-0.01, 0, 0) * CFrame.Angles(math.rad(-7), math.rad(-7), math.rad(-1)), Time = 0.08},
+			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(1), math.rad(-7), math.rad(7)), Time = 0.11}
 		}
 	}
 
@@ -3425,7 +3298,7 @@ run(function()
 	end
 
 	local function getAttackData()
-		if GuiLibrary.ObjectsThatCanBeSaved['Lobby CheckToggle'].Api.Enabled then 
+		if GuiLibrary.ObjectsThatCanBeSaved["Lobby CheckToggle"].Api.Enabled then
 			if store.matchState == 0 then return false end
 		end
 		if killauramouse.Enabled then
@@ -3438,7 +3311,7 @@ run(function()
 		if not sword or not sword.tool then return false end
 		local swordmeta = bedwars.ItemTable[sword.tool.Name]
 		if killaurahandcheck.Enabled then
-			if store.localHand.Type ~= 'sword' or bedwars.KatanaController.chargingMaid then return false end
+			if store.localHand.Type ~= "sword" or bedwars.DaoController.chargingMaid then return false end
 		end
 		return sword, swordmeta
 	end
@@ -3447,10 +3320,10 @@ run(function()
 		if not killauraautoblock.Enabled or not Killaura.Enabled then return end
 		repeat
 			if store.blockPlace < tick() and entityLibrary.isAlive then
-				local shield = getItem('infernal_shield')
-				if shield then 
+				local shield = getItem("infernal_shield")
+				if shield then
 					switchItem(shield.tool)
-					if not lplr.Character:GetAttribute('InfernalShieldRaised') then
+					if not lplr.Character:GetAttribute("InfernalShieldRaised") then
 						bedwars.InfernalShieldController:raiseShield()
 					end
 				end
@@ -3460,38 +3333,18 @@ run(function()
 	end
 
 	Killaura = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-		Name = 'Killaura',
-		Function = function(calling)
-			if calling then
+		Name = "Killaura",
+		Function = function(callback)
+			if callback then
 				if killauraaimcirclepart then killauraaimcirclepart.Parent = gameCamera end
 				if killaurarangecirclepart then killaurarangecirclepart.Parent = gameCamera end
 				if killauraparticlepart then killauraparticlepart.Parent = gameCamera end
-				task.spawn(function()
-					repeat 
-						if killauraNearPlayer and killaurauseitems.Enabled then 
-							local saber = (getItem('infernal_saber') or {})
-							local data = {
-								HellBladeRelease = {
-									args = {player = lplr, weapon = saber.tool, chargeTime = 1},
-									item = 'infernal_saber'
-								}
-							}
-							for remote, v in next, data do 
-								task.spawn(function()
-									if getItem(v.item) and not isEnabled('InfiniteFly') then
-										bedwars.Client:Get(remote).instance:FireServer(v.args)
-									end
-								end)
-							end
-						end
-						task.wait(0)
-					until not Killaura.Enabled
-				end)
+
 				task.spawn(function()
 					local oldNearPlayer
 					repeat
 						task.wait()
-						if killauraanimation.Enabled then
+						if (killauraanimation.Enabled and not killauraswing.Enabled) then
 							if killauraNearPlayer then
 								pcall(function()
 									if originalArmC0 == nil then
@@ -3499,7 +3352,7 @@ run(function()
 									end
 									if killauraplaying == false then
 										killauraplaying = true
-										for i,v in next, (anims[killauraanimmethod.Value]) do 
+										for i,v in pairs(anims[killauraanimmethod.Value]) do
 											if (not Killaura.Enabled) or (not killauraNearPlayer) then break end
 											if not oldNearPlayer and killauraanimationtween.Enabled then
 												gameCamera.Viewmodel.RightHand.RightWrist.C0 = originalArmC0 * v.CFrame
@@ -3511,7 +3364,7 @@ run(function()
 										end
 										killauraplaying = false
 									end
-								end)	
+								end)
 							end
 							oldNearPlayer = killauraNearPlayer
 						end
@@ -3526,30 +3379,40 @@ run(function()
 					end
 					return oldPlaySound(tab, soundid, ...)
 				end
+				bedwars.ViewmodelController.playAnimation = function(Self, id, ...)
+					if id == 15 and killauraNearPlayer and killauraswing.Enabled and entityLibrary.isAlive then
+						return nil
+					end
+					if id == 15 and killauraNearPlayer and killauraanimation.Enabled and entityLibrary.isAlive then
+						return nil
+					end
+					return oldViewmodelAnimation(Self, id, ...)
+				end
+
 				local targetedPlayer
-				RunLoops:BindToHeartbeat('Killaura', function()
-					for i,v in next, (killauraboxes) do 
-						if v:IsA('BoxHandleAdornment') and v.Adornee then
+				RunLoops:BindToHeartbeat("Killaura", function()
+					for i,v in pairs(killauraboxes) do
+						if v:IsA("BoxHandleAdornment") and v.Adornee then
 							local cf = v.Adornee and v.Adornee.CFrame
-							local onex, oney, onez = cf:ToEulerAnglesXYZ() 
+							local onex, oney, onez = cf:ToEulerAnglesXYZ()
 							v.CFrame = CFrame.new() * CFrame.Angles(-onex, -oney, -onez)
 						end
 					end
 					if entityLibrary.isAlive then
-						if killauraaimcirclepart then 
+						if killauraaimcirclepart then
 							killauraaimcirclepart.Position = targetedPlayer and closestpos(targetedPlayer.RootPart, entityLibrary.character.HumanoidRootPart.Position) or Vector3.new(99999, 99999, 99999)
 						end
-						if killauraparticlepart then 
+						if killauraparticlepart then
 							killauraparticlepart.Position = targetedPlayer and targetedPlayer.RootPart.Position or Vector3.new(99999, 99999, 99999)
 						end
 						local Root = entityLibrary.character.HumanoidRootPart
 						if Root then
-							if killaurarangecirclepart then 
+							if killaurarangecirclepart then
 								killaurarangecirclepart.Position = Root.Position - Vector3.new(0, entityLibrary.character.Humanoid.HipHeight, 0)
 							end
 							local Neck = entityLibrary.character.Head:FindFirstChild("Neck")
-							local LowerTorso = Root.Parent and Root.Parent:FindFirstChild('LowerTorso')
-							local RootC0 = LowerTorso and LowerTorso:FindFirstChild('Root')
+							local LowerTorso = Root.Parent and Root.Parent:FindFirstChild("LowerTorso")
+							local RootC0 = LowerTorso and LowerTorso:FindFirstChild("Root")
 							if Neck and RootC0 then
 								if originalNeckC0 == nil then
 									originalNeckC0 = Neck.C0.p
@@ -3559,20 +3422,13 @@ run(function()
 								end
 								if originalRootC0 and killauracframe.Enabled then
 									if targetedPlayer ~= nil then
-										if killaurafacemode.Value == 'Lunar' then
-											local newcframe = targetedPlayer.RootPart.CFrame
-											local newlookvector = lplr.Character.HumanoidRootPart.Position - newcframe.Position
-											newlookvector = newlookvector / newlookvector.magnitude
-											lplr.Character.HumanoidRootPart.CFrame = CFrame.lookAt(lplr.Character.HumanoidRootPart.CFrame.Position,newcframe.Position, newlookvector * (newlookvector * vec3(0, 1, 0)))
-										else
-											local targetPos = targetedPlayer.RootPart.Position + Vector3.new(0, 2, 0)
-											local direction = (Vector3.new(targetPos.X, targetPos.Y, targetPos.Z) - entityLibrary.character.Head.Position).Unit
-											local direction2 = (Vector3.new(targetPos.X, Root.Position.Y, targetPos.Z) - Root.Position).Unit
-											local lookCFrame = (CFrame.new(Vector3.zero, (Root.CFrame):VectorToObjectSpace(direction)))
-											local lookCFrame2 = (CFrame.new(Vector3.zero, (Root.CFrame):VectorToObjectSpace(direction2)))
-											Neck.C0 = CFrame.new(originalNeckC0) * CFrame.Angles(lookCFrame.LookVector.Unit.y, 0, 0)
-											RootC0.C0 = lookCFrame2 + originalRootC0
-										end
+										local targetPos = targetedPlayer.RootPart.Position + Vector3.new(0, 2, 0)
+										local direction = (Vector3.new(targetPos.X, targetPos.Y, targetPos.Z) - entityLibrary.character.Head.Position).Unit
+										local direction2 = (Vector3.new(targetPos.X, Root.Position.Y, targetPos.Z) - Root.Position).Unit
+										local lookCFrame = (CFrame.new(Vector3.zero, (Root.CFrame):VectorToObjectSpace(direction)))
+										local lookCFrame2 = (CFrame.new(Vector3.zero, (Root.CFrame):VectorToObjectSpace(direction2)))
+										Neck.C0 = CFrame.new(originalNeckC0) * CFrame.Angles(lookCFrame.LookVector.Unit.y, 0, 0)
+										RootC0.C0 = lookCFrame2 + originalRootC0
 									else
 										Neck.C0 = CFrame.new(originalNeckC0)
 										RootC0.C0 = CFrame.new(originalRootC0)
@@ -3582,112 +3438,114 @@ run(function()
 						end
 					end
 				end)
-				if killauraautoblock.Enabled then 
+				if killauraautoblock.Enabled then
 					task.spawn(autoBlockLoop)
 				end
-				table.insert(Killaura.Connections, runService.Stepped:Connect(function()
-					if not Killaura.Enabled then return end
-					vapeTargetInfo.Targets.Killaura = nil
-					local plrs = AllNearPosition(killaurarange.Value, 10, killaurasortmethods[killaurasortmethod.Value], true)
-					local firstPlayerNear
-					if #plrs > 0 then
-						local sword, swordmeta = getAttackData()
-						if sword then
-							task.spawn(switchItem, sword.tool)
-							for i, plr in next, (plrs) do
-								local root = plr.RootPart
-								if not root then 
-									continue
-								end
-								local localfacing = entityLibrary.character.HumanoidRootPart.CFrame.lookVector
-								local vec = (plr.RootPart.Position - entityLibrary.character.HumanoidRootPart.Position).unit
-								local angle
-								local selfrootpos = entityLibrary.character.HumanoidRootPart.Position
-								if killauratargetframe.Walls.Enabled then
-									if not bedwars.SwordController:canSee({player = plr.Player, getInstance = function() return plr.Player.Character end}) then continue end --- idk
-								end
-								if killauranovape.Enabled and store.whitelist.clientUsers[plr.Player.Name] then
-									continue
-								end
-								if killaurasortmethod.Value == 'Switch' or not firstPlayerNear then 
-									firstPlayerNear = true 
-									killauraNearPlayer = true
-									targetedPlayer = plr
-									vapeTargetInfo.Targets.Killaura = {
-										Humanoid = {
-											Health = (plr.Player.Character:GetAttribute('Health') or plr.Humanoid.Health) + getShieldAttribute(plr.Player.Character), --- idk
-											MaxHealth = plr.Player.Character:GetAttribute('MaxHealth') or plr.Humanoid.MaxHealth, --- idk
-											Parent = plr.RootPart.Parent
-										},
-										RootPart = plr.RootPart,
-										Player = plr.Player
-									}
-									if animationdelay <= tick() then
-										animationdelay = tick() + (swordmeta.sword.respectAttackSpeedForEffects and swordmeta.sword.attackSpeed or (killaurasync.Enabled and 0.24 or 0.14))
-										if not killauraswing.Enabled then 
-											bedwars.SwordController:playSwordEffect(swordmeta, false)
-										end
-											--[[if swordmeta.displayName:find('Scythe') then 
-												bedwars.ScytheController:playLocalAnimation()
-											end]]
+				task.spawn(function()
+					repeat
+						task.wait()
+						if not Killaura.Enabled then break end
+						vapeTargetInfo.Targets.Killaura = nil
+						local plrs = AllNearPosition(killaurarange.Value, 10, killaurasortmethods[killaurasortmethod.Value], true)
+						local firstPlayerNear
+						if #plrs > 0 then
+							local sword, swordmeta = getAttackData()
+							if sword then
+								switchItem(sword.tool)
+								for i, plr in pairs(plrs) do
+									local root = plr.RootPart
+									if not root then
+										continue
 									end
-								end
-								if (workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < 0.01 then 
+									local localfacing = entityLibrary.character.HumanoidRootPart.CFrame.lookVector
+									local vec = (plr.RootPart.Position - entityLibrary.character.HumanoidRootPart.Position).unit
+									local angle = math.acos(localfacing:Dot(vec))
+									if angle >= (math.rad(killauraangle.Value) / 2) then
+										continue
+									end
+									local selfrootpos = entityLibrary.character.HumanoidRootPart.Position
+									if killauratargetframe.Walls.Enabled then
+										if not bedwars.SwordController:canSee({player = plr.Player, getInstance = function() return plr.Character end}) then continue end
+									end
+									if killauranovape.Enabled and store.whitelist.clientUsers[plr.Player.Name] then
+										continue
+									end
+									if not firstPlayerNear then
+										firstPlayerNear = true
+										killauraNearPlayer = true
+										targetedPlayer = plr
+										vapeTargetInfo.Targets.Killaura = {
+											Humanoid = {
+												Health = (plr.Character:GetAttribute("Health") or plr.Humanoid.Health) + getShieldAttribute(plr.Character),
+												MaxHealth = plr.Character:GetAttribute("MaxHealth") or plr.Humanoid.MaxHealth
+											},
+											Player = plr.Player
+										}
+										if animationdelay <= tick() then
+											animationdelay = tick() + (swordmeta.sword.respectAttackSpeedForEffects and swordmeta.sword.attackSpeed or (killaurasync.Enabled and 0.24 or 0.14))
+											if not killauraswing.Enabled then
+												bedwars.SwordController:playSwordEffect(swordmeta, false)
+											end
+											if swordmeta.displayName:find(" Scythe") then
+												bedwars.ScytheController:playLocalAnimation()
+											end
+										end
+									end
+									if (workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < 0.02 then
+										break
+									end
+									local selfpos = selfrootpos + (killaurarange.Value > 14 and (selfrootpos - root.Position).magnitude > 14.4 and (CFrame.lookAt(selfrootpos, root.Position).lookVector * ((selfrootpos - root.Position).magnitude - 14)) or Vector3.zero)
+									bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
+									store.attackReach = math.floor((selfrootpos - root.Position).magnitude * 100) / 100
+									store.attackReachUpdate = tick() + 1
+									killaurarealremote:FireServer({
+										weapon = sword.tool,
+										chargedAttack = {chargeRatio = swordmeta.sword.chargedAttack and not swordmeta.sword.chargedAttack.disableOnGrounded and 0.999 or 0},
+										entityInstance = plr.Character,
+										validate = {
+											raycast = {
+												cameraPosition = attackValue(root.Position),
+												cursorDirection = attackValue(CFrame.new(selfpos, root.Position).lookVector)
+											},
+											targetPosition = attackValue(root.Position),
+											selfPosition = attackValue(selfpos)
+										}
+									})
 									break
-								end
-								local selfpos = selfrootpos + (killaurarange.Value > 14 and (selfrootpos - root.Position).magnitude > 14.4 and (CFrame.lookAt(selfrootpos, root.Position).lookVector * ((selfrootpos - root.Position).magnitude - 14)) or Vector3.zero)
-								bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
-								store.attackReach = math.floor((selfrootpos - root.Position).magnitude * 100) / 100
-								store.attackReachUpdate = tick() + 1
-								killaurarealremote:FireServer({
-									weapon = sword.tool,
-									chargedAttack = {chargeRatio = swordmeta.sword.chargedAttack and store.queueType ~= 'bridge_duel' and not swordmeta.sword.chargedAttack.disableOnGrounded and 0.999 or 0},
-									entityInstance = plr.Player.Character,
-									validate = {
-										raycast = {
-											cameraPosition = attackValue(root.Position), 
-											cursorDirection = attackValue(CFrame.new(selfpos, root.Position).lookVector)
-										},
-										targetPosition = attackValue(root.Position),
-										selfPosition = attackValue(selfpos)
-									}
-								})
-								if killaurasortmethod.Value ~= 'Switch' then 
-									break 
 								end
 							end
 						end
-					end
-					if not firstPlayerNear then 
-						targetedPlayer = nil
-						killauraNearPlayer = false
-						pcall(function()
-							if originalArmC0 == nil then
-								originalArmC0 = gameCamera.Viewmodel.RightHand.RightWrist.C0
-							end
-							if gameCamera.Viewmodel.RightHand.RightWrist.C0 ~= originalArmC0 then
-								pcall(function()
-									killauracurrentanim:Cancel()
-								end)
-								if killauraanimationtween.Enabled then 
-									gameCamera.Viewmodel.RightHand.RightWrist.C0 = originalArmC0
-								else
-									killauracurrentanim = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(custominoutspeeds[killauraanimmethod.Value] or 0.1), {C0 = originalArmC0})
-									killauracurrentanim:Play()
+						if not firstPlayerNear then
+							targetedPlayer = nil
+							killauraNearPlayer = false
+							pcall(function()
+								if originalArmC0 == nil then
+									originalArmC0 = gameCamera.Viewmodel.RightHand.RightWrist.C0
 								end
-							end
-						end)
-					end
-					for i,v in next, (killauraboxes) do 
-						local attacked = killauratarget.Enabled and plrs[i] or nil
-						v.Adornee = attacked and ((not killauratargethighlight.Enabled) and attacked.RootPart or (not GuiLibrary.ObjectsThatCanBeSaved.ChamsOptionsButton.Api.Enabled) and attacked.Character or nil)
-					end
-				end))
+								if gameCamera.Viewmodel.RightHand.RightWrist.C0 ~= originalArmC0 then
+									pcall(function()
+										killauracurrentanim:Cancel()
+									end)
+									if killauraanimationtween.Enabled then
+										gameCamera.Viewmodel.RightHand.RightWrist.C0 = originalArmC0
+									else
+										killauracurrentanim = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(0.1), {C0 = originalArmC0})
+										killauracurrentanim:Play()
+									end
+								end
+							end)
+						end
+						for i,v in pairs(killauraboxes) do
+							local attacked = killauratarget.Enabled and plrs[i] or nil
+							v.Adornee = attacked and ((not killauratargethighlight.Enabled) and attacked.RootPart or (not GuiLibrary.ObjectsThatCanBeSaved.ChamsOptionsButton.Api.Enabled) and attacked.Character or nil)
+						end
+					until (not Killaura.Enabled)
+				end)
 			else
 				vapeTargetInfo.Targets.Killaura = nil
-				RunLoops:UnbindFromHeartbeat('Killaura') 
+				RunLoops:UnbindFromHeartbeat("Killaura")
 				killauraNearPlayer = false
-				for i,v in next, (killauraboxes) do v.Adornee = nil end
+				for i,v in pairs(killauraboxes) do v.Adornee = nil end
 				if killauraaimcirclepart then killauraaimcirclepart.Parent = nil end
 				if killaurarangecirclepart then killaurarangecirclepart.Parent = nil end
 				if killauraparticlepart then killauraparticlepart.Parent = nil end
@@ -3699,7 +3557,7 @@ run(function()
 						local Root = entityLibrary.character.HumanoidRootPart
 						if Root then
 							local Neck = Root.Parent.Head.Neck
-							if originalNeckC0 and originalRootC0 then 
+							if originalNeckC0 and originalRootC0 then
 								Neck.C0 = CFrame.new(originalNeckC0)
 								Root.Parent.LowerTorso.Root.C0 = CFrame.new(originalRootC0)
 							end
@@ -3712,7 +3570,7 @@ run(function()
 						pcall(function()
 							killauracurrentanim:Cancel()
 						end)
-						if killauraanimationtween.Enabled then 
+						if killauraanimationtween.Enabled then
 							gameCamera.Viewmodel.RightHand.RightWrist.C0 = originalArmC0
 						else
 							killauracurrentanim = tweenService:Create(gameCamera.Viewmodel.RightHand.RightWrist, TweenInfo.new(0.1), {C0 = originalArmC0})
@@ -3722,48 +3580,38 @@ run(function()
 				end)
 			end
 		end,
-		HoverText = 'Attack players around you\nwithout aiming at them.'
+		HoverText = "Attack players around you\nwithout aiming at them."
 	})
 	killauratargetframe = Killaura.CreateTargetWindow({})
-	local sortmethods = {'Distance'}
-	for i,v in next, (killaurasortmethods) do if i ~= 'Distance' then table.insert(sortmethods, i) end end
+	local sortmethods = {"Distance"}
+	for i,v in pairs(killaurasortmethods) do if i ~= "Distance" then table.insert(sortmethods, i) end end
 	killaurasortmethod = Killaura.CreateDropdown({
-		Name = 'Sort',
+		Name = "Sort",
 		Function = function() end,
 		List = sortmethods
 	})
-	killaurafacemode = Killaura.CreateDropdown({
-		Name = 	'Face Mode',
-		List = {
-			'Lunar',
-			'Vape'
-		},
-		HoverText = 'Mode to face the opponent',
-		Value = 'Lunar',
-		Function = function() end
-	})
 	killaurarange = Killaura.CreateSlider({
-		Name = 'Attack range',
+		Name = "Attack range",
 		Min = 1,
-		Max = 22,
-		Function = function(val) 
-			if killaurarangecirclepart then 
+		Max = 18,
+		Function = function(val)
+			if killaurarangecirclepart then
 				killaurarangecirclepart.Size = Vector3.new(val * 0.7, 0.01, val * 0.7)
 			end
-		end, 
-		Default = 22
+		end,
+		Default = 18
 	})
 	killauraangle = Killaura.CreateSlider({
-		Name = 'Max angle',
+		Name = "Max angle",
 		Min = 1,
 		Max = 360,
 		Function = function(val) end,
 		Default = 360
 	})
 	local animmethods = {}
-	for i,v in next, (anims) do table.insert(animmethods, i) end
+	for i,v in pairs(anims) do table.insert(animmethods, i) end
 	killauraanimmethod = Killaura.CreateDropdown({
-		Name = 'Animation', 
+		Name = "Animation",
 		List = animmethods,
 		Function = function(val) end
 	})
@@ -3771,12 +3619,12 @@ run(function()
 	local oldraise
 	local oldeffect
 	killauraautoblock = Killaura.CreateToggle({
-		Name = 'AutoBlock',
-		Function = function(calling)
-			if calling then 
+		Name = "AutoBlock",
+		Function = function(callback)
+			if callback then
 				oldviewmodel = bedwars.ViewmodelController.setHeldItem
 				bedwars.ViewmodelController.setHeldItem = function(self, newItem, ...)
-					if newItem and newItem.Name == 'infernal_shield' then 
+					if newItem and newItem.Name == "infernal_shield" then
 						return
 					end
 					return oldviewmodel(self, newItem)
@@ -3796,9 +3644,9 @@ run(function()
 				bedwars.InfernalShieldController.playEffect = function()
 					return
 				end
-				if bedwars.ViewmodelController.heldItem and bedwars.ViewmodelController.heldItem.Name == 'infernal_shield' then 
+				if bedwars.ViewmodelController.heldItem and bedwars.ViewmodelController.heldItem.Name == "infernal_shield" then
 					local sword, swordmeta = getSword()
-					if sword then 
+					if sword then
 						bedwars.ViewmodelController:setHeldItem(sword.tool)
 					end
 				end
@@ -3812,42 +3660,42 @@ run(function()
 		Default = true
 	})
 	killauramouse = Killaura.CreateToggle({
-		Name = 'Require mouse down',
+		Name = "Require mouse down",
 		Function = function() end,
-		HoverText = 'Only attacks when left click is held.',
+		HoverText = "Only attacks when left click is held.",
 		Default = false
 	})
 	killauragui = Killaura.CreateToggle({
-		Name = 'GUI Check',
+		Name = "GUI Check",
 		Function = function() end,
-		HoverText = 'Attacks when you are not in a GUI.'
+		HoverText = "Attacks when you are not in a GUI."
 	})
 	killauratarget = Killaura.CreateToggle({
-		Name = 'Show target',
-		Function = function(calling) 
-			if killauratargethighlight.Object then 
-				killauratargethighlight.Object.Visible = calling
+		Name = "Show target",
+		Function = function(callback)
+			if killauratargethighlight.Object then
+				killauratargethighlight.Object.Visible = callback
 			end
 		end,
-		HoverText = 'Shows a red box over the opponent.'
+		HoverText = "Shows a red box over the opponent."
 	})
 	killauratargethighlight = Killaura.CreateToggle({
-		Name = 'Use New Highlight',
-		Function = function(calling) 
-			for i,v in next, (killauraboxes) do 
+		Name = "Use New Highlight",
+		Function = function(callback)
+			for i, v in pairs(killauraboxes) do
 				v:Remove()
 			end
-			for i = 1, 10 do 
+			for i = 1, 10 do
 				local killaurabox
-				if calling then 
-					killaurabox = Instance.new('Highlight')
+				if callback then
+					killaurabox = Instance.new("Highlight")
 					killaurabox.FillTransparency = 0.39
 					killaurabox.FillColor = Color3.fromHSV(killauracolor.Hue, killauracolor.Sat, killauracolor.Value)
 					killaurabox.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 					killaurabox.OutlineTransparency = 1
 					killaurabox.Parent = GuiLibrary.MainGui
 				else
-					killaurabox = Instance.new('BoxHandleAdornment')
+					killaurabox = Instance.new("BoxHandleAdornment")
 					killaurabox.Transparency = 0.39
 					killaurabox.Color3 = Color3.fromHSV(killauracolor.Hue, killauracolor.Sat, killauracolor.Value)
 					killaurabox.Adornee = nil
@@ -3865,24 +3713,24 @@ run(function()
 	killauratargethighlight.Object.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 	killauratargethighlight.Object.Visible = false
 	killauracolor = Killaura.CreateColorSlider({
-		Name = 'Target Color',
-		Function = function(hue, sat, val) 
-			for i,v in next, (killauraboxes) do 
-				v[(killauratargethighlight.Enabled and 'FillColor' or 'Color3')] = Color3.fromHSV(hue, sat, val)
+		Name = "Target Color",
+		Function = function(hue, sat, val)
+			for i,v in pairs(killauraboxes) do
+				v[(killauratargethighlight.Enabled and "FillColor" or "Color3")] = Color3.fromHSV(hue, sat, val)
 			end
-			if killauraaimcirclepart then 
+			if killauraaimcirclepart then
 				killauraaimcirclepart.Color = Color3.fromHSV(hue, sat, val)
 			end
-			if killaurarangecirclepart then 
+			if killaurarangecirclepart then
 				killaurarangecirclepart.Color = Color3.fromHSV(hue, sat, val)
 			end
 		end,
 		Default = 1
 	})
-	for i = 1, 10 do 
-		local killaurabox = Instance.new('BoxHandleAdornment')
+	for i = 1, 10 do
+		local killaurabox = Instance.new("BoxHandleAdornment")
 		killaurabox.Transparency = 0.5
-		killaurabox.Color3 = Color3.fromHSV(killauracolor['Hue'], killauracolor['Sat'], killauracolor.Value)
+		killaurabox.Color3 = Color3.fromHSV(killauracolor["Hue"], killauracolor["Sat"], killauracolor.Value)
 		killaurabox.Adornee = nil
 		killaurabox.AlwaysOnTop = true
 		killaurabox.Size = Vector3.new(3, 6, 3)
@@ -3891,54 +3739,51 @@ run(function()
 		killauraboxes[i] = killaurabox
 	end
 	killauracframe = Killaura.CreateToggle({
-		Name = 'Face target',
+		Name = "Face target",
 		Function = function() end,
-		HoverText = 'Makes your character face the opponent.'
+		HoverText = "Makes your character face the opponent."
 	})
 	killaurarangecircle = Killaura.CreateToggle({
-		Name = 'Range Visualizer',
-		Function = function(calling)
-			pcall(function() 
-				if calling then 
-					if Killaura.Enabled then 
-						killaurarangecirclepart.Parent = gameCamera
-					else 
-						killaurarangecirclepart.Parent = game
-					end
-					killaurarangecirclepart = Instance.new('MeshPart')
-					killaurarangecirclepart.MeshId = 'rbxassetid://3726303797'
-					killaurarangecirclepart.Color = Color3.fromHSV(killauracolor['Hue'], killauracolor['Sat'], killauracolor.Value)
-					killaurarangecirclepart.CanCollide = false
-					killaurarangecirclepart.Anchored = true
-					killaurarangecirclepart.Material = Enum.Material.Neon
-					killaurarangecirclepart.Size = Vector3.new(killaurarange.Value * 0.7, 0.01, killaurarange.Value * 0.7)
-					bedwars.QueryUtil:setQueryIgnored(killaurarangecirclepart, true)
-				else
-					if killaurarangecirclepart then 
-						killaurarangecirclepart:Destroy()
-						killaurarangecirclepart = nil
-					end
-				end 
-			end)
+		Name = "Range Visualizer",
+		Function = function(callback)
+			if callback then
+				--context issues moment
+			--[[	killaurarangecirclepart = Instance.new("MeshPart")
+				killaurarangecirclepart.MeshId = "rbxassetid://3726303797"
+				killaurarangecirclepart.Color = Color3.fromHSV(killauracolor["Hue"], killauracolor["Sat"], killauracolor.Value)
+				killaurarangecirclepart.CanCollide = false
+				killaurarangecirclepart.Anchored = true
+				killaurarangecirclepart.Material = Enum.Material.Neon
+				killaurarangecirclepart.Size = Vector3.new(killaurarange.Value * 0.7, 0.01, killaurarange.Value * 0.7)
+				if Killaura.Enabled then
+					killaurarangecirclepart.Parent = gameCamera
+				end
+				bedwars.QueryUtil:setQueryIgnored(killaurarangecirclepart, true)]]
+			else
+				if killaurarangecirclepart then
+					killaurarangecirclepart:Destroy()
+					killaurarangecirclepart = nil
+				end
+			end
 		end
 	})
 	killauraaimcircle = Killaura.CreateToggle({
-		Name = 'Aim Visualizer',
-		Function = function(calling)
-			if calling then 
-				killauraaimcirclepart = Instance.new('Part')
+		Name = "Aim Visualizer",
+		Function = function(callback)
+			if callback then
+				killauraaimcirclepart = Instance.new("Part")
 				killauraaimcirclepart.Shape = Enum.PartType.Ball
-				killauraaimcirclepart.Color = Color3.fromHSV(killauracolor['Hue'], killauracolor['Sat'], killauracolor.Value)
+				killauraaimcirclepart.Color = Color3.fromHSV(killauracolor["Hue"], killauracolor["Sat"], killauracolor.Value)
 				killauraaimcirclepart.CanCollide = false
 				killauraaimcirclepart.Anchored = true
 				killauraaimcirclepart.Material = Enum.Material.Neon
 				killauraaimcirclepart.Size = Vector3.new(0.5, 0.5, 0.5)
-				if Killaura.Enabled then 
+				if Killaura.Enabled then
 					killauraaimcirclepart.Parent = gameCamera
 				end
 				bedwars.QueryUtil:setQueryIgnored(killauraaimcirclepart, true)
 			else
-				if killauraaimcirclepart then 
+				if killauraaimcirclepart then
 					killauraaimcirclepart:Destroy()
 					killauraaimcirclepart = nil
 				end
@@ -3946,17 +3791,17 @@ run(function()
 		end
 	})
 	killauraparticle = Killaura.CreateToggle({
-		Name = 'Crit Particle',
-		Function = function(calling)
-			if calling then 
-				killauraparticlepart = Instance.new('Part')
+		Name = "Crit Particle",
+		Function = function(callback)
+			if callback then
+				killauraparticlepart = Instance.new("Part")
 				killauraparticlepart.Transparency = 1
 				killauraparticlepart.CanCollide = false
 				killauraparticlepart.Anchored = true
 				killauraparticlepart.Size = Vector3.new(3, 6, 3)
-				killauraparticlepart.Parent = gameCamera
+				killauraparticlepart.Parent = cam
 				bedwars.QueryUtil:setQueryIgnored(killauraparticlepart, true)
-				local particle = Instance.new('ParticleEmitter')
+				local particle = Instance.new("ParticleEmitter")
 				particle.Lifetime = NumberRange.new(0.5)
 				particle.Rate = 500
 				particle.Speed = NumberRange.new(0)
@@ -3965,97 +3810,54 @@ run(function()
 				particle.Size = NumberSequence.new(0.3)
 				particle.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(67, 10, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 98, 255))})
 				particle.Parent = killauraparticlepart
-				task.spawn(function()
-					repeat task.wait() until killauraparticlecolor.Object
-					particle.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(killauraparticlecolor.Hue, killauraparticlecolor.Sat, killauraparticlecolor.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(killauraparticlecolor.Hue, killauraparticlecolor.Sat, killauraparticlecolor.Value))})
-				end)
 			else
-				if killauraparticlepart then 
+				if killauraparticlepart then
 					killauraparticlepart:Destroy()
 					killauraparticlepart = nil
 				end
 			end
 		end
 	})
-	killauraparticlecolor = Killaura.CreateColorSlider({
-		Name = 'Crit Particle Color',
-		Function = function(h, s, v)
-			pcall(function() killauraparticlepart.ParticleEmitter.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(h, s, v)), ColorSequenceKeypoint.new(1, Color3.fromHSV(h, s, v))}) end)
-		end
-	})
 	killaurasound = Killaura.CreateToggle({
-		Name = 'No Swing Sound',
+		Name = "No Swing Sound",
 		Function = function() end,
-		HoverText = 'Removes the swinging sound.'
+		HoverText = "Removes the swinging sound."
 	})
 	killauraswing = Killaura.CreateToggle({
-		Name = 'No Swing',
+		Name = "No Swing",
 		Function = function() end,
-		HoverText = 'Removes the swinging animation.'
+		HoverText = "Removes the swinging animation."
 	})
 	killaurahandcheck = Killaura.CreateToggle({
-		Name = 'Limit to items',
+		Name = "Limit to items",
 		Function = function() end,
-		HoverText = 'Only attacks when your sword is held.'
-	})
-	killaurauseitems = Killaura.CreateToggle({
-		Name = 'Abilities',
-		HoverText = 'Abuses the abilities of items.',
-		Default = true,
-		Function = function() end
+		HoverText = "Only attacks when your sword is held."
 	})
 	killauraanimation = Killaura.CreateToggle({
-		Name = 'Custom Animation',
-		Function = function(calling)
-			if killauraanimationtween.Object then killauraanimationtween.Object.Visible = calling end
+		Name = "Custom Animation",
+		Function = function(callback)
+			if killauraanimationtween.Object then killauraanimationtween.Object.Visible = callback end
 		end,
-		HoverText = 'Uses a custom animation for swinging'
+		HoverText = "Uses a custom animation for swinging"
 	})
 	killauraanimationtween = Killaura.CreateToggle({
-		Name = 'No Tween',
+		Name = "No Tween",
 		Function = function() end,
-		HoverText = 'Disable\'s the in and out ease'
+		HoverText = "Disable's the in and out ease"
 	})
 	killauraanimationtween.Object.Visible = false
 	killaurasync = Killaura.CreateToggle({
-		Name = 'Synced Animation',
+		Name = "Synced Animation",
 		Function = function() end,
-		HoverText = 'Times animation with hit attempt'
+		HoverText = "Times animation with hit attempt"
 	})
 	killauranovape = Killaura.CreateToggle({
-		Name = 'No Vape',
+		Name = "No Vape",
 		Function = function() end,
-		HoverText = 'no hit vape user'
-	})
-	killauranorender = Killaura.CreateToggle({
-		Name = 'Ignore Render',
-		Function = function() if Killaura.Enabled then Killaura.ToggleButton(false) Killaura.ToggleButton(false) end end,
-		HoverText = 'ignores render users under your rank.\n(they can\'t attack you back :omegalol:)'
+		HoverText = "no hit vape user"
 	})
 	killauranovape.Object.Visible = false
-	killauranorender.Object.Visible = false
-	task.spawn(function()
-		repeat task.wait() until shared.vapewhitelist.loaded
-		killauranovape.Object.Visible = shared.vapewhitelist.localprio ~= 0
-	end)
-	--[[task.spawn(function()
-		repeat task.wait() until (RenderFunctions.whitelist.state > 0)
-		killauranorender.Object.Visible = (RenderFunctions.whitelist:get(3) > 1)
-	end)--]]
-end)
-
-task.spawn(function()
-	repeat 
-		killauraNearPlayer = (vapeTargetInfo.Targets.Killaura ~= nil)
-		task.wait()
-	until (not vapeInjected)
-end)
-
-task.spawn(function()
-	repeat task.wait() until shared.VapeFullyLoaded
-	if not Killaura.Enabled then
-		Killaura.ToggleButton(false)
-	end
+	shared.GuiLibrary.ObjectsThatCanBeSaved.KillauraOptionsButton.Api.ToggleButton(true)
 end)
 
 local LongJump = {Enabled = false}
