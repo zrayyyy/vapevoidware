@@ -13724,7 +13724,7 @@ end)--]]
 run(function()
 	local MelodyExploit = {Enabled = false}
 
-	MelodyExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({ -- how does this work? idk honestly
+	MelodyExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({ -- how does this work? idk honestly
 		Name = "MelodyExploit",
 		Function = function(callback)
 			if callback then
@@ -15033,7 +15033,7 @@ run(function() -- thank you SystemXVoid for letting me use this
 	   }
 	local function addEnchants()
 	end
-    enchantexploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+    enchantexploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
         Name = 'EnchantExploit',
         HoverText = 'Gives you most enchants.',
         Function = function(calling)
@@ -15063,7 +15063,7 @@ end)
 run(function() -- thank you SystemXVoid for letting me use this
     local RichExploit = {};
 	local ftick = 0
-    RichExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+    RichExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
         Name = "FortuneExploit",
         HoverText = "Makes you rich with fortune enchant :money:, CREDITS TO SYSTEMXVOID!",
         Function = function(calling)
@@ -15227,6 +15227,48 @@ run(function()
 	end
 
 	lplr_gui.ChildAdded:Connect(handle_new_ui)
+end)
+
+run(function()
+	local JellyFishExploit = {}
+	JellyFishExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = 'JellyFishExploit',
+		Function = function(calling)
+			if calling then 
+				if store.equippedKit == "marina" then
+					warningNotification("JellyFishExploit", "This will automatically use the marina kit function and place jellyfishes next to you", 5)
+					task.spaw(function()
+						local function getRandomVectorNearPlayer(player)
+							local playerPosition = player.Character and player.Character.HumanoidRootPart and player.Character.HumanoidRootPart.Position
+							if playerPosition then
+								local offsetX = math.random(-10, 10)
+								local offsetY = math.random(-5, 5)
+								local offsetZ = math.random(-10, 10)
+								return playerPosition + Vector3.new(offsetX, offsetY, offsetZ)
+							else
+								return nil
+							end
+						end
+						local player = game.Players.LocalPlayer
+						while JellyFishExploit.Enabled do
+							local args = {
+								[1] = "electrify_jellyfish"
+							}
+							game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/game-core:shared/game-core-networking@getEvents.Events"):WaitForChild("useAbility"):FireServer(unpack(args))
+							wait(0.1)
+							local args = {
+								[1] = getRandomVectorNearPlayer(player)
+							}
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestPlaceJellyfish"):InvokeServer(unpack(args))
+						end
+					end)
+				else
+					JellyFishExploit["ToggleButton"](false) 
+					warningNotification("JellyFishExploit", "Marina kit required!", 5)
+				end
+			end
+		end
+	})
 end)
 
 local ProtectedModules
