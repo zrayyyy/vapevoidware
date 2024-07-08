@@ -3128,8 +3128,8 @@ run(function()
 end)
 
 local killauraNearPlayer
+local Killaura = {Enabled = true}
 run(function()
-	local Killaura = {Enabled = true}
 	local killauraboxes = {}
 	local killauratargetframe = {Players = {Enabled = false}}
 	local killaurasortmethod = {Value = "Distance"}
@@ -4220,7 +4220,7 @@ run(function()
 				RunLoops:BindToHeartbeat("Phase", function()
 					if entityLibrary.isAlive and entityLibrary.character.Humanoid.MoveDirection ~= Vector3.zero and (not GuiLibrary.ObjectsThatCanBeSaved.SpiderOptionsButton.Api.Enabled or holdingshift) then
 						if PhaseDelay <= tick() then
-							raycastparameters.FilterDescendantsInstances = {store.blocks, collectionService:GetTagged("spawn-cage"), workspace.SpectatorPlatform}
+							raycastparameters.FilterDescendantsInstances = {store.blocks, collectionService:GetTagged("spawn-cage")} --workspace.SpectatorPlatform}
 							local PhaseRayCheck = workspace:Raycast(entityLibrary.character.Head.CFrame.p, entityLibrary.character.Humanoid.MoveDirection * 1.15, raycastparameters)
 							if PhaseRayCheck then
 								local PhaseDirection = (PhaseRayCheck.Normal.Z ~= 0 or not PhaseRayCheck.Instance:GetAttribute("GreedyBlock")) and "Z" or "X"
@@ -12587,7 +12587,7 @@ run(function()
     })
 end)
 
---[[run(function()
+run(function()
 	local ShellExploit = {}
 	local shells = {}
 	local function remove_esp(part)
@@ -12643,7 +12643,7 @@ end)
 			end
 		end
 	})
-end)--]]
+end)
 
 run(function()
 	local SpawnParts = {}
@@ -15171,9 +15171,79 @@ run(function()
 	})
 end)
 
+function IsAlive(plr)
+    plr = plr or lplr
+    if not plr.Character then return false end
+    if not plr.Character:FindFirstChild("Head") then return false end
+    if not plr.Character:FindFirstChild("Humanoid") then return false end
+    if plr.Character:FindFirstChild("Humanoid").Health < 0.11 then return false end
+    return true
+end
+
+run(function()
+    local GodMode = {Enabled = false}
+    GodMode = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = "Godmode",
+        Function = function(callback)
+            if callback then
+				spawn(function()
+					while task.wait() do
+						if (not GodMode.Enabled) then return end
+						if (not GuiLibrary.ObjectsThatCanBeSaved.FlyOptionsButton.Api.Enabled) and (not GuiLibrary.ObjectsThatCanBeSaved.InfiniteFlyOptionsButton.Api.Enabled) then
+							for i, v in pairs(game:GetService("Players"):GetChildren()) do
+								if v.Team ~= lplr.Team and IsAlive(v) and IsAlive(lplr) then
+									if v and v ~= lplr then
+										local TargetDistance = lplr:DistanceFromCharacter(v.Character:FindFirstChild("HumanoidRootPart").CFrame.p)
+										if TargetDistance < 25 then
+											if not lplr.Character.HumanoidRootPart:FindFirstChildOfClass("BodyVelocity") then
+												repeat task.wait() until store.matchState ~= 0
+												if not (v.Character.HumanoidRootPart.Velocity.Y < -10*5) then
+													lplr.Character.Archivable = true
+			
+													local Clone = lplr.Character:Clone()
+													Clone.Parent = workspace
+													Clone.Head:ClearAllChildren()
+													gameCamera.CameraSubject = Clone:FindFirstChild("Humanoid")
+				
+													for i,v in pairs(Clone:GetChildren()) do
+														if string.lower(v.ClassName):find("part") and v.Name ~= "HumanoidRootPart" then
+															v.Transparency = 1
+														end
+														if v:IsA("Accessory") then
+															v:FindFirstChild("Handle").Transparency = 1
+														end
+													end
+				
+													lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + Vector3.new(0,100000,0)
+				
+													game:GetService("RunService").RenderStepped:Connect(function()
+														if Clone ~= nil and Clone:FindFirstChild("HumanoidRootPart") then
+															Clone.HumanoidRootPart.Position = Vector3.new(lplr.Character.HumanoidRootPart.Position.X, Clone.HumanoidRootPart.Position.Y, lplr.Character.HumanoidRootPart.Position.Z)
+														end
+													end)
+				
+													task.wait(0.3)
+													lplr.Character.HumanoidRootPart.Velocity = Vector3.new(lplr.Character.HumanoidRootPart.Velocity.X, -1, lplr.Character.HumanoidRootPart.Velocity.Z)
+													lplr.Character.HumanoidRootPart.CFrame = Clone.HumanoidRootPart.CFrame
+													gameCamera.CameraSubject = lplr.Character:FindFirstChild("Humanoid")
+													Clone:Destroy()
+													task.wait(0.15)
+												end
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end)
+			end
+        end
+    })
+end)
+
 local ProtectedModules
 if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
 ProtectedModules.LoadModules(6872274481)
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
-
 shared.GlobalStore = store
