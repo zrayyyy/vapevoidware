@@ -651,8 +651,7 @@ local function AllNearPosition(distance, amount, checktab)
 end
 
 local sha = loadstring(vapeGithubRequest("Libraries/sha.lua"))()
-run(function()
-	local olduninject
+local olduninject
 	function whitelist:get(plr)
 		local plrstr = self:hash(plr.Name..plr.UserId)
 		for i,v in self.data.WhitelistedUsers do
@@ -1047,7 +1046,6 @@ run(function()
 		table.clear(whitelist.data)
 		table.clear(whitelist)
 	end})
-end)
 shared.vapewhitelist = whitelist
 
 if shared.vapewhitelist:get(lplr) == 0 then
@@ -8716,7 +8714,7 @@ if not isfile('vape/Libraries/DiscordDecision.txt') then
 	InfoNotification2("Voidware Discord", "Would you like to join Voidware?", 100000000, interactable_buttons_table)
 end
 
-run(function()
+--[[run(function()
     local CameraUnlocker = {["Enabled"] = false}
 	local CameraUnlockerMode = {Value = 'Infinite'}
     local CameraUnlockerSlider = {["Value"] = 200}
@@ -8759,4 +8757,4 @@ run(function()
         Name = 'CreditsButtonInstance',
         Credits = 'Mont'
     })
-end)
+end)--]]
