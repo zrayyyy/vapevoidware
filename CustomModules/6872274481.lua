@@ -3127,8 +3127,8 @@ run(function()
 	})
 end)
 
-local killauraNearPlayer
 local Killaura = {Enabled = true}
+local killauraNearPlayer
 run(function()
 	local killauraboxes = {}
 	local killauratargetframe = {Players = {Enabled = false}}
@@ -3148,6 +3148,7 @@ run(function()
 	local killaurasound = {Enabled = false}
 	local killauraswing = {Enabled = false}
 	local killaurasync = {Enabled = false}
+	local killaurahitdelay = {Enabled = false}
 	local killaurahandcheck = {Enabled = false}
 	local killauraanimation = {Enabled = false}
 	local killauraanimationtween = {Enabled = false}
@@ -3268,7 +3269,7 @@ run(function()
 		},
 		Leaked = {
 			{CFrame = CFrame.new(0.7, -0.7, 0.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0},
-			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(16), math.rad(59), math.rad(-90)), Time = 0.075},
+			{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(16), math.rad(59), math.rad(-90)), Time = 0.156},
 			{CFrame = CFrame.new(0.7, -0.7, 0.6) * CFrame.Angles(math.rad(-16), math.rad(60), math.rad(-80)), Time = 0.075}
 		},
 		Slide2 = {
@@ -3491,7 +3492,8 @@ run(function()
 											end
 										end
 									end
-									if (workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < 0.02 then
+									local delayval = killaurahitdelay.Value / 100
+									if (workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < delayval then
 										break
 									end
 									local selfpos = selfrootpos + (killaurarange.Value > 14 and (selfrootpos - root.Position).magnitude > 14.4 and (CFrame.lookAt(selfrootpos, root.Position).lookVector * ((selfrootpos - root.Position).magnitude - 14)) or Vector3.zero)
@@ -3600,6 +3602,15 @@ run(function()
 			end
 		end,
 		Default = 18
+	})
+	killaurahitdelay = Killaura.CreateSlider({
+		Name = "Hit Delay",
+		Min = 0,
+		Max = 10,
+		Function = function(val)
+
+		end,
+		Default = 2
 	})
 	killauraangle = Killaura.CreateSlider({
 		Name = "Max angle",
