@@ -15249,7 +15249,7 @@ run(function()
 								return nil
 							end
 						end
-						local player = game.Players.LocalPlayer
+						local player = lplr
 						while JellyFishExploit.Enabled do
 							local args = {
 								[1] = "electrify_jellyfish"
