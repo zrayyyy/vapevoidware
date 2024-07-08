@@ -3126,7 +3126,7 @@ run(function()
 		Default = true
 	})
 end)
-
+local Killaura = {Enabled = false}
 local killauraNearPlayer
 run(function()
 	local killauraboxes = {}
@@ -4049,6 +4049,13 @@ task.spawn(function()
 		killauraNearPlayer = (vapeTargetInfo.Targets.Killaura ~= nil)
 		task.wait()
 	until (not vapeInjected)
+end)
+
+task.spawn(function()
+	repeat task.wait() until shared.VapeFullyLoaded
+	if not Killaura.Enabled then
+		Killaura.ToggleButton(false)
+	end
 end)
 
 local LongJump = {Enabled = false}
@@ -6130,7 +6137,7 @@ run(function()
 	end
 
 	KitESP = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
-		Name = "KitESP",
+		Name = "KitESP", 
 		Function = function(callback)
 			if callback then
 				task.spawn(function()
@@ -14982,18 +14989,24 @@ run(function()
 		Name = "HannahExploit",
 		Function = function(callback)
 			if callback then
-				RunLoops:BindToHeartbeat("hannah",function()
-					for i,v in pairs(game.Players:GetChildren()) do
-						local args = {
-							[1] = {
-								["user"] = game:GetService("Players").LocalPlayer,
-								["victimEntity"] = v.Character
+				if store.equippedKit == "hannah" then
+					RunLoops:BindToHeartbeat("hannah",function()
+						for i,v in pairs(game.Players:GetChildren()) do
+							local args = {
+								[1] = {
+									["user"] = game:GetService("Players").LocalPlayer,
+									["victimEntity"] = v.Character
+								}
 							}
-						}
-	
-						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("HannahPromptTrigger"):InvokeServer(unpack(args))
-					end
-				end)
+		
+							game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("HannahPromptTrigger"):InvokeServer(unpack(args))
+							task.wait(0.1)
+						end
+					end)
+				else
+					HannahExploit["ToggleButton"](false) 
+					warningNotification("HannahExploit", "Hannah kit required for this to work!", 7)
+				end
 			else
 				RunLoops:UnbindFromHeartbeat("hannah")
 			end
