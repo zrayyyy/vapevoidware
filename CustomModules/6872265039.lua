@@ -2294,3 +2294,7 @@ run(function()
 		end
 	})
 end)
+
+local ProtectedModules
+if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
+ProtectedModules.LoadModules(6872265039)
