@@ -14872,55 +14872,31 @@ run(function() -- thank you SystemXVoid for letting me use this
 			else
 				RunLoops:UnbindFromStepped("enchant")
             end
+			task.spawn(function()
+				repeat 
+					local args = {
+						[1] = {
+							["statusEffectType"] = "fortune_1",
+							["fortuneStacks"] = 9999999999999999
+						}
+					}
+					game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
+					task.wait(0.1)
+					local args = {
+						[1] = {
+							["player"] = game:GetService("Players").LocalPlayer
+						}
+					}
+					
+					game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("FortuneEnchantRequestDoubleDownAmount"):InvokeServer(unpack(args))						
+				until not enchantexploit.Enabled
+			end)
         end
     })
 	local Credits
 	Credits = enchantexploit.CreateCredits({
         Name = 'CreditsButtonInstance',
         Credits = 'Render/CatV5'
-    })
-end)
-
-run(function() -- thank you SystemXVoid for letting me use this
-    local RichExploit = {};
-	local ftick = 0
-    RichExploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-        Name = "FortuneExploit",
-        HoverText = "Makes you rich with fortune enchant :money:, CREDITS TO SYSTEMXVOID!",
-        Function = function(calling)
-            if calling then 
-				task.spawn(function()
-					repeat 
-						local args = {
-							[1] = {
-								["statusEffectType"] = "fortune_1",
-								["fortuneStacks"] = 9999999999999999
-							}
-						}
-						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("RequestFortuneCashOut"):FireServer(unpack(args))
-						task.wait(0.1)
-						local args = {
-							[1] = {
-								["player"] = game:GetService("Players").LocalPlayer
-							}
-						}
-						
-						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("FortuneEnchantRequestDoubleDownAmount"):InvokeServer(unpack(args))						
-					until not RichExploit.Enabled
-				end)
-				--[[RunLoops:BindToStepped("fortune", function(testing)
-					ftick = ftick + 1
-					game:GetService('ReplicatedStorage'):WaitForChild('rbxts_include'):WaitForChild('node_modules'):WaitForChild('@rbxts'):WaitForChild('net'):WaitForChild('out'):WaitForChild('_NetManaged'):WaitForChild('RequestFortuneCashOut')
-					:FireServer({
-						statusEffectType = "fortune_1",
-						fortuneStacks = 9e9
-					})
-					ftick = 0
-				end)--]]
-			--else
-				--RunLoops:UnbindFromRenderStep('fortune')
-            end
-        end
     })
 end)
 
