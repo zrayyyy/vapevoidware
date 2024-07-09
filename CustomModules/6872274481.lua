@@ -12598,7 +12598,7 @@ run(function()
     })
 end)
 
-run(function()
+--[[run(function()
 	local ShellExploit = {}
 	local shells = {}
 	local function remove_esp(part)
@@ -12654,7 +12654,7 @@ run(function()
 			end
 		end
 	})
-end)
+end)--]]
 
 run(function()
 	local SpawnParts = {}
@@ -15032,4 +15032,25 @@ local ProtectedModules
 pcall(function()
 	if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
 	ProtectedModules.LoadModules(6872274481)
+end)
+
+run(function()
+	local JellyFishExploit = {}
+	JellyFishExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = 'JellyFishExploit',
+		Function = function(calling)
+			if calling then 
+				task.spawn(function()
+					repeat
+						local args = {
+							[1] = "electrify_jellyfish"
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/game-core:shared/game-core-networking@getEvents.Events"):WaitForChild("useAbility"):FireServer(unpack(args))
+						wait(0.1)
+					until not JellyFishExploit.Enabled						
+				end)
+			end
+		end
+	})
 end)
