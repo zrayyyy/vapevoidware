@@ -14853,6 +14853,11 @@ run(function() -- thank you SystemXVoid for letting me use this
         HoverText = 'Gives you most enchants.',
         Function = function(calling)
             if calling then 
+				pcall(function()
+					if shared.GuiLibrary.ObjectsThatCanBeSaved["Lobby CheckToggle"].Enabled then else
+						shared.GuiLibrary.ObjectsThatCanBeSaved["Lobby CheckToggle"].Api.ToggleButton()
+				   end
+				end)
 				et = 0
 				RunLoops:BindToStepped("enchant",function()
 					et = et + 1
