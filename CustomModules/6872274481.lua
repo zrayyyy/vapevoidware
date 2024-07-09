@@ -14858,6 +14858,7 @@ run(function() -- thank you SystemXVoid for letting me use this
 						shared.GuiLibrary.ObjectsThatCanBeSaved["Lobby CheckToggle"].Api.ToggleButton()
 				   end
 				end)
+				warningNotification("Dupe", "This module might not work every time! Use it before the match starts", 5)
 				et = 0
 				RunLoops:BindToStepped("enchant",function()
 					et = et + 1
