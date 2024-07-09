@@ -14849,8 +14849,8 @@ run(function() -- thank you SystemXVoid for letting me use this
 	local function addEnchants()
 	end
     enchantexploit = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
-        Name = 'EnchantExploit',
-        HoverText = 'Gives you most enchants.',
+        Name = 'Dupe',
+        HoverText = 'Gives u stuff.',
         Function = function(calling)
             if calling then 
 				pcall(function()
