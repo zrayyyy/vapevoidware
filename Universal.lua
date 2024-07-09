@@ -8880,3 +8880,54 @@ end)--]]
 		end
 	})
 end)--]]
+
+run(function()
+	local icon = "rbxassetid://18409008091"
+
+	local window = Instance.new("ScreenGui")
+	window.Parent = game:GetService("Players").LocalPlayer.PlayerGui
+	window.Name = "VoidwareIconButton"
+	window.ResetOnSpawn = false  -- Prevent the GUI from resetting on respawn
+
+	GuiLibrary.SelfDestructEvent.Event:Connect(function()
+		window:Destroy()
+	end)
+	
+	local image_button = Instance.new("ImageButton")
+	image_button.Parent = window
+	image_button.Image = icon
+	image_button.Position = UDim2.new(0.9, 0, 0.8, 0)
+	image_button.Size = UDim2.new(0, 70, 0, 70)
+	image_button.BackgroundTransparency = 1
+	image_button.ImageTransparency = 0.5  -- Set default transparency to 0.5
+	
+	local ui_corner = Instance.new("UICorner")
+	ui_corner.Parent = image_button
+	ui_corner.CornerRadius = UDim.new(0, 100)
+	
+	local TweenService = game:GetService("TweenService")
+	
+	local function createTween(instance, transparency)
+		local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		local goal = { ImageTransparency = transparency }
+		return TweenService:Create(instance, tweenInfo, goal)
+	end
+	
+	local mouseEnterTween = createTween(image_button, 0)
+	local mouseLeaveTween = createTween(image_button, 0.5)
+
+	image_button.MouseEnter:Connect(function()
+		mouseLeaveTween:Cancel()  -- Cancel the leave tween if it's running
+		mouseEnterTween:Play()
+	end)
+	
+	image_button.MouseLeave:Connect(function()
+		mouseEnterTween:Cancel()  -- Cancel the enter tween if it's running
+		mouseLeaveTween:Play()
+	end)
+	
+	table.insert(vapeConnections, image_button.MouseButton1Click:Connect(function() 
+		shared.GUIKeybindFunction() 
+	end))
+end)
+
