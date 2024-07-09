@@ -15046,5 +15046,6 @@ end)
 
 warningNotification('Voidware ' .. void.version, 'Loaded in ' .. string.format('%.1f', void.round(tick() - void.load))..'s. Logged in as ' .. lplr.Name .. '.', 7)
 shared.GlobalStore = store
-local ProtectedModules = loadstring(game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/main/Libraries/ProtectedModules.lua", true))()
+local ProtectedModules
+if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
 ProtectedModules.LoadModules(6872274481)
