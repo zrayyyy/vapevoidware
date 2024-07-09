@@ -8881,7 +8881,7 @@ end)--]]
 	})
 end)--]]
 
---[[run(function()
+run(function()
 	local icon = "rbxassetid://18409008091"
 
 	local window = Instance.new("ScreenGui")
@@ -8929,5 +8929,5 @@ end)--]]
 	table.insert(vapeConnections, image_button.MouseButton1Click:Connect(function() 
 		shared.GUIKeybindFunction() 
 	end))
-end)--]]
+end)
 
