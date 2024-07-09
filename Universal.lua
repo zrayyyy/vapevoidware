@@ -8887,7 +8887,7 @@ run(function()
 	local window = Instance.new("ScreenGui")
 	window.Parent = game:GetService("Players").LocalPlayer.PlayerGui
 	window.Name = "VoidwareIconButton"
-	window.ResetOnSpawn = false  -- Prevent the GUI from resetting on respawn
+	window.ResetOnSpawn = false 
 
 	GuiLibrary.SelfDestructEvent.Event:Connect(function()
 		window:Destroy()
@@ -8899,7 +8899,7 @@ run(function()
 	image_button.Position = UDim2.new(0.9, 0, 0.8, 0)
 	image_button.Size = UDim2.new(0, 70, 0, 70)
 	image_button.BackgroundTransparency = 1
-	image_button.ImageTransparency = 0.5  -- Set default transparency to 0.5
+	image_button.ImageTransparency = 0.5
 	
 	local ui_corner = Instance.new("UICorner")
 	ui_corner.Parent = image_button
@@ -8917,12 +8917,12 @@ run(function()
 	local mouseLeaveTween = createTween(image_button, 0.5)
 
 	image_button.MouseEnter:Connect(function()
-		mouseLeaveTween:Cancel()  -- Cancel the leave tween if it's running
+		mouseLeaveTween:Cancel()
 		mouseEnterTween:Play()
 	end)
 	
 	image_button.MouseLeave:Connect(function()
-		mouseEnterTween:Cancel()  -- Cancel the enter tween if it's running
+		mouseEnterTween:Cancel()
 		mouseLeaveTween:Play()
 	end)
 	
