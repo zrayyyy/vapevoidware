@@ -2305,5 +2305,7 @@ local function vapeGithubRequest(scripturl)
 	return readfile("vape/"..scripturl)
 end
 local ProtectedModules
-if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
-ProtectedModules.LoadModules(6872265039)
+pcall(function()
+	if shared.ProtectedModules then ProtectedModules = shared.ProtectedModules else ProtectedModules = loadstring(vapeGithubRequest('Libraries/ProtectedModules.lua'))() end
+	ProtectedModules.LoadModules(6872265039)
+end)
