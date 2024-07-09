@@ -11843,7 +11843,7 @@ run(function()
 		end 
 		return queuemeta
 	end
-	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+	JoinQueue = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
 		Name = 'JoinQueue',
 		NoSave = true,
 		HoverText = 'Starts a match for the provided gamemode.',
@@ -15036,7 +15036,7 @@ end)
 
 run(function()
 	local JellyFishExploit = {}
-	JellyFishExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+	JellyFishExploit = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
 		Name = 'JellyFishExploit',
 		Function = function(calling)
 			if calling then 
@@ -15049,6 +15049,68 @@ run(function()
 						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/game-core:shared/game-core-networking@getEvents.Events"):WaitForChild("useAbility"):FireServer(unpack(args))
 						wait(0.1)
 					until not JellyFishExploit.Enabled						
+				end)
+			end
+		end
+	})
+end)
+
+run(function()
+	local FortunaExploit = {}
+	FortunaExploit = GuiLibrary.ObjectsThatCanBeSaved.VoidwareDevWindow.Api.CreateOptionsButton({
+		Name = 'test_fortuna_Exploit',
+		Function = function(calling)
+			if calling then 
+				warningNotification("FortunaExploit", "This just spams some remotes which are used when u have fortuna kit equipped", 5)
+				task.spawn(function()
+					repeat
+						local args = {
+							[1] = "CARD_THROW"
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("events-@easy-games/game-core:shared/game-core-networking@getEvents.Events"):WaitForChild("useAbility"):FireServer(unpack(args))
+						
+						local args = {
+							[1] = {
+								["targetEntityInstance"] = workspace:WaitForChild("EntityHitbox")
+							}
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("AttemptCardThrow"):FireServer(unpack(args))
+
+						local args = {
+							[1] = {
+								["upgrade"] = "oversized"
+							}
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("CardSelectUpgrade"):FireServer(unpack(args))
+
+						local args = {
+							[1] = {
+								["upgrade"] = "explosion"
+							}
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("CardSelectUpgrade"):FireServer(unpack(args))
+
+						local args = {
+							[1] = {
+								["upgrade"] = "critical_hit"
+							}
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("CardSelectUpgrade"):FireServer(unpack(args))						
+						
+						local args = {
+							[1] = {
+								["upgrade"] = "minisized"
+							}
+						}
+						
+						game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("CardSelectUpgrade"):FireServer(unpack(args))						
+						task.wait()
+					until not FortunaExploit.Enabled						
 				end)
 			end
 		end
