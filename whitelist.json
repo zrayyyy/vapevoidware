@@ -1,0 +1,345 @@
+{
+  "WhitelistedUsers": {
+    "841741831556825088": {
+      "hash": "a1ed6084df34a27382219dc3a3d616650135ba3227ae913ec6461c74e5bf788553d719c5a94a283be26e6c7889480df015e9fe325afb2031fdf069a66a8e157f",
+      "attackable": false,
+      "level": 2,
+      "tags": [
+        {
+          "text": "VOIDWARE OWNER",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "1218320917709590592": {
+      "hash": "28fff52f7bd1f810b3791de626977f36a0a07d5c9086be1e1b14a2c12975856c801763f2dc84bfb242c07b207f7f91462d8b8b769c08c0dd8a169b09f38bcb2e",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "SEXSPLOIT USER",
+          "color": [
+            192,
+            48,
+            255
+          ]
+        }
+      ]
+    },
+    "1146168300150214716": {
+      "hash": "cab9c63da7b041bf79614091458fb84f0b4e41eec0b34f10acbbbe29debc36f9ee1554f72ee0d431fc8750f995bde2c03a04a5520106a19e393e0cfdb4bf5f7b",
+      "attackable": false,
+      "level": 2,
+      "tags": [
+        {
+          "text": "SALAD",
+          "color": [
+            0,
+            0,
+            255
+          ]
+        }
+      ]
+    },
+    "691944570312851556": {
+      "hash": "9df10ca007ba765400f3ce7aa3b4a8ad10e4718400aa2570daf91ad081f28653af786ea26625596e459333d4f5016860feeb7389c475cadf89b2002391e786ad",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "skibidi rizzler",
+          "color": [
+            255,
+            255,
+            0
+          ]
+        }
+      ]
+    },
+    "998979962948288634": {
+      "hash": "0db791ea05bdc7876a8057e7d6b90794527e754c2287e6857c525fef872355deb5d1df890463316020462103d32e85527c5e30f517c2874e6a1be57a85c55fab",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "RENDER DEVELOPER (REAL)",
+          "color": [
+            191,
+            64,
+            191
+          ]
+        }
+      ]
+    },
+    "1247287578714177597": {
+      "hash": "addfb8dacef2afec47a1f9f8d59c0c8f70921eacbfd0b31fdf2bf9dd797d6c4badd3031a4a84247b2147173850032a709ad5044d716bbd7b6965a1f475fd900f",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "VOIDWARE PRIVATE USER",
+          "color": [
+            25,
+            25,
+            112
+          ]
+        }
+      ]
+    },
+    "1032919756409405480": {
+      "hash": "8bdda0a8581db9fde262a871c6631e22317651d9fff2a461743a384ca602f0ba0b62a003a13c21af3860293834677a4721e63aec2250d262082bab9a022816cd",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "VAPE PRIVATE",
+          "color": [
+            93,
+            63,
+            211
+          ]
+        }
+      ]
+    },
+    "981187721647243274": {
+      "hash": "a372d24bdfe7d71c06dad9c0518c25cdb20182e7da48f0a50560b7e19625e7122050f35c92ff7b4ccd0d956acce8be003968cb86a7011949111328df43733130",
+      "attackable": false,
+      "level": 0,
+      "tags": [
+        {
+          "text": "epicgamer9995837",
+          "color": [
+            12,
+            4,
+            196
+          ]
+        }
+      ]
+    },
+    "default": {
+      "hash": "defaultdata",
+      "attackable": true,
+      "level": 0,
+      "tags": [
+        {
+          "text": "VOIDWARE USER",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "1187823462312587285": {
+      "hash": "a986d3f05f135f1cb5a98dd71b99d15af40800fbe7e4c426e7ae5ffbf2db074a8bb01843b2915de9f811110134d06315bac767504d733af2cfdac4b656f20475",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "Voidware Loser Trust",
+          "color": [
+            51,
+            54,
+            255
+          ]
+        }
+      ]
+    },
+    "1030465303576051840": {
+      "hash": "b2517f3cdfecef4531761238132ddd080ed577772c5b12198c8c2b65576403bf3c06b1f099f079c4d77a0fd5028c2f29ec518da47241682240a277b28857e0f8",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "voidware-helper",
+          "color": [
+            0,
+            0,
+            139
+          ]
+        }
+      ]
+    },
+    "880304650769813515": {
+      "hash": "b1767d24bbfde962e92d0b19c6e802215f006a8904403f7971f055178534e9cac389920b31791b2ad9c823eaff7325ab6e86cef43c771d479018e273f6d26941",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "xylex private",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "893711114624450612": {
+      "hash": "889f1807feefa292c9e29b2ad7980cdc6871ac62b21769c61e35e92b3b11ce9d204b9c655b65cf8c96b2c1db36302b914dc680075bc3403045afebad32b68eb5",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "Voidware Owner",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "681755098447347722": {
+      "hash": "7ae679208958cdf7a3249d47c4788c1a1966c23f2e00dffa6d6495db5b260f0d8f4f71372a5a5e5e13231cfa92a2d01e75e572ec40c96f6e8e2cb76a77fffe2e",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "VOIDWARE PRIVATE",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "752162773802156074": {
+      "hash": "9f132651b8beb275fd2b7185cf2c0aa335c114c4298aba3cea142800cb233535c8dacfb1bb24e2ff79bc58fe6ee7577117d31ed71e7c9e8eecdac79ac789ae4e",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "VOIDWARE PRIVATE",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "1217850393090855047": {
+      "hash": "d0fae355f3e180ab21872172619d878b37bb89d0849b0b545427289d4b80d82e95ec052c4ad5b08ce9a68c557dd918a93c2ac6fd1740707948c3a58f19bba157",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "Saddam",
+          "color": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    "931054785745006614": {
+      "hash": "49efd40c2ae29373b1caa21b8b1eabf7773f9958895602eab63d4d89505ac4c043420f0527be29bf6385f1d8b3791bbdb6bdb47f32856403f2d87e8062d21a44",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "VOIDWARE PRIVATE",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "1113988383086215240": {
+      "hash": "c3ddc8bd77d41f4e49c1c6dbbd87f083fad3593caae6b9ab91349f62a039c3cb4ed4d85e69379cb3e6ab62fc48027a30190d7fd1652949aa9b4610da84278835",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "hi",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "1252635575916302407": {
+      "hash": "333034b43646be249f336d615311181cb56a121cc28caa56904a2951b9476f55f081fafe4542f08b6c282ef447fa69b82a74ceacb96a649bf3fc6819c7755904",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "chang3d",
+          "color": [
+            9,
+            79,
+            255
+          ]
+        }
+      ]
+    },
+    "905662622555340851": {
+      "hash": "0fa3430594f6a33578362c2b911d77c3b725dcbf8315121e2ef6df77ad935baad2fec8b50e2b356e762c2c871617cb68ca180e892f9d47a428061ba4847c18ef",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "VOIDWARE PRIVATE",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "1216774052832612472": {
+      "hash": "c6981ced1689fe601bac3fdf4b73b8df75c2d2e23527654571af3f47c6685ccf9a4ccf91e3d1fb342e5b2a410a3177fe3582cd23a03f8aef9a42d7861cfbf750",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "C.O.L.O.S.S.A.L G.O.D",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    },
+    "851814242566275144": {
+      "hash": "a986d3f05f135f1cb5a98dd71b99d15af40800fbe7e4c426e7ae5ffbf2db074a8bb01843b2915de9f811110134d06315bac767504d733af2cfdac4b656f20475",
+      "attackable": false,
+      "level": 1,
+      "tags": [
+        {
+          "text": "Voidware Assistant Developer",
+          "color": [
+            210,
+            43,
+            43
+          ]
+        }
+      ]
+    }
+  },
+  "WhitelistedTags": {},
+  "BlacklistedUsers": {
+    "4386575635": "-",
+    "6039937176": ":troll: dont try to ping everyone next time lmao"
+  },
+  "Announcement": {
+    "text": "oh its just garbage, ok then",
+    "expiretime": 1713556199.3487132,
+    "targets": "all"
+  },
+  "KillVape": false
+}
